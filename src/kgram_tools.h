@@ -76,7 +76,6 @@ public:
             }
             output << " )";
         }
-
         return output;
     }    
 
@@ -88,6 +87,7 @@ public:
             ++i;
         }
         output << " }";
+        return output;
     }
 };
 
