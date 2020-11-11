@@ -9,7 +9,7 @@ std::ostream &operator<<(std::ostream &stream, const km2_asm_unit &unit) {
     return stream;
 }
 
-km2_asm_unit km2_produce_asm_unit(const kgram_variant_t &variant) {
+km2_asm_unit km2_produce_asm_unit(const wall_e::variant &variant) {
     km2_asm_unit unit;
     if(variant.contains_type<kgram_arg_vector_t>()) {
         const auto vec = variant.value<kgram_arg_vector_t>();

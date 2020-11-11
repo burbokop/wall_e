@@ -4,8 +4,8 @@
 
 #include <string>
 #include <vector>
-#include "kgramvariant.h"
-#include "klex.h"
+#include "variant.h"
+#include "lex.h"
 
 
 
@@ -19,12 +19,12 @@ class km2_function {
 public:
     km2_function() {};
     km2_function(const std::string &name, const std::vector<std::string> &typenames);
-    km2_function(const std::string &name, const std::vector<std::pair<klex_token_t, klex_token_t> > &typenames);
+    km2_function(const std::string &name, const std::vector<std::pair<wall_e::lex::token, wall_e::lex::token> > &typenames);
     std::string originalName() const;
     std::string fullName() const;
     std::vector<std::string> argTypes() const;
 
-    static km2_function choose_overload(const std::list<km2_function> &overloads, const kgram_variant_vector &args, const std::function<bool(const std::string&, const kgram_variant_t&)> &matchRule);
+    static km2_function choose_overload(const std::list<km2_function> &overloads, const wall_e::variant_vector &args, const std::function<bool(const std::string&, const wall_e::variant&)> &matchRule);
     static std::list<km2_function> find_overloads(const std::string &name, const std::list<km2_function> &functions);
 };
 

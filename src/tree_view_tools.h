@@ -1,14 +1,14 @@
 #ifndef TREE_VIEW_TOOLS_H
 #define TREE_VIEW_TOOLS_H
 
-#include "kgramvariant.h"
+#include "variant.h"
 #include <iostream>
 
-int branch_width(const kgram_variant_t &branch);
+int branch_width(const wall_e::variant &branch);
 
 
-void print_tree(const kgram_variant_t &input, std::ostream &stream = std::cout);
+void print_tree(const wall_e::variant &input, std::ostream &stream = std::cout);
 
-void print_branch(const kgram_variant_t &branch, int x, int y, std::ostream &stream);
+void print_branch(const wall_e::variant &branch, int x, int y, std::ostream &stream);
 
 #endif // TREE_VIEW_TOOLS_H

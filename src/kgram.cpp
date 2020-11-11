@@ -87,7 +87,7 @@ kgram_call_mono_result kgram_null_call(kgram_token_iterator *it, const __kgram_f
         std::cout << K_GRAM_LEVEL << __kgram_c_warning << "n" << __kgram_c_end << "\n";
 
     const bool alwaysConfirm = false;
-    return kgram_call_mono_result(kgram_variant_t(), alwaysConfirm ? true : !it->isValid());
+    return kgram_call_mono_result(wall_e::variant(), alwaysConfirm ? true : !it->isValid());
 }
 
 
@@ -117,7 +117,7 @@ kgram_call_result kgram_conjunction_call(const std::vector<kgram_rule_t> &conjun
 
         args[i] = tmp_result.arg;
 
-        if(tmp_result.arg.contains_type<klex_token_t>()) {
+        if(tmp_result.arg.contains_type<wall_e::lex::token>()) {
             if(flags.verbose)
                 std::cout << K_GRAM_LEVEL << __kgram_c_warning << "++" << __kgram_c_end << "\n";
             it->next();
@@ -206,7 +206,7 @@ kgram_call_mono_result kgram_call(const kgram_pattern_t &p, kgram_token_iterator
 }
 
 
-kgram_argument_t kgram_exec(const std::list<kgram_pattern_t> &pattens, const std::vector<klex_token_t> &tokens, const std::list<kgram_flags> flags) {
+kgram_argument_t kgram_exec(const std::list<kgram_pattern_t> &pattens, const std::vector<wall_e::lex::token> &tokens, const std::list<kgram_flags> flags) {
     __kgram_flags_private __flags;
 
     for(auto f : flags) {

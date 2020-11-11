@@ -1,8 +1,12 @@
-#include "klex.h"
+#include "lex.h"
 
 #include <cassert>
 
-std::vector<std::string> klex_get_reg(const std::regex &reg, const std::string &text) {
+namespace wall_e {
+namespace lex {
+
+
+std::vector<std::string> match(const std::regex &reg, const std::string &text) {
     std::sregex_token_iterator it(text.begin(), text.end(), reg);
     std::sregex_token_iterator end;
     std::vector<std::string> result;
@@ -14,14 +18,14 @@ std::vector<std::string> klex_get_reg(const std::regex &reg, const std::string &
 }
 
 
-void klex_remove_substrs(std::string *text, const std::string& pattern) {
+void remove_substrs(std::string *text, const std::string& pattern) {
     assert(text);
     std::string::size_type n = pattern.length();
     for (std::string::size_type i = text->find(pattern); i != std::string::npos; i = text->find(pattern))
         text->erase(i, n);
 }
 
-void klex_wipe_substrs(std::string *text, const std::string& pattern, char c) {
+void wipe_substrs(std::string *text, const std::string& pattern, char c) {
     assert(text);
     std::string cc;
     cc.resize(1, c);
@@ -35,34 +39,34 @@ void klex_wipe_substrs(std::string *text, const std::string& pattern, char c) {
     }
 }
 
-std::vector<klex_token_t> klex_get_tokents(std::string text, const std::list<klex_patern_t> &paternlist) {
-    std::vector<klex_token_t> result;
-    const auto rep = klex_find_repetition(paternlist);
+std::vector<token> get_tokents(std::string text, const std::list<pattern> &patternlist) {
+    std::vector<token> result;
+    const auto rep = find_repetition(patternlist);
     if(rep != std::string())
         throw std::runtime_error("klex_get_tokents: repetition found (" + rep + ")");
 
-    for(auto patern : paternlist) {
-        auto l = klex_get_reg(patern.reg, text);
+    for(auto pattern : patternlist) {
+        auto l = match(pattern.reg, text);
         for(auto ll : l) {
-            klex_remove_substrs(&text, ll);
+            remove_substrs(&text, ll);
             //klex_wipe_substrs(&text, ll);
-            klex_token_t token;
-            token.name = patern.name;
+            token token;
+            token.name = pattern.name;
             token.text = ll;
-            if(patern.name.size() > 0 && patern.name != "" && patern.name != "ignore" && patern.name != "null") {
+            if(pattern.name.size() > 0 && pattern.name != "" && pattern.name != "ignore" && pattern.name != "null") {
                 result.push_back(token);
             }
         }
     }
 
     for(auto c : text) {
-        klex_token_t errt;
+        token errt;
         errt.name = "error";
         errt.text = c;
         result.push_back(errt);
     }
 
-    std::sort(result.begin(), result.end(), [](const klex_token_t &a, const klex_token_t &b) {
+    std::sort(result.begin(), result.end(), [](const token &a, const token &b) {
         return a.text.size() > b.text.size();
     });
 
@@ -70,7 +74,7 @@ std::vector<klex_token_t> klex_get_tokents(std::string text, const std::list<kle
 }
 
 
-std::vector<std::string::size_type> klex_get_all_occurrences(const std::string &text, const std::string &substring) {
+std::vector<std::string::size_type> get_all_occurrences(const std::string &text, const std::string &substring) {
     std::vector<std::string::size_type> result;
 
     size_t pos = text.find(substring, 0);
@@ -82,14 +86,14 @@ std::vector<std::string::size_type> klex_get_all_occurrences(const std::string &
     return result;
 }
 
-std::vector<klex_token_t> klex_sort_tokens(std::vector<klex_token_t> tokens, std::string text) {
-    std::sort(tokens.begin(), tokens.end(), [](const klex_token_t &a, const klex_token_t &b) { return a.text.size() > b.text.size(); });
+std::vector<token> sort_tokens(std::vector<token> tokens, std::string text) {
+    std::sort(tokens.begin(), tokens.end(), [](const token &a, const token &b) { return a.text.size() > b.text.size(); });
 
-    std::vector<klex_token_t> result;
-    std::map<std::string::size_type, klex_token_t> tokmap;
+    std::vector<token> result;
+    std::map<std::string::size_type, token> tokmap;
     for(auto t : tokens) {
-        auto o = klex_get_all_occurrences(text, t.text);
-        klex_wipe_substrs(&text, t.text);
+        auto o = get_all_occurrences(text, t.text);
+        wipe_substrs(&text, t.text);
         for(auto index : o) {
             if(index >= 0) {
                 t.position = index;
@@ -106,8 +110,8 @@ std::vector<klex_token_t> klex_sort_tokens(std::vector<klex_token_t> tokens, std
     return result;
 }
 
-std::string klex_find_repetition(const std::list<klex_patern_t> &patternlist) {
-    std::map<klex_patern_t, char> m;
+std::string find_repetition(const std::list<pattern> &patternlist) {
+    std::map<pattern, char> m;
     for(auto p : patternlist) {
         auto it = m.find(p);
         if(it != m.end()) {
@@ -118,20 +122,23 @@ std::string klex_find_repetition(const std::list<klex_patern_t> &patternlist) {
     return std::string();
 }
 
-bool operator <(const klex_patern_t &p1, const klex_patern_t &p2) {
+bool operator <(const pattern &p1, const pattern &p2) {
     return p1.name < p2.name;
 }
 
-std::string klex_to_string(const klex_token_t &token) {
+std::string to_string(const token &token) {
     std::stringstream ss;
     ss << token;
     return ss.str();
 }
 
-std::string klex_to_string(const std::vector<klex_token_t> &token, char separator) {
+std::string to_string(const std::vector<token> &token, char separator) {
     std::stringstream ss;
     for(auto t : token) {
         ss << t << separator;
     }
     return ss.str();
+}
+
+}
 }

@@ -1,14 +1,14 @@
 #ifndef KM2_TOKEN_TOOLS_H
 #define KM2_TOKEN_TOOLS_H
 
-#include "kgramvariant.h"
-#include "klex.h"
+#include "variant.h"
+#include "lex.h"
 
-std::vector<klex_token_t> km2_produce_tokens(const kgram_variant_t &variant, const std::list<std::string> names);
-kgram_variant_vector km2_remove_tokens(const kgram_variant_vector &variant, const std::list<std::string> tokens);
-std::vector<std::pair<klex_token_t, klex_token_t>> km2_produce_token_pairs(const kgram_variant_t &variant);
+std::vector<wall_e::lex::token> km2_produce_tokens(const wall_e::variant &variant, const std::list<std::string> names);
+wall_e::variant_vector km2_remove_tokens(const wall_e::variant_vector &variant, const std::list<std::string> tokens);
+std::vector<std::pair<wall_e::lex::token, wall_e::lex::token>> km2_produce_token_pairs(const wall_e::variant &variant);
 
-std::ostream &operator<< (std::ostream& stream, const std::vector<std::pair<klex_token_t, klex_token_t>>& vector);
+std::ostream &operator<< (std::ostream& stream, const std::vector<std::pair<wall_e::lex::token, wall_e::lex::token>>& vector);
 
 
 

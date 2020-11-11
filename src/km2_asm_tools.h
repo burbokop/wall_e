@@ -16,7 +16,7 @@ km2_asm_unit operator+ (const km2_asm_unit& unit1, const km2_asm_unit& unit2);
 
 bool operator== (const km2_asm_unit& unit1, const km2_asm_unit& unit2);
 
-km2_asm_unit km2_produce_asm_unit(const kgram_variant_t &variant);
+km2_asm_unit km2_produce_asm_unit(const wall_e::variant &variant);
 
 
 

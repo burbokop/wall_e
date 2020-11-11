@@ -13,7 +13,7 @@ std::vector<std::string> km2_function::argTypes() const {
     return m_argTypes;
 }
 
-km2_function km2_function::choose_overload(const std::list<km2_function> &overloads, const kgram_variant_vector &args, const std::function<bool (const std::string&, const kgram_variant_t&)> &matchRule) {
+km2_function km2_function::choose_overload(const std::list<km2_function> &overloads, const wall_e::variant_vector &args, const std::function<bool (const std::string&, const wall_e::variant&)> &matchRule) {
     for(auto o : overloads) {
         const auto types = o.argTypes();
         if(types.size() == args.size()) {
@@ -51,7 +51,7 @@ km2_function::km2_function(const std::string &name, const std::vector<std::strin
     m_fullName = produce_name(name, typenames);
 }
 
-km2_function::km2_function(const std::string &name, const std::vector<std::pair<klex_token_t, klex_token_t> > &typenames) {
+km2_function::km2_function(const std::string &name, const std::vector<std::pair<wall_e::lex::token, wall_e::lex::token> > &typenames) {
     std::vector<std::string> tn;
     tn.resize(typenames.size());
     for(size_t i = 0, count = typenames.size(); i < count; ++i) {

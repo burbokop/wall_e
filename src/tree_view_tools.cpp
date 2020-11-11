@@ -1,5 +1,5 @@
 #include "tree_view_tools.h"
-#include "klex.h"
+#include "lex.h"
 
 #include <iostream>
 
@@ -16,7 +16,7 @@ void kgram_getxy(int* x, int* y) {
 }
 
 
-void print_tree(const kgram_variant_t &input, std::ostream &stream) {
+void print_tree(const wall_e::variant &input, std::ostream &stream) {
     //system("clear");
     stream << "please install encoding: IBM850\n\nENTRY";
     initscr();
@@ -26,13 +26,13 @@ void print_tree(const kgram_variant_t &input, std::ostream &stream) {
     kgram_ctoxy(0, 20);
 }
 
-void print_branch(const kgram_variant_t &branch, int x, int y, std::ostream &stream) {
+void print_branch(const wall_e::variant &branch, int x, int y, std::ostream &stream) {
     kgram_ctoxy(x, y);
 
 
 
-    if(branch.contains_type<kgram_variant_vector>()) {
-        auto vec = branch.value<kgram_variant_vector>();
+    if(branch.contains_type<wall_e::variant_vector>()) {
+        auto vec = branch.value<wall_e::variant_vector>();
 
         int pos = 0;
         for(size_t i = 0, cnt = vec.size(); i < cnt; ++i) {
@@ -59,10 +59,10 @@ void print_branch(const kgram_variant_t &branch, int x, int y, std::ostream &str
             }
             pos += w;
         }
-    } else if(branch.contains_type<klex_token_t>()) {
+    } else if(branch.contains_type<wall_e::lex::token>()) {
         stream << char(179);
         kgram_ctoxy(x, y + 1);
-        auto token = branch.value<klex_token_t>();
+        auto token = branch.value<wall_e::lex::token>();
         stream << token.text;
     } else if(branch.contains_type<std::string>()) {
         stream << char(179);
@@ -74,16 +74,16 @@ void print_branch(const kgram_variant_t &branch, int x, int y, std::ostream &str
     }
 }
 
-int branch_width(const kgram_variant_t &branch) {
-    if(branch.contains_type<kgram_variant_vector>()) {
-        auto vec = branch.value<kgram_variant_vector>();
+int branch_width(const wall_e::variant &branch) {
+    if(branch.contains_type<wall_e::variant_vector>()) {
+        auto vec = branch.value<wall_e::variant_vector>();
         int count = 0;
         for(size_t i = 0, cnt = vec.size(); i < cnt; ++i) {
             count += branch_width(vec[i]);
         }
         return count;
-    } else if(branch.contains_type<klex_token_t>()) {
-        return branch.value<klex_token_t>().text.size();
+    } else if(branch.contains_type<wall_e::lex::token>()) {
+        return branch.value<wall_e::lex::token>().text.size();
     } else if(branch.contains_type<std::string>()) {
         return branch.value<std::string>().size();
     } else {

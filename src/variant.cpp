@@ -1,7 +1,10 @@
-#include "kgramvariant.h"
-#include "klex.h"
+#include "variant.h"
+#include "lex.h"
 
-std::ostream &operator<<(std::ostream &stream, const kgram_variant_t &arg) {
+
+namespace wall_e {
+
+std::ostream &operator<<(std::ostream &stream, const variant &arg) {
     if(arg.single_print()) {
         stream << "single print";
         return stream;
@@ -16,9 +19,9 @@ std::ostream &operator<<(std::ostream &stream, const kgram_variant_t &arg) {
     return stream;
 }
 
-std::ostream &operator<<(std::ostream &stream, const std::vector<kgram_variant_t> &vector) {
+std::ostream &operator<<(std::ostream &stream, const std::vector<variant> &vector) {
     stream << "[";
-    std::vector<kgram_variant_t>::size_type i = 0;
+    std::vector<variant>::size_type i = 0;
     for(auto v : vector) {
         stream << v;
         if(i < vector.size() - 1) {
@@ -29,9 +32,9 @@ std::ostream &operator<<(std::ostream &stream, const std::vector<kgram_variant_t
     return stream;
 }
 
-std::ostream &operator<<(std::ostream &stream, const std::list<kgram_variant_t> &list) {
+std::ostream &operator<<(std::ostream &stream, const std::list<variant> &list) {
     stream << "[";
-    std::vector<kgram_variant_t>::size_type i = 0;
+    std::vector<variant>::size_type i = 0;
     for(auto v : list) {
         stream << v;
         if(i < list.size() - 1) {
@@ -42,25 +45,25 @@ std::ostream &operator<<(std::ostream &stream, const std::list<kgram_variant_t> 
     return stream;
 }
 
-kgram_variant_vector kgram_variant_constrain(const kgram_variant_t &variant) {
-    kgram_variant_vector result;
-    if(variant.contains_type<kgram_variant_vector>()) {
-        const auto vec = variant.value<kgram_variant_vector>();
+variant_vector variant_constrain(const variant &variant) {
+    variant_vector result;
+    if(variant.contains_type<variant_vector>()) {
+        const auto vec = variant.value<variant_vector>();
         for(auto v : vec) {
-            auto c = kgram_variant_constrain(v);
+            auto c = variant_constrain(v);
             for(auto item : c) {
                 result.push_back(item);
             }
         }
-    } else if(variant.contains_type<kgram_variant_t>()) {
-        return { variant.value<kgram_variant_t>() };
+    } else if(variant.contains_type<wall_e::variant>()) {
+        return { variant.value<wall_e::variant>() };
     } else {
         return { variant };
     }
     return result;
 }
 
-bool operator==(const kgram_variant_t &varian0, const kgram_variant_t &varian1) {
+bool operator==(const variant &varian0, const variant &varian1) {
     if(varian0.type() != varian1.type())
         return false;
 
@@ -76,7 +79,7 @@ bool operator==(const kgram_variant_t &varian0, const kgram_variant_t &varian1) 
     return varian0.m_comparator(varian0.m_data, varian1.m_data);
 }
 
-double kgram_to_double(const kgram_variant_t &variant, bool *ok) {
+double to_double(const wall_e::variant &variant, bool *ok) {
     if(ok)
         *ok = true;
 
@@ -120,9 +123,9 @@ double kgram_to_double(const kgram_variant_t &variant, bool *ok) {
                 *ok = false;
             return 0;
         }
-    } else if(variant.contains_type<klex_token_t>()) {
+    } else if(variant.contains_type<wall_e::lex::token>()) {
         try {
-            return std::stod(variant.value<klex_token_t>().text);
+            return std::stod(variant.value<wall_e::lex::token>().text);
         } catch (std::invalid_argument) {
             if(ok)
                 *ok = false;
@@ -135,7 +138,7 @@ double kgram_to_double(const kgram_variant_t &variant, bool *ok) {
     return 0;
 }
 
-bool kgram_is_number(const kgram_variant_t &variant, std::string expected_token) {
+bool is_number(const variant &variant, std::string expected_token) {
     if(variant.contains_type<bool>()
     || variant.contains_type<char>()
     || variant.contains_type<signed char>()
@@ -154,21 +157,22 @@ bool kgram_is_number(const kgram_variant_t &variant, std::string expected_token)
     || variant.contains_type<long double>()) {
         return true;
     } else if(variant.contains_type<std::string>()) {
-        return kgram_is_number(variant.value<std::string>());
-    } else if(variant.contains_type<klex_token_t>()) {
+        return is_number(variant.value<std::string>());
+    } else if(variant.contains_type<wall_e::lex::token>()) {
         if(expected_token.size() > 0) {
-            return expected_token == variant.value<klex_token_t>().name;
+            return expected_token == variant.value<wall_e::lex::token>().name;
         } else {
-            return kgram_is_number(variant.value<klex_token_t>().text);
+            return is_number(variant.value<wall_e::lex::token>().text);
         }
     }
     return 0;
 }
 
-bool kgram_is_number(const std::string &string) {
+bool is_number(const std::string &string) {
     std::string::const_iterator it = string.begin();
     while (it != string.end() && std::isdigit(*it)) ++it;
     return !string.empty() && it == string.end();
 }
 
 
+}

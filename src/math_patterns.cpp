@@ -63,26 +63,26 @@ kgram_argument_t math_patterns::binary_int_operator(const kgram_arg_vector_t &ar
         //std::cout << args << "\n";
         int num0, num1;
         if(extract_number(args[0], &num0)
-                && args[1].contains_type<klex_token_t>()
+                && args[1].contains_type<wall_e::lex::token>()
                 && extract_number(args[2], &num1)
                 ) {
             for(auto el : l) {
-                if(el.first == args[1].value<klex_token_t>().name) {
+                if(el.first == args[1].value<wall_e::lex::token>().name) {
                     auto r = el.second(num0, num1);
                     //std::cout << num0 << " " << el.first << " " << num1 << " = " << r << "\n";
                     return r;
                 }
             }
-            std::cout << "[error] undefined operator" << args[1].value<klex_token_t>() << "\n";
+            std::cout << "[error] undefined operator" << args[1].value<wall_e::lex::token>() << "\n";
             return kgram_argument_t();
         } else if(false && extract_number(args[0], &num0)
-                  && args[1].contains_type<klex_token_t>()
+                  && args[1].contains_type<wall_e::lex::token>()
                   && args[2].contains_type<kgram_arg_vector_t>()) {
             const auto vec = args[2].value<kgram_arg_vector_t>();
             if(vec.size() > 2) {
                 bool firstIsNumber = extract_number(vec[0], nullptr);
-                if(vec[1].contains_type<klex_token_t>() && (firstIsNumber || extract_number(vec[2], nullptr))) {
-                    if(vec[1].value<klex_token_t>().name == args[1].value<klex_token_t>().name) {
+                if(vec[1].contains_type<wall_e::lex::token>() && (firstIsNumber || extract_number(vec[2], nullptr))) {
+                    if(vec[1].value<wall_e::lex::token>().name == args[1].value<wall_e::lex::token>().name) {
                         if(firstIsNumber) {
                             //std::cout << "refactored: " << kgram_arg_vector_t { vec[2], args[1], kgram_arg_vector_t { args[0], vec[1], vec[0] } };
                             return binary_int_operator(kgram_arg_vector_t { vec[2], args[1], kgram_arg_vector_t { args[0], vec[1], vec[0] } }, l);
@@ -116,8 +116,8 @@ bool math_patterns::extract_number(const kgram_argument_t &arg, int *number) {
         return true;
     } else if(arg.contains_type<std::string>()) {
         return extract_number_str(arg.value<std::string>(), number);
-    } else if(arg.contains_type<klex_token_t>()) {
-        return extract_number_str(arg.value<klex_token_t>().text, number);
+    } else if(arg.contains_type<wall_e::lex::token>()) {
+        return extract_number_str(arg.value<wall_e::lex::token>().text, number);
     }
     return false;
 }

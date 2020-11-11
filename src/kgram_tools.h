@@ -10,10 +10,10 @@
 #include <cxxabi.h>
 #include <cassert>
 
-#include "klex.h"
-#include "kgramvariant.h"
+#include "lex.h"
+#include "variant.h"
 
-typedef kgram_variant_t kgram_argument_t;
+typedef wall_e::variant kgram_argument_t;
 typedef std::vector<kgram_argument_t> kgram_arg_vector_t;
 
 
@@ -259,12 +259,12 @@ kgram_pattern_t kgram_find_pattern(const T &pattens, const std::string name) {
 }
 
 //template<typename T>
-//klex_token_t kgram_find_token(const T &tokens, const std::string name) {
+//wall_e::lex::token kgram_find_token(const T &tokens, const std::string name) {
 //    for(auto t : tokens) {
 //        if(t.name == name)
 //            return t;
 //    }
-//    klex_token_t result;
+//    wall_e::lex::token result;
 //    result.meta = 1;
 //    return result;
 //}
@@ -279,16 +279,16 @@ public:
 
 private:
     type_t m_type = Undefined;
-    std::variant<klex_token_t, kgram_pattern_t> m_data;
+    std::variant<wall_e::lex::token, kgram_pattern_t> m_data;
 public:
     kgram_item_t() { }
-    kgram_item_t(const klex_token_t &token) { m_data = token; m_type = Token; }
+    kgram_item_t(const wall_e::lex::token &token) { m_data = token; m_type = Token; }
     kgram_item_t(const kgram_pattern_t &pattern) { m_data = pattern; m_type = Pattern; }
 
-    klex_token_t token() const {
+    wall_e::lex::token token() const {
         if(m_type == Token)
-            return std::get<klex_token_t>(m_data);
-        return klex_token_t();
+            return std::get<wall_e::lex::token>(m_data);
+        return wall_e::lex::token();
     }
     kgram_pattern_t pattern() const {
         if(m_type == Pattern)
@@ -317,11 +317,11 @@ kgram_pattern_t &operator<< (kgram_pattern_t &pattern, std::function<kgram_argum
 kgram_pattern_t operator<< (kgram_pattern_t pattern, std::function<kgram_argument_t(kgram_arg_vector_t)> callback);
 
 class kgram_token_iterator {
-    std::vector<klex_token_t>::const_iterator it;
-    std::vector<klex_token_t>::const_iterator begin;
-    std::vector<klex_token_t>::const_iterator end;
+    std::vector<wall_e::lex::token>::const_iterator it;
+    std::vector<wall_e::lex::token>::const_iterator begin;
+    std::vector<wall_e::lex::token>::const_iterator end;
 public:
-    kgram_token_iterator(const std::vector<klex_token_t> &container) {
+    kgram_token_iterator(const std::vector<wall_e::lex::token> &container) {
         it = container.begin();
         begin = container.begin();
         end = container.end();
@@ -345,7 +345,7 @@ public:
         return false;
     }
 
-    klex_token_t data() const {
+    wall_e::lex::token data() const {
         return (*it);
     }
 
