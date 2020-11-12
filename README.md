@@ -2,7 +2,7 @@
 set of compilation tools
 
 ## tools present
-lexical deconstruction
-gramatical processing
-variant (like qt variant)
-other tools for translation
+lexical deconstruction</br>
+gramatical processing</br>
+variant (like qt variant)</br>
+other tools for translation</br>
