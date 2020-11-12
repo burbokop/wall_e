@@ -19,7 +19,7 @@ class km2_function {
 public:
     km2_function() {};
     km2_function(const std::string &name, const std::vector<std::string> &typenames);
-    km2_function(const std::string &name, const std::vector<std::pair<wall_e::lex::token, wall_e::lex::token> > &typenames);
+    km2_function(const std::string &name, const std::vector<std::pair<wall_e::lex::Token, wall_e::lex::Token> > &typenames);
     std::string originalName() const;
     std::string fullName() const;
     std::vector<std::string> argTypes() const;

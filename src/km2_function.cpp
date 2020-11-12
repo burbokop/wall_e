@@ -51,7 +51,7 @@ km2_function::km2_function(const std::string &name, const std::vector<std::strin
     m_fullName = produce_name(name, typenames);
 }
 
-km2_function::km2_function(const std::string &name, const std::vector<std::pair<wall_e::lex::token, wall_e::lex::token> > &typenames) {
+km2_function::km2_function(const std::string &name, const std::vector<std::pair<wall_e::lex::Token, wall_e::lex::Token> > &typenames) {
     std::vector<std::string> tn;
     tn.resize(typenames.size());
     for(size_t i = 0, count = typenames.size(); i < count; ++i) {

@@ -1,8 +1,7 @@
 #include "kgram.h"
 #include "math_patterns.h"
 
-kgram_rule_t math_patterns::add_to(
-        std::list<kgram_pattern_t> *patterns, const std::string &preffix) {
+wall_e::gram::rule math_patterns::add_to(std::list<wall_e::gram::Pattern> *patterns, const std::string &preffix) {
     kgram_rule_t term_id = preffix + "_term";
     kgram_rule_t expr_id = preffix + "_expr";
     kgram_rule_t factor_id = preffix + "_factor";
@@ -38,14 +37,14 @@ kgram_rule_t math_patterns::add_to(
 #include <iostream>
 
 
-kgram_argument_t math_patterns::add_sub_processor(const kgram_arg_vector_t &args) {
+wall_e::gram::argument math_patterns::add_sub_processor(const wall_e::gram::arg_vector &args) {
     std::list<std::pair<std::string, std::function<int (int, int)>>> operations;
     operations.push_back({ "TOK_PLUS", [](int a, int b){ return a + b; } });
     operations.push_back({ "TOK_MINUS", [](int a, int b){ return a - b; } });
     return binary_int_operator(args, operations);
 }
 
-kgram_argument_t math_patterns::mul_div_processor(const kgram_arg_vector_t &args) {
+wall_e::gram::argument math_patterns::mul_div_processor(const wall_e::gram::arg_vector &args) {
     std::list<std::pair<std::string, std::function<int (int, int)>>> operations;
     operations.push_back({ "TOK_MUL", [](int a, int b){ return a * b; } });
     operations.push_back({ "TOK_DIV", [](int a, int b){
@@ -58,31 +57,31 @@ kgram_argument_t math_patterns::mul_div_processor(const kgram_arg_vector_t &args
     return binary_int_operator(args, operations);
 }
 
-kgram_argument_t math_patterns::binary_int_operator(const kgram_arg_vector_t &args, std::list<std::pair<std::string, std::function<int (int, int)> > > l) {
+wall_e::gram::argument math_patterns::binary_int_operator(const wall_e::gram::arg_vector &args, std::list<std::pair<std::string, std::function<int (int, int)> > > l) {
     if(args.size() > 2) {
         //std::cout << args << "\n";
         int num0, num1;
         if(extract_number(args[0], &num0)
-                && args[1].contains_type<wall_e::lex::token>()
+                && args[1].contains_type<wall_e::lex::Token>()
                 && extract_number(args[2], &num1)
                 ) {
             for(auto el : l) {
-                if(el.first == args[1].value<wall_e::lex::token>().name) {
+                if(el.first == args[1].value<wall_e::lex::Token>().name) {
                     auto r = el.second(num0, num1);
                     //std::cout << num0 << " " << el.first << " " << num1 << " = " << r << "\n";
                     return r;
                 }
             }
-            std::cout << "[error] undefined operator" << args[1].value<wall_e::lex::token>() << "\n";
+            std::cout << "[error] undefined operator" << args[1].value<wall_e::lex::Token>() << "\n";
             return kgram_argument_t();
         } else if(false && extract_number(args[0], &num0)
-                  && args[1].contains_type<wall_e::lex::token>()
+                  && args[1].contains_type<wall_e::lex::Token>()
                   && args[2].contains_type<kgram_arg_vector_t>()) {
             const auto vec = args[2].value<kgram_arg_vector_t>();
             if(vec.size() > 2) {
                 bool firstIsNumber = extract_number(vec[0], nullptr);
-                if(vec[1].contains_type<wall_e::lex::token>() && (firstIsNumber || extract_number(vec[2], nullptr))) {
-                    if(vec[1].value<wall_e::lex::token>().name == args[1].value<wall_e::lex::token>().name) {
+                if(vec[1].contains_type<wall_e::lex::Token>() && (firstIsNumber || extract_number(vec[2], nullptr))) {
+                    if(vec[1].value<wall_e::lex::Token>().name == args[1].value<wall_e::lex::Token>().name) {
                         if(firstIsNumber) {
                             //std::cout << "refactored: " << kgram_arg_vector_t { vec[2], args[1], kgram_arg_vector_t { args[0], vec[1], vec[0] } };
                             return binary_int_operator(kgram_arg_vector_t { vec[2], args[1], kgram_arg_vector_t { args[0], vec[1], vec[0] } }, l);
@@ -109,15 +108,15 @@ bool math_patterns::extract_number_str(const std::string &arg, int *number) {
     }
 }
 
-bool math_patterns::extract_number(const kgram_argument_t &arg, int *number) {
+bool math_patterns::extract_number(const wall_e::gram::argument &arg, int *number) {
     if(arg.contains_type<int>()) {
         if(number)
             *number = arg.value<int>();
         return true;
     } else if(arg.contains_type<std::string>()) {
         return extract_number_str(arg.value<std::string>(), number);
-    } else if(arg.contains_type<wall_e::lex::token>()) {
-        return extract_number_str(arg.value<wall_e::lex::token>().text, number);
+    } else if(arg.contains_type<wall_e::lex::Token>()) {
+        return extract_number_str(arg.value<wall_e::lex::Token>().text, number);
     }
     return false;
 }

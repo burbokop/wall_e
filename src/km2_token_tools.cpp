@@ -1,7 +1,7 @@
 #include "km2_token_tools.h"
 
-std::vector<wall_e::lex::token> km2_produce_tokens(const wall_e::variant &variant, const std::list<std::string> names) {
-    std::vector<wall_e::lex::token> result;
+std::vector<wall_e::lex::Token> km2_produce_tokens(const wall_e::variant &variant, const std::list<std::string> names) {
+    std::vector<wall_e::lex::Token> result;
     if(variant.contains_type<wall_e::variant_vector>()) {
         const auto vec = variant.value<wall_e::variant_vector>();
         for(auto v : vec) {
@@ -10,8 +10,8 @@ std::vector<wall_e::lex::token> km2_produce_tokens(const wall_e::variant &varian
                 result.push_back(token);
             }
         }
-    } else if(variant.contains_type<wall_e::lex::token>()) {
-        const auto token = variant.value<wall_e::lex::token>();
+    } else if(variant.contains_type<wall_e::lex::Token>()) {
+        const auto token = variant.value<wall_e::lex::Token>();
         if(std::find(names.begin(), names.end(), token.name) != names.end()) {
             return { token };
         }
@@ -19,12 +19,12 @@ std::vector<wall_e::lex::token> km2_produce_tokens(const wall_e::variant &varian
     return result;
 }
 
-std::vector<std::pair<wall_e::lex::token, wall_e::lex::token> > km2_produce_token_pairs(const wall_e::variant &variant) {
-    std::vector<std::pair<wall_e::lex::token, wall_e::lex::token> > result;
+std::vector<std::pair<wall_e::lex::Token, wall_e::lex::Token> > km2_produce_token_pairs(const wall_e::variant &variant) {
+    std::vector<std::pair<wall_e::lex::Token, wall_e::lex::Token> > result;
     if(variant.contains_type<wall_e::variant_vector>()) {
         const auto vec = variant.value<wall_e::variant_vector>();
-        if(vec.size() == 2 && vec[0].contains_type<wall_e::lex::token>() && vec[1].contains_type<wall_e::lex::token>()) {
-            return { { vec[0].value<wall_e::lex::token>(), vec[1].value<wall_e::lex::token>() } };
+        if(vec.size() == 2 && vec[0].contains_type<wall_e::lex::Token>() && vec[1].contains_type<wall_e::lex::Token>()) {
+            return { { vec[0].value<wall_e::lex::Token>(), vec[1].value<wall_e::lex::Token>() } };
         } else {
             for(auto v : vec) {
                 auto c = km2_produce_token_pairs(v);
@@ -38,7 +38,7 @@ std::vector<std::pair<wall_e::lex::token, wall_e::lex::token> > km2_produce_toke
 }
 
 
-std::ostream &operator<<(std::ostream &stream, const std::vector<std::pair<wall_e::lex::token, wall_e::lex::token> > &vector) {
+std::ostream &operator<<(std::ostream &stream, const std::vector<std::pair<wall_e::lex::Token, wall_e::lex::Token> > &vector) {
     stream << "klex_token_pair_vector { " << (vector.size() > 3 ? "\n" : "");
     for(size_t i = 0; i < vector.size(); ++i) {
         stream << "{ " << vector[i].first << ", " << vector[i].second << " }" << ((i == vector.size() - 1) ? " " : (vector.size() > 3 ? ",\n" : ", "));
@@ -53,7 +53,7 @@ wall_e::variant_vector km2_remove_tokens(const wall_e::variant_vector &variant, 
 
     auto it = vec.begin();
     while(it != vec.end()) {
-        if(it->contains_type<wall_e::lex::token>() && (std::find(tokens.begin(), tokens.end(), it->value<wall_e::lex::token>().name) != tokens.end()))  {
+        if(it->contains_type<wall_e::lex::Token>() && (std::find(tokens.begin(), tokens.end(), it->value<wall_e::lex::Token>().name) != tokens.end()))  {
             it = vec.erase(it);
         } else {
             it++;

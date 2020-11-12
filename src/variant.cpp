@@ -123,9 +123,9 @@ double to_double(const wall_e::variant &variant, bool *ok) {
                 *ok = false;
             return 0;
         }
-    } else if(variant.contains_type<wall_e::lex::token>()) {
+    } else if(variant.contains_type<wall_e::lex::Token>()) {
         try {
-            return std::stod(variant.value<wall_e::lex::token>().text);
+            return std::stod(variant.value<wall_e::lex::Token>().text);
         } catch (std::invalid_argument) {
             if(ok)
                 *ok = false;
@@ -158,11 +158,11 @@ bool is_number(const variant &variant, std::string expected_token) {
         return true;
     } else if(variant.contains_type<std::string>()) {
         return is_number(variant.value<std::string>());
-    } else if(variant.contains_type<wall_e::lex::token>()) {
+    } else if(variant.contains_type<wall_e::lex::Token>()) {
         if(expected_token.size() > 0) {
-            return expected_token == variant.value<wall_e::lex::token>().name;
+            return expected_token == variant.value<wall_e::lex::Token>().name;
         } else {
-            return is_number(variant.value<wall_e::lex::token>().text);
+            return is_number(variant.value<wall_e::lex::Token>().text);
         }
     }
     return 0;

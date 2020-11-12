@@ -3,11 +3,18 @@
 
 #include "kgram_tools.h"
 
-kgram_rule_t kgram_smp(const kgram_rule_t &rule);
-typedef std::pair<kgram_rule_t, kgram_rule_type_t::enum_t> __kgram_smp_arg_t;
-__kgram_smp_arg_t __kgram_smp(const kgram_rule_t &arg, kgram_rule_type_t::enum_t last_type);
+namespace wall_e {
+namespace gram {
 
 
-void kgram_smp_test(kgram_rule_t (*f)(const kgram_rule_t &rule));
+rule smp(const rule &rule);
+typedef std::pair<rule, rule_type_t::enum_t> __smp_arg_t;
+__smp_arg_t __smp(const rule &arg, rule_type_t::enum_t last_type);
+
+
+void smp_test(rule (*f)(const rule &rule));
+
+}
+}
 
 #endif // KGRAM_SMP_H
