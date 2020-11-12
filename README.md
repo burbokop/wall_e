@@ -13,3 +13,5 @@ https://github.com/burbokop/wall_e_demo
 ## dependencies
     curses 
     ncurses    
+
+linux installation: `sudo apt install libcurses-ocaml-dev`
