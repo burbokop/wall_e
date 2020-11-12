@@ -15,7 +15,7 @@ https://github.com/burbokop/wall_e_demo
 1. `git submodule add https://github.com/burbokop/wall_e.git`</br>
 2. in `CMakeLists.txt`: 
 ```
-include(${CMAKE_CURRENT_SOURCE_DIR}/wall_e/wall_e.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/wall_e/wall_e.cmake)
 target_link_libraries(your_executable_or_lib
     wall_e
 )
