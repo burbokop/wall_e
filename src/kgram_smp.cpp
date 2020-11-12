@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+namespace wall_e {
+
+
 kgram_rule_t kgram_smp(const kgram_rule_t &rule) {
     auto c = rule;
     while (true) {
@@ -49,3 +52,4 @@ void kgram_smp_test(kgram_rule_t (*f)(const kgram_rule_t &)) {
     test(kgram_rule_t("0") | kgram_rule_t("1") & "2" & "3" | "4");
 }
 
+}

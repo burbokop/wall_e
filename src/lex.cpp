@@ -39,8 +39,8 @@ void wipe_substrs(std::string *text, const std::string& pattern, char c) {
     }
 }
 
-std::vector<Token> get_tokents(std::string text, const std::list<Pattern> &patternlist) {
-    std::vector<Token> result;
+std::vector<token> get_tokents(std::string text, const std::list<pattern> &patternlist) {
+    std::vector<token> result;
     const auto rep = find_repetition(patternlist);
     if(rep != std::string())
         throw std::runtime_error("klex_get_tokents: repetition found (" + rep + ")");
@@ -60,13 +60,13 @@ std::vector<Token> get_tokents(std::string text, const std::list<Pattern> &patte
     }
 
     for(auto c : text) {
-        Token errt;
+        token errt;
         errt.name = "error";
         errt.text = c;
         result.push_back(errt);
     }
 
-    std::sort(result.begin(), result.end(), [](const Token &a, const Token &b) {
+    std::sort(result.begin(), result.end(), [](const token &a, const token &b) {
         return a.text.size() > b.text.size();
     });
 
@@ -86,11 +86,11 @@ std::vector<std::string::size_type> get_all_occurrences(const std::string &text,
     return result;
 }
 
-std::vector<Token> sort_tokens(std::vector<Token> tokens, std::string text) {
-    std::sort(tokens.begin(), tokens.end(), [](const Token &a, const Token &b) { return a.text.size() > b.text.size(); });
+std::vector<token> sort_tokens(std::vector<token> tokens, std::string text) {
+    std::sort(tokens.begin(), tokens.end(), [](const token &a, const token &b) { return a.text.size() > b.text.size(); });
 
-    std::vector<Token> result;
-    std::map<std::string::size_type, Token> tokmap;
+    std::vector<token> result;
+    std::map<std::string::size_type, token> tokmap;
     for(auto t : tokens) {
         auto o = get_all_occurrences(text, t.text);
         wipe_substrs(&text, t.text);
@@ -110,8 +110,8 @@ std::vector<Token> sort_tokens(std::vector<Token> tokens, std::string text) {
     return result;
 }
 
-std::string find_repetition(const std::list<Pattern> &patternlist) {
-    std::map<Pattern, char> m;
+std::string find_repetition(const std::list<pattern> &patternlist) {
+    std::map<pattern, char> m;
     for(auto p : patternlist) {
         auto it = m.find(p);
         if(it != m.end()) {
@@ -122,17 +122,17 @@ std::string find_repetition(const std::list<Pattern> &patternlist) {
     return std::string();
 }
 
-bool operator <(const Pattern &p1, const Pattern &p2) {
+bool operator <(const pattern &p1, const pattern &p2) {
     return p1.name < p2.name;
 }
 
-std::string to_string(const Token &token) {
+std::string to_string(const token &token) {
     std::stringstream ss;
     ss << token;
     return ss.str();
 }
 
-std::string to_string(const std::vector<wall_e::lex::Token> &token, char separator) {
+std::string to_string(const std::vector<token> &token, char separator) {
     std::stringstream ss;
     for(auto t : token) {
         ss << t << separator;

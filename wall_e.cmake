@@ -8,9 +8,9 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/kgram_tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/tree_view_tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/kgram_smp.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/km2_asm_tools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/km2_function.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/km2_token_tools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/asm_tools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/function.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/token_tools.cpp
     )
 set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/lex.h
@@ -20,9 +20,9 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/kgram_tools.h
     ${CMAKE_CURRENT_LIST_DIR}/src/tree_view_tools.h
     ${CMAKE_CURRENT_LIST_DIR}/src/kgram_smp.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/km2_asm_tools.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/km2_function.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/km2_token_tools.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/asm_tools.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/function.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/token_tools.h
     )
 
 

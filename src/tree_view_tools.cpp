@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <curses.h>
 
+namespace wall_e {
+
+
 void kgram_ctoxy(int XPos, int YPos) {
     printf("\033[%d;%dH",YPos + 1,XPos + 1);
 }
@@ -59,10 +62,10 @@ void print_branch(const wall_e::variant &branch, int x, int y, std::ostream &str
             }
             pos += w;
         }
-    } else if(branch.contains_type<wall_e::lex::Token>()) {
+    } else if(branch.contains_type<wall_e::lex::token>()) {
         stream << char(179);
         kgram_ctoxy(x, y + 1);
-        auto token = branch.value<wall_e::lex::Token>();
+        auto token = branch.value<wall_e::lex::token>();
         stream << token.text;
     } else if(branch.contains_type<std::string>()) {
         stream << char(179);
@@ -82,11 +85,12 @@ int branch_width(const wall_e::variant &branch) {
             count += branch_width(vec[i]);
         }
         return count;
-    } else if(branch.contains_type<wall_e::lex::Token>()) {
-        return branch.value<wall_e::lex::Token>().text.size();
+    } else if(branch.contains_type<wall_e::lex::token>()) {
+        return branch.value<wall_e::lex::token>().text.size();
     } else if(branch.contains_type<std::string>()) {
         return branch.value<std::string>().size();
     } else {
         return 3;
     }
+}
 }
