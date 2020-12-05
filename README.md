@@ -1,5 +1,5 @@
 # wall_e
-set of compilation tools
+Set of tools for creating syntax of your own programming language and compile sources of it.
 
 ## tools present
 lexical deconstruction</br>
