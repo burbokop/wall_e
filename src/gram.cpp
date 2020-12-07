@@ -7,62 +7,60 @@
 #include "color.h"
 
 namespace wall_e {
-
 namespace gram {
 
-const color::color_t __kgram_err_color = color::Red;
-const color::color_t __kgram_header_color = color::Magenta;
-const color::color_t __kgram_warning_color = color::Yellow;
+const color::color_t __err_color = color::Red;
+const color::color_t __header_color = color::Magenta;
+const color::color_t __warning_color = color::Yellow;
 
-class kgram_end_call {
+uint32_t __level = 0;
+const uint32_t __recursion_max_level = 500;
+bool __recursion_error = false;
+bool __recursion_error_call = false;
+
+class __end_call {
     std::function<void()> m_f;
 public:
-    kgram_end_call(const std::function<void()> &f) { m_f = f; }
-    ~kgram_end_call() { m_f(); }
+    __end_call(const std::function<void()> &f) { m_f = f; }
+    ~__end_call() { m_f(); }
 };
 
-uint32_t __kgram_level = 0;
-
-std::string __kgram_level_str() {
+std::string __level_str() {
     std::string str;
-    for(uint32_t i = 0; i < __kgram_level; ++i) {
+    for(uint32_t i = 0; i < __level; ++i) {
         str += " ";
     }
     return str;
 }
 
-uint32_t __kgram_recursion_max_level = 500;
-bool __kgram_recursion_error = false;
-bool __kgram_recursion_error_call = false;
-
-struct __kgram_recursion_error_ubiq {
+struct __recursion_error_ubiq {
     operator kgram_call_result () { return kgram_call_result({ recursion_error() }, true); }
     operator kgram_call_mono_result () { return kgram_call_mono_result(recursion_error(), true); }
 };
 
 #define K_GRAM_USE_LEVEL \
-    if(__kgram_level > __kgram_recursion_max_level || __kgram_recursion_error) { \
-        __kgram_recursion_error = true; \
-        return __kgram_recursion_error_ubiq(); \
+    if(__level > __recursion_max_level || __recursion_error) { \
+        __recursion_error = true; \
+        return __recursion_error_ubiq(); \
     } \
-    __kgram_level++; \
-    kgram_end_call __level_end_call([&](){ __kgram_level--; });
+    __level++; \
+    __end_call __level_end_call([&](){ __level--; });
 
 #define K_GRAM_ENTER_USE_LEVEL \
-    if(__kgram_level > __kgram_recursion_max_level || __kgram_recursion_error) { \
-        __kgram_recursion_error = true; \
-        if(!__kgram_recursion_error_call) { \
+    if(__level > __recursion_max_level || __recursion_error) { \
+        __recursion_error = true; \
+        if(!__recursion_error_call) { \
             return kgram_call_mono_result(p.callback(flags.use_default_parser)({ gram::recursion_error() }), true); \
         } else { \
             return kgram_call_mono_result(gram::recursion_error(), true); \
         } \
         \
     } \
-    __kgram_level++; \
-    kgram_end_call __level_end_call([&](){ __kgram_level--; });
+    __level++; \
+    __end_call __level_end_call([&](){ __level--; });
 
 
-#define K_GRAM_LEVEL __kgram_level_str()
+#define K_GRAM_LEVEL __level_str()
 
 
 struct __flags_private {
@@ -74,7 +72,7 @@ struct __flags_private {
 kgram_call_mono_result text_call(const std::string &rule_text, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __kgram_warning_color("t ") << *it << " <- " << rule_text << "\n";
+        std::cout << K_GRAM_LEVEL << __warning_color("t ") << *it << " <- " << rule_text << "\n";
 
     auto item = kgram_determine_item(it, patterns, rule_text);
     if(item.type() == kgram_item_t::Token) {
@@ -88,7 +86,7 @@ kgram_call_mono_result text_call(const std::string &rule_text, kgram_token_itera
 kgram_call_mono_result null_call(kgram_token_iterator *it, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __kgram_warning_color("n") << "\n";
+        std::cout << K_GRAM_LEVEL << __warning_color("n") << "\n";
 
     const bool alwaysConfirm = false;
     return kgram_call_mono_result(wall_e::variant(), alwaysConfirm ? true : !it->isValid());
@@ -98,7 +96,7 @@ kgram_call_mono_result null_call(kgram_token_iterator *it, const __flags_private
 kgram_call_result conjunction_call(const std::vector<kgram_rule_t> &conjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __kgram_warning_color("&") << "\n";
+        std::cout << K_GRAM_LEVEL << __warning_color("&") << "\n";
 
     size_t i = 0;
     kgram_arg_vector_t args;
@@ -123,7 +121,7 @@ kgram_call_result conjunction_call(const std::vector<kgram_rule_t> &conjunctions
 
         if(tmp_result.arg.contains_type<wall_e::lex::token>()) {
             if(flags.verbose)
-                std::cout << K_GRAM_LEVEL << __kgram_warning_color("++") << "\n";
+                std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
             it->next();
         }
         ++i;
@@ -137,7 +135,7 @@ kgram_call_result conjunction_call(const std::vector<kgram_rule_t> &conjunctions
 kgram_call_mono_result disjunction_call(const std::vector<kgram_rule_t> &disjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __kgram_warning_color("|") << "\n";
+        std::cout << K_GRAM_LEVEL << __warning_color("|") << "\n";
 
     kgram_token_iterator it_backup = *it;
     for(auto particular_case : disjunctions) {
@@ -149,12 +147,12 @@ kgram_call_mono_result disjunction_call(const std::vector<kgram_rule_t> &disjunc
             tmp_result = text_call(particular_case.value(), it, patterns, flags);
         } else if(particular_case.type() == kgram_rule_type_t::Disjunction) {
             if(flags.verbose)
-                std::cout << K_GRAM_LEVEL << __kgram_err_color("deprecated operation Disjunction in Disjunction\n");
+                std::cout << K_GRAM_LEVEL << __err_color("deprecated operation Disjunction in Disjunction\n");
 
             tmp_result = disjunction_call(particular_case.children(), it, patterns, flags);
         } else if(particular_case.type() == kgram_rule_type_t::Conjunction) {
             if(flags.verbose)
-                std::cout << K_GRAM_LEVEL << __kgram_err_color("deprecated operation Conjunction in Disjunction\n");
+                std::cout << K_GRAM_LEVEL << __err_color("deprecated operation Conjunction in Disjunction\n");
 
             //MAY BE REMOVED
             tmp_result = kgram_call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, flags));
@@ -180,13 +178,13 @@ kgram_call_mono_result disjunction_call(const std::vector<kgram_rule_t> &disjunc
 kgram_call_mono_result call(const kgram_pattern_t &p, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
     K_GRAM_ENTER_USE_LEVEL
 
-    if(flags.verbose && __kgram_recursion_error)
-        std::cout << K_GRAM_LEVEL << __kgram_err_color("kgram_recursion_error (pattern: " + p.name() + ")") << "\n";
+    if(flags.verbose && __recursion_error)
+        std::cout << K_GRAM_LEVEL << __err_color("kgram_recursion_error (pattern: " + p.name() + ")") << "\n";
 
     auto rule = kgram_simplify_rule(p.rule(), kgram_rule_transition_t::DoubleConjunction);
 
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << ">> pattern: " << p.name() << " origin rule: " << p.rule() << " sinplified rule: " << __kgram_header_color(rule) << " current word: " << *it << ")\n";
+        std::cout << K_GRAM_LEVEL << ">> pattern: " << p.name() << " origin rule: " << p.rule() << " sinplified rule: " << __header_color(rule) << " current word: " << *it << ")\n";
 
     kgram_call_result result;
     if(rule.type() == kgram_rule_type_t::Text) {
@@ -221,11 +219,11 @@ kgram_argument_t exec(const std::list<kgram_pattern_t> &pattens, const std::vect
         }
     }
 
-    __kgram_recursion_error = false;
+    __recursion_error = false;
     if(pattens.size() > 0 && tokens.size() > 0) {
         kgram_token_iterator it = tokens;
         auto result = call(pattens.front(), &it, pattens, __flags).arg;
-        if(__kgram_recursion_error) {
+        if(__recursion_error) {
             return recursion_error();
         }
         return result;
