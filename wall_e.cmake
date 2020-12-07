@@ -30,8 +30,3 @@ add_library(wall_e SHARED
     ${SOURCES}
     ${HEADERS}
 )
-
-target_link_libraries(wall_e
-    curses
-    ncurses
-    )

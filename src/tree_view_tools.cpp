@@ -2,9 +2,7 @@
 #include "lex.h"
 
 #include <iostream>
-
 #include <stdio.h>
-#include <curses.h>
 
 namespace wall_e {
 
@@ -22,7 +20,7 @@ void kgram_getxy(int* x, int* y) {
 void print_tree(const wall_e::variant &input, std::ostream &stream) {
     //system("clear");
     stream << "please install encoding: IBM850\n\nENTRY";
-    initscr();
+    //initscr();
     int x, y;
     kgram_getxy(&x, &y);
     print_branch(input, x, y + 2, stream);
@@ -31,9 +29,6 @@ void print_tree(const wall_e::variant &input, std::ostream &stream) {
 
 void print_branch(const wall_e::variant &branch, int x, int y, std::ostream &stream) {
     kgram_ctoxy(x, y);
-
-
-
     if(branch.contains_type<wall_e::variant_vector>()) {
         auto vec = branch.value<wall_e::variant_vector>();
 

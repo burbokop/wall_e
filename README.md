@@ -22,8 +22,3 @@ target_link_libraries(your_executable_or_lib
 
 ```
 
-## dependencies
-    curses 
-    ncurses    
-
-linux installation: `sudo apt install libcurses-ocaml-dev`
