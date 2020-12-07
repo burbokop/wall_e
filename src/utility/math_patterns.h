@@ -3,7 +3,7 @@
 
 #include <list>
 #include <string>
-#include "../kgram.h"
+#include "../gram.h"
 
 namespace wall_e {
 

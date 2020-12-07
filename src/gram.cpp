@@ -1,4 +1,4 @@
-#include "kgram.h"
+#include "gram.h"
 
 #include <iostream>
 #include <string.h>
@@ -36,8 +36,8 @@ bool __kgram_recursion_error = false;
 bool __kgram_recursion_error_call = false;
 
 struct __kgram_recursion_error_ubiq {
-    operator kgram_call_result () { return kgram_call_result({ kgram_recursion_error() }, true); }
-    operator kgram_call_mono_result () { return kgram_call_mono_result(kgram_recursion_error(), true); }
+    operator kgram_call_result () { return kgram_call_result({ recursion_error() }, true); }
+    operator kgram_call_mono_result () { return kgram_call_mono_result(recursion_error(), true); }
 };
 
 #define K_GRAM_USE_LEVEL \
@@ -52,9 +52,9 @@ struct __kgram_recursion_error_ubiq {
     if(__kgram_level > __kgram_recursion_max_level || __kgram_recursion_error) { \
         __kgram_recursion_error = true; \
         if(!__kgram_recursion_error_call) { \
-            return kgram_call_mono_result(p.callback(flags.use_default_parser)({ kgram_recursion_error() }), true); \
+            return kgram_call_mono_result(p.callback(flags.use_default_parser)({ gram::recursion_error() }), true); \
         } else { \
-            return kgram_call_mono_result(kgram_recursion_error(), true); \
+            return kgram_call_mono_result(gram::recursion_error(), true); \
         } \
         \
     } \
@@ -65,13 +65,13 @@ struct __kgram_recursion_error_ubiq {
 #define K_GRAM_LEVEL __kgram_level_str()
 
 
-struct __kgram_flags_private {
+struct __flags_private {
     bool use_default_parser = false;
     bool verbose = false;
 };
 
 
-kgram_call_mono_result kgram_text_call(const std::string &rule_text, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __kgram_flags_private &flags) {
+kgram_call_mono_result text_call(const std::string &rule_text, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
         std::cout << K_GRAM_LEVEL << __kgram_warning_color("t ") << *it << " <- " << rule_text << "\n";
@@ -80,12 +80,12 @@ kgram_call_mono_result kgram_text_call(const std::string &rule_text, kgram_token
     if(item.type() == kgram_item_t::Token) {
         return kgram_call_mono_result({ kgram_argument_t(item.token()) }, true);
     } else if(item.type() == kgram_item_t::Pattern) {
-        return kgram_call(item.pattern(), it, patterns, flags);
+        return call(item.pattern(), it, patterns, flags);
     }
     return kgram_call_mono_result();
 }
 
-kgram_call_mono_result kgram_null_call(kgram_token_iterator *it, const __kgram_flags_private &flags) {
+kgram_call_mono_result null_call(kgram_token_iterator *it, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
         std::cout << K_GRAM_LEVEL << __kgram_warning_color("n") << "\n";
@@ -95,7 +95,7 @@ kgram_call_mono_result kgram_null_call(kgram_token_iterator *it, const __kgram_f
 }
 
 
-kgram_call_result kgram_conjunction_call(const std::vector<kgram_rule_t> &conjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __kgram_flags_private &flags) {
+kgram_call_result conjunction_call(const std::vector<kgram_rule_t> &conjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
         std::cout << K_GRAM_LEVEL << __kgram_warning_color("&") << "\n";
@@ -108,11 +108,11 @@ kgram_call_result kgram_conjunction_call(const std::vector<kgram_rule_t> &conjun
         kgram_call_mono_result tmp_result;
 
         if(expected_token.type() == kgram_rule_type_t::Text) {
-            tmp_result = kgram_text_call(expected_token.value(), it, patterns, flags);
+            tmp_result = text_call(expected_token.value(), it, patterns, flags);
         } else if(expected_token.type() == kgram_rule_type_t::Disjunction) {
-            tmp_result = kgram_disjunction_call(expected_token.children(), it, patterns, flags);
+            tmp_result = disjunction_call(expected_token.children(), it, patterns, flags);
         } else {
-            tmp_result = kgram_null_call(it, flags);
+            tmp_result = null_call(it, flags);
         }
 
         if(!tmp_result.confirmed) {
@@ -134,7 +134,7 @@ kgram_call_result kgram_conjunction_call(const std::vector<kgram_rule_t> &conjun
     return kgram_call_result(args, true);
 }
 
-kgram_call_mono_result kgram_disjunction_call(const std::vector<kgram_rule_t> &disjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __kgram_flags_private &flags) {
+kgram_call_mono_result disjunction_call(const std::vector<kgram_rule_t> &disjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
         std::cout << K_GRAM_LEVEL << __kgram_warning_color("|") << "\n";
@@ -146,21 +146,21 @@ kgram_call_mono_result kgram_disjunction_call(const std::vector<kgram_rule_t> &d
 
         kgram_call_mono_result tmp_result;
         if(particular_case.type() == kgram_rule_type_t::Text) {
-            tmp_result = kgram_text_call(particular_case.value(), it, patterns, flags);
+            tmp_result = text_call(particular_case.value(), it, patterns, flags);
         } else if(particular_case.type() == kgram_rule_type_t::Disjunction) {
             if(flags.verbose)
                 std::cout << K_GRAM_LEVEL << __kgram_err_color("deprecated operation Disjunction in Disjunction\n");
 
-            tmp_result = kgram_disjunction_call(particular_case.children(), it, patterns, flags);
+            tmp_result = disjunction_call(particular_case.children(), it, patterns, flags);
         } else if(particular_case.type() == kgram_rule_type_t::Conjunction) {
             if(flags.verbose)
                 std::cout << K_GRAM_LEVEL << __kgram_err_color("deprecated operation Conjunction in Disjunction\n");
 
             //MAY BE REMOVED
-            tmp_result = kgram_call_mono_result_cast(kgram_conjunction_call(particular_case.children(), it, patterns, flags));
+            tmp_result = kgram_call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, flags));
             //--- -- -------
         } else {
-            tmp_result = kgram_null_call(it, flags);
+            tmp_result = null_call(it, flags);
         }
 
         if(tmp_result.confirmed) {
@@ -177,7 +177,7 @@ kgram_call_mono_result kgram_disjunction_call(const std::vector<kgram_rule_t> &d
 }
 
 
-kgram_call_mono_result kgram_call(const kgram_pattern_t &p, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __kgram_flags_private &flags) {
+kgram_call_mono_result call(const kgram_pattern_t &p, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
     K_GRAM_ENTER_USE_LEVEL
 
     if(flags.verbose && __kgram_recursion_error)
@@ -190,13 +190,13 @@ kgram_call_mono_result kgram_call(const kgram_pattern_t &p, kgram_token_iterator
 
     kgram_call_result result;
     if(rule.type() == kgram_rule_type_t::Text) {
-        result = kgram_call_result_cast(kgram_text_call(rule.value(), it, patterns, flags));
+        result = kgram_call_result_cast(text_call(rule.value(), it, patterns, flags));
     } else if(rule.type() == kgram_rule_type_t::Disjunction) {
-        result = kgram_call_result_cast(kgram_disjunction_call(rule.children(), it, patterns, flags));
+        result = kgram_call_result_cast(disjunction_call(rule.children(), it, patterns, flags));
     } else if(rule.type() == kgram_rule_type_t::Conjunction) {
-        result = kgram_conjunction_call(rule.children(), it, patterns, flags);
+        result = conjunction_call(rule.children(), it, patterns, flags);
     } else if(rule.isNull()) {
-        result = kgram_call_result_cast(kgram_null_call(it, flags));
+        result = kgram_call_result_cast(null_call(it, flags));
     }
 
     if(result.confirmed) {
@@ -210,13 +210,13 @@ kgram_call_mono_result kgram_call(const kgram_pattern_t &p, kgram_token_iterator
 }
 
 
-kgram_argument_t kgram_exec(const std::list<kgram_pattern_t> &pattens, const std::vector<wall_e::lex::token> &tokens, const std::list<kgram_flags> flags) {
-    __kgram_flags_private __flags;
+kgram_argument_t exec(const std::list<kgram_pattern_t> &pattens, const std::vector<wall_e::lex::token> &tokens, const flags_list flags) {
+    __flags_private __flags;
 
     for(auto f : flags) {
-        if(f == kgram_flags::kgram_use_default_parser) {
+        if(f == flags::use_default_parser) {
             __flags.use_default_parser = true;
-        } else if(f == kgram_flags::kgram_verbose) {
+        } else if(f == flags::verbose) {
             __flags.verbose = true;
         }
     }
@@ -224,9 +224,9 @@ kgram_argument_t kgram_exec(const std::list<kgram_pattern_t> &pattens, const std
     __kgram_recursion_error = false;
     if(pattens.size() > 0 && tokens.size() > 0) {
         kgram_token_iterator it = tokens;
-        auto result = kgram_call(pattens.front(), &it, pattens, __flags).arg;
+        auto result = call(pattens.front(), &it, pattens, __flags).arg;
         if(__kgram_recursion_error) {
-            return kgram_recursion_error();
+            return recursion_error();
         }
         return result;
     }
