@@ -8,6 +8,8 @@
 
 namespace wall_e {
 
+namespace gram {
+
 const color::color_t __kgram_err_color = color::Red;
 const color::color_t __kgram_header_color = color::Magenta;
 const color::color_t __kgram_warning_color = color::Yellow;
@@ -229,5 +231,6 @@ kgram_argument_t kgram_exec(const std::list<kgram_pattern_t> &pattens, const std
         return result;
     }
     return kgram_argument_t();
+}
 }
 }
