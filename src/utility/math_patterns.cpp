@@ -5,7 +5,7 @@
 namespace wall_e {
 
 gram::rule math_patterns::add_to(
-        std::list<gram::kgram_pattern_t> *patterns, const std::string &preffix) {
+        std::list<gram::pattern> *patterns, const std::string &preffix) {
     gram::rule term_id = preffix + "_term";
     gram::rule expr_id = preffix + "_expr";
     gram::rule factor_id = preffix + "_factor";
@@ -18,21 +18,21 @@ gram::rule math_patterns::add_to(
     gram::rule mul_div_id = preffix + "_mul_div";
     gram::rule f_id = preffix + "_f";
 
-    patterns->push_back(gram::kgram_pattern_t(expr_id.value())
+    patterns->push_back(gram::pattern(expr_id.value())
                         << (plus_munus_id | term_id));
 
-    patterns->push_back(gram::kgram_pattern_t(plus_munus_id.value())
+    patterns->push_back(gram::pattern(plus_munus_id.value())
                         << ((term_id & (gram::rule("TOK_PLUS") | "TOK_MINUS") & expr_id))
                         << add_sub_processor);
 
-    patterns->push_back(gram::kgram_pattern_t(term_id.value())
+    patterns->push_back(gram::pattern(term_id.value())
                         << (mul_div_id | factor_id));
 
-    patterns->push_back(gram::kgram_pattern_t(mul_div_id.value())
+    patterns->push_back(gram::pattern(mul_div_id.value())
                         << (factor_id & (gram::rule("TOK_DIV") | "TOK_MUL") & term_id)
                         << mul_div_processor);
 
-    patterns->push_back(gram::kgram_pattern_t(factor_id.value())
+    patterns->push_back(gram::pattern(factor_id.value())
                         << ("cmd" | gram::rule("TOK_ID") | "NUMBER"));
 
     return expr_id;
@@ -94,7 +94,7 @@ gram::argument math_patterns::binary_int_operator(const gram::arg_vector &args, 
                 }
             }
         }
-        return gram::kgram_pattern_t::__default_processor(args);
+        return gram::pattern::__default_processor(args);
     }
     return gram::argument();
 }

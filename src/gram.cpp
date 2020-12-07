@@ -69,21 +69,21 @@ struct __flags_private {
 };
 
 
-call_mono_result text_call(const std::string &rule_text, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
+call_mono_result text_call(const std::string &rule_text, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
         std::cout << K_GRAM_LEVEL << __warning_color("t ") << *it << " <- " << rule_text << "\n";
 
-    auto item = kgram_determine_item(it, patterns, rule_text);
-    if(item.type() == kgram_item_t::Token) {
+    auto item = determine_item(it, patterns, rule_text);
+    if(item.type() == item::Token) {
         return call_mono_result({ argument(item.token()) }, true);
-    } else if(item.type() == kgram_item_t::Pattern) {
-        return call(item.pattern(), it, patterns, flags);
+    } else if(item.type() == item::Pattern) {
+        return call(item.gram_pattern(), it, patterns, flags);
     }
     return call_mono_result();
 }
 
-call_mono_result null_call(kgram_token_iterator *it, const __flags_private &flags) {
+call_mono_result null_call(token_iterator *it, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
         std::cout << K_GRAM_LEVEL << __warning_color("n") << "\n";
@@ -93,7 +93,7 @@ call_mono_result null_call(kgram_token_iterator *it, const __flags_private &flag
 }
 
 
-call_result conjunction_call(const std::vector<rule> &conjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
+call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
         std::cout << K_GRAM_LEVEL << __warning_color("&") << "\n";
@@ -132,12 +132,12 @@ call_result conjunction_call(const std::vector<rule> &conjunctions, kgram_token_
     return call_result(args, true);
 }
 
-call_mono_result disjunction_call(const std::vector<rule> &disjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
+call_mono_result disjunction_call(const std::vector<rule> &disjunctions, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
         std::cout << K_GRAM_LEVEL << __warning_color("|") << "\n";
 
-    kgram_token_iterator it_backup = *it;
+    token_iterator it_backup = *it;
     for(auto particular_case : disjunctions) {
         if(flags.verbose)
             std::cout << K_GRAM_LEVEL << "curr it: " << *it << "\n";
@@ -155,7 +155,7 @@ call_mono_result disjunction_call(const std::vector<rule> &disjunctions, kgram_t
                 std::cout << K_GRAM_LEVEL << __err_color("deprecated operation Conjunction in Disjunction\n");
 
             //MAY BE REMOVED
-            tmp_result = kgram_call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, flags));
+            tmp_result = call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, flags));
             //--- -- -------
         } else {
             tmp_result = null_call(it, flags);
@@ -175,7 +175,7 @@ call_mono_result disjunction_call(const std::vector<rule> &disjunctions, kgram_t
 }
 
 
-call_mono_result call(const kgram_pattern_t &p, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __flags_private &flags) {
+call_mono_result call(const pattern &p, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags) {
     K_GRAM_ENTER_USE_LEVEL
 
     if(flags.verbose && __recursion_error)
@@ -188,13 +188,13 @@ call_mono_result call(const kgram_pattern_t &p, kgram_token_iterator *it, const 
 
     call_result result;
     if(rule.type() == rule_type::Text) {
-        result = kgram_call_result_cast(text_call(rule.value(), it, patterns, flags));
+        result = call_result_cast(text_call(rule.value(), it, patterns, flags));
     } else if(rule.type() == rule_type::Disjunction) {
-        result = kgram_call_result_cast(disjunction_call(rule.children(), it, patterns, flags));
+        result = call_result_cast(disjunction_call(rule.children(), it, patterns, flags));
     } else if(rule.type() == rule_type::Conjunction) {
         result = conjunction_call(rule.children(), it, patterns, flags);
     } else if(rule.isNull()) {
-        result = kgram_call_result_cast(null_call(it, flags));
+        result = call_result_cast(null_call(it, flags));
     }
 
     if(result.confirmed) {
@@ -208,7 +208,7 @@ call_mono_result call(const kgram_pattern_t &p, kgram_token_iterator *it, const 
 }
 
 
-argument exec(const std::list<kgram_pattern_t> &pattens, const std::vector<wall_e::lex::token> &tokens, const flags_list flags) {
+argument exec(const std::list<pattern> &pattens, const std::vector<wall_e::lex::token> &tokens, const flags_list flags) {
     __flags_private __flags;
 
     for(auto f : flags) {
@@ -221,7 +221,7 @@ argument exec(const std::list<kgram_pattern_t> &pattens, const std::vector<wall_
 
     __recursion_error = false;
     if(pattens.size() > 0 && tokens.size() > 0) {
-        kgram_token_iterator it = tokens;
+        token_iterator it = tokens;
         auto result = call(pattens.front(), &it, pattens, __flags).arg;
         if(__recursion_error) {
             return recursion_error();

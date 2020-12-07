@@ -5,7 +5,7 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/color.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/gram.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/variant.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/private/kgram_tools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/math_patterns.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_view_tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/asm_tools.cpp
@@ -18,7 +18,7 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/color.h
     ${CMAKE_CURRENT_LIST_DIR}/src/gram.h
     ${CMAKE_CURRENT_LIST_DIR}/src/variant.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/private/kgram_tools.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_tools.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/math_patterns.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_view_tools.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/asm_tools.h

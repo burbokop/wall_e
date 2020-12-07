@@ -7,11 +7,11 @@
 
 namespace wall_e {
 
-namespace gram { class kgram_pattern_t; }
+namespace gram { class pattern; }
 
 class math_patterns {
 public:
-    static gram::rule add_to(std::list<gram::kgram_pattern_t> *patterns, const std::string &preffix);
+    static gram::rule add_to(std::list<gram::pattern> *patterns, const std::string &preffix);
     static gram::argument add_sub_processor(const gram::arg_vector &args);
     static gram::argument mul_div_processor(const gram::arg_vector &args);
     static gram::argument binary_int_operator(const gram::arg_vector &args, std::list<std::pair<std::string, std::function<int(int, int)>>> l);

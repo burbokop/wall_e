@@ -1,4 +1,4 @@
-#include "kgram_tools.h"
+#include "gram_tools.h"
 
 #include <iostream>
 #include <queue>
@@ -6,7 +6,7 @@
 namespace wall_e {
 namespace gram {
 
-std::function<argument (arg_vector)> kgram_pattern_t::callback(bool __default) const {
+std::function<argument (arg_vector)> pattern::callback(bool __default) const {
     if(__default) {
         return __default_processor;
     }
@@ -14,12 +14,12 @@ std::function<argument (arg_vector)> kgram_pattern_t::callback(bool __default) c
 }
 
 
-kgram_pattern_t &operator<<(kgram_pattern_t &pattern, const rule &r) {
+pattern &operator<<(pattern &pattern, const rule &r) {
     pattern.m_gram_rule = r;
     return pattern;
 }
 
-kgram_pattern_t operator<<(kgram_pattern_t pattern, const rule &r) {
+pattern operator<<(pattern pattern, const rule &r) {
     pattern.m_gram_rule = r;
     return pattern;
 }
@@ -33,7 +33,7 @@ void print_rule(const rule &r) {
 }
 
 
-std::string kgram_to_lowercase(std::string str) {
+std::string to_lowercase(std::string str) {
     std::for_each(str.begin(), str.end(), [](char & c){
         c = ::tolower(c);
     });
@@ -54,14 +54,14 @@ rule operator |(
 }
 
 
-void kgram_print_pattern(const kgram_pattern_t &pattern) {
+void print_pattern(const pattern &pattern) {
     std::cout << "parrern { " << pattern.name() << " } << ";
     print_rule(pattern.gram_rule());
 }
 
-bool kgram_pattern_t::isValid() const { return m_isValid; }
+bool pattern::isValid() const { return m_isValid; }
 
-std::string kgram_pattern_t::to_string(const std::list<kgram_pattern_t> &list) {
+std::string pattern::to_string(const std::list<pattern> &list) {
     std::string result;
     for(auto l : list) {
         std::stringstream ss;
@@ -71,10 +71,10 @@ std::string kgram_pattern_t::to_string(const std::list<kgram_pattern_t> &list) {
     return result;
 }
 
-rule kgram_pattern_t::gram_rule() const { return m_gram_rule; }
+rule pattern::gram_rule() const { return m_gram_rule; }
 
 
-rule_transition kgram_simplify_rule_internal__(const rule &r, rule_transition::enum_t method);
+rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t method);
 rule_type::enum_t kgram_simplify_rule_last_rule_type_internal__ = rule_type::Undefined;
 rule simplify_rule(const rule &r, rule_transition::enum_t method) {
     if(method == rule_transition::Auto) {
@@ -98,11 +98,11 @@ rule simplify_rule(const rule &r, rule_transition::enum_t method) {
         return c;
     } else {
         kgram_simplify_rule_last_rule_type_internal__ = rule_type::Undefined;
-        return kgram_simplify_rule_internal__(r, method).r;
+        return __simplify_rule_internal(r, method).r;
     }
 }
 
-rule_transition kgram_simplify_rule_internal__(const rule &r, rule_transition::enum_t method) {
+rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t method) {
     rule_transition result;
     if(r.isNull()) {
         return result;
@@ -128,7 +128,7 @@ rule_transition kgram_simplify_rule_internal__(const rule &r, rule_transition::e
         bool was = false;
 
         for(auto cc : c) {
-            auto ff = kgram_simplify_rule_internal__(cc, method);
+            auto ff = __simplify_rule_internal(cc, method);
             if(ff.type == rule_transition::ConjunctionDisjunction) {
                 tmptr = ff;
                 was = true;
@@ -179,7 +179,7 @@ rule_transition kgram_simplify_rule_internal__(const rule &r, rule_transition::e
 
         std::vector<rule> r;
         for(auto cc : c) {
-            auto ffg = kgram_simplify_rule_internal__(cc, method);
+            auto ffg = __simplify_rule_internal(cc, method);
 
             if(ffg.type == rule_transition::DoubleDisjunction) {
                 auto ffc = ffg.r.children();
@@ -201,13 +201,10 @@ rule_transition kgram_simplify_rule_internal__(const rule &r, rule_transition::e
     return result;
 }
 
+pattern &operator<<(pattern &pattern, std::function<argument (arg_vector)> callback) { pattern.m_callback = callback; return pattern; }
+pattern operator<<(pattern pattern, std::function<argument (arg_vector)> callback) { pattern.m_callback = callback; return pattern; }
 
-kgram_pattern_t &operator<<(kgram_pattern_t &pattern, std::function<argument (arg_vector)> callback) { pattern.m_callback = callback; return pattern; }
-kgram_pattern_t operator<<(kgram_pattern_t pattern, std::function<argument (arg_vector)> callback) { pattern.m_callback = callback; return pattern; }
-
-argument kgram_make_argument() { argument result; return result; }
-
-std::ostream &operator<<(std::ostream &stream, const kgram_token_iterator &it) {
+std::ostream &operator<<(std::ostream &stream, const token_iterator &it) {
     if(it.isValid()) {
         stream << "(" << it.data().position << ", " << it.data().name << ", " << it.data().text << ", offset: " << it.offset() << ")";
     } else {

@@ -1,5 +1,5 @@
-#ifndef KGRAM_TOOLS_H
-#define KGRAM_TOOLS_H
+#ifndef GRAM_TOOLS_H
+#define GRAM_TOOLS_H
 
 #include <string>
 #include <variant>
@@ -214,7 +214,7 @@ struct rule_transition {
 
 rule simplify_rule(const rule &r, rule_transition::enum_t method = rule_transition::Auto);
 
-class kgram_pattern_t {
+class pattern {
     std::string m_name;
     rule m_gram_rule;
 public:
@@ -233,47 +233,36 @@ private:
 
     bool m_isValid = false;
 public:
-    kgram_pattern_t() {};
-    kgram_pattern_t(const char* name) { m_name = name; m_isValid = true; };
-    kgram_pattern_t(std::string name) { m_name = name; m_isValid = true; };
+    pattern() {};
+    pattern(const char* name) { m_name = name; m_isValid = true; };
+    pattern(std::string name) { m_name = name; m_isValid = true; };
     std::string name() const { return m_name; };
 
-    friend kgram_pattern_t &operator<< (kgram_pattern_t &pattern, const rule &rule);
-    friend kgram_pattern_t &operator<< (kgram_pattern_t &pattern, std::function<argument(arg_vector)> callback);
+    friend pattern &operator<< (pattern &pattern, const rule &rule);
+    friend pattern &operator<< (pattern &pattern, std::function<argument(arg_vector)> callback);
 
-    friend kgram_pattern_t operator<< (kgram_pattern_t pattern, const rule &rule);
-    friend kgram_pattern_t operator<< (kgram_pattern_t pattern, std::function<argument(arg_vector)> callback);
+    friend pattern operator<< (pattern pattern, const rule &rule);
+    friend pattern operator<< (pattern pattern, std::function<argument(arg_vector)> callback);
     gram::rule gram_rule() const;
     std::function<argument (arg_vector)> callback(bool __default = false) const;
 
-    friend void kgram_print_pattern(const kgram_pattern_t &pattern);
+    friend void print_pattern(const pattern &pattern);
 
     bool isValid() const;
 
-    static std::string to_string(const std::list<kgram_pattern_t> &list);
+    static std::string to_string(const std::list<pattern> &list);
 };
 
 template<typename T>
-kgram_pattern_t kgram_find_pattern(const T &pattens, const std::string name) {
+pattern find_pattern(const T &pattens, const std::string name) {
     for(auto p : pattens) {
         if(p.name() == name)
             return p;
     }
-    return kgram_pattern_t();
+    return pattern();
 }
 
-//template<typename T>
-//wall_e::lex::token kgram_find_token(const T &tokens, const std::string name) {
-//    for(auto t : tokens) {
-//        if(t.name == name)
-//            return t;
-//    }
-//    wall_e::lex::token result;
-//    result.meta = 1;
-//    return result;
-//}
-
-class kgram_item_t {
+class item {
 public:
     enum type_t {
         Token,
@@ -283,57 +272,42 @@ public:
 
 private:
     type_t m_type = Undefined;
-    std::variant<wall_e::lex::token, kgram_pattern_t> m_data;
+    std::variant<wall_e::lex::token, pattern> m_data;
 public:
-    kgram_item_t() { }
-    kgram_item_t(const wall_e::lex::token &token) { m_data = token; m_type = Token; }
-    kgram_item_t(const kgram_pattern_t &pattern) { m_data = pattern; m_type = Pattern; }
+    item() { }
+    item(const wall_e::lex::token &token) { m_data = token; m_type = Token; }
+    item(const pattern &pattern) { m_data = pattern; m_type = Pattern; }
 
     wall_e::lex::token token() const {
         if(m_type == Token)
             return std::get<wall_e::lex::token>(m_data);
         return wall_e::lex::token();
     }
-    kgram_pattern_t pattern() const {
+    gram::pattern gram_pattern() const {
         if(m_type == Pattern)
-            return std::get<kgram_pattern_t>(m_data);
-        return kgram_pattern_t();
+            return std::get<gram::pattern>(m_data);
+        return pattern();
     }
     type_t type() const { return m_type; };
 };
 
-//template<typename tocken_container_T, typename pattern_container_T>
-//kgram_item_t kgram_find_item(const tocken_container_T &tokens, const pattern_container_T &pattens, const std::string name) {
-//    auto t = kgram_find_token(tokens, name);
-//    if(t.meta == 1) {
-//        auto p = kgram_find_pattern(pattens, name);
-//        if(p.isValid()) {
-//            return p;
-//        } else {
-//            return kgram_item_t();
-//        }
-//    } else {
-//        return t;
-//    }
-//}
+pattern &operator<< (pattern &pattern, std::function<argument(arg_vector)> callback);
+pattern operator<< (pattern pattern, std::function<argument(arg_vector)> callback);
 
-kgram_pattern_t &operator<< (kgram_pattern_t &pattern, std::function<argument(arg_vector)> callback);
-kgram_pattern_t operator<< (kgram_pattern_t pattern, std::function<argument(arg_vector)> callback);
-
-class kgram_token_iterator {
+class token_iterator {
     std::vector<wall_e::lex::token>::const_iterator it;
     std::vector<wall_e::lex::token>::const_iterator begin;
     std::vector<wall_e::lex::token>::const_iterator end;
 public:
-    kgram_token_iterator(const std::vector<wall_e::lex::token> &container) {
+    inline token_iterator(const std::vector<wall_e::lex::token> &container) {
         it = container.begin();
         begin = container.begin();
         end = container.end();
     }
 
-    bool isValid() const { return it >= begin && it < end; }
+    inline bool isValid() const { return it >= begin && it < end; }
 
-    bool next() {
+    inline bool next() {
         if(isValid()) {
             ++it;
             return true;
@@ -341,7 +315,7 @@ public:
         return false;
     }
 
-    bool goBack() {
+    inline bool goBack() {
         if(isValid()) {
             --it;
             return true;
@@ -349,35 +323,30 @@ public:
         return false;
     }
 
-    wall_e::lex::token data() const {
-        return (*it);
-    }
-
-    int offset() const {
-        return it - begin;
-    }
+    inline wall_e::lex::token data() const { return (*it); }
+    inline int offset() const { return it - begin; }
 };
 
-std::ostream &operator<< (std::ostream &stream, const kgram_token_iterator &it);
+std::ostream &operator<< (std::ostream &stream, const token_iterator &it);
 
 template<typename pattern_container_T>
-kgram_item_t kgram_determine_item(const kgram_token_iterator *it, const pattern_container_T &pattens, const std::string text) {
+item determine_item(const token_iterator *it, const pattern_container_T &pattens, const std::string text) {
     if(it->isValid()) {
         if(it->data().name == text) {
             return it->data();
         }
     }
-    auto p = kgram_find_pattern(pattens, text);
+    auto p = find_pattern(pattens, text);
     if(p.isValid()) {
         return p;
     }
-    return kgram_item_t();
+    return item();
 }
 
-std::string kgram_to_lowercase(std::string str);
+std::string to_lowercase(std::string str);
 
 
 }
 }
 
-#endif // KGRAM_TOOLS_H
+#endif // GRAM_TOOLS_H
