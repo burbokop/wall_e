@@ -248,7 +248,7 @@ std::string rule_to_string(const rule &r) {
     return result;
 }
 
-call_result kgram_call_result_cast(const call_mono_result &value) {
+call_result call_result_cast(const call_mono_result &value) {
     call_result result;
     result.arg.resize(1);
     result.arg[0] = value.arg;
@@ -256,7 +256,7 @@ call_result kgram_call_result_cast(const call_mono_result &value) {
     return result;
 }
 
-call_mono_result kgram_call_mono_result_cast(const call_result &value) {
+call_mono_result call_mono_result_cast(const call_result &value) {
     call_mono_result result;
     result.arg = value.arg;
     result.confirmed = value.confirmed;

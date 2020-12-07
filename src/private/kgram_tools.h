@@ -16,33 +16,33 @@
 namespace wall_e {
 namespace gram {
 
-typedef wall_e::variant kgram_argument_t;
-typedef std::vector<kgram_argument_t> kgram_arg_vector_t;
+typedef wall_e::variant argument;
+typedef std::vector<argument> arg_vector;
 
 
 template<typename type_t, type_t single_value_type, typename value_t>
-class kgram_node_t {
+class node {
     type_t m_type;
-    std::variant<value_t, std::vector<kgram_node_t>> m_content;
+    std::variant<value_t, std::vector<node>> m_content;
     bool m_isNull = true;
     static inline std::map<type_t, char> m_symbols;
 public:
     type_t type() const { return m_type; }
-    std::variant<value_t, std::vector<kgram_node_t>> content() const { return m_content; }
+    std::variant<value_t, std::vector<node>> content() const { return m_content; }
     value_t value() const { return m_type == single_value_type ? std::get<value_t>(m_content) : value_t(); }
-    std::vector<kgram_node_t> children() const { return std::get<std::vector<kgram_node_t>>(m_content); }
+    std::vector<node> children() const { return std::get<std::vector<node>>(m_content); }
 
-    kgram_node_t() {}
+    node() {}
 
-    kgram_node_t(const char* str) : kgram_node_t(value_t(str)) {}
+    node(const char* str) : node(value_t(str)) {}
 
-    kgram_node_t(value_t value) {
+    node(value_t value) {
         m_type = single_value_type;
         m_content = value;
         m_isNull = false;
     }
 
-    kgram_node_t(type_t type, std::vector<kgram_node_t> value) {
+    node(type_t type, std::vector<node> value) {
         m_type = type;
         m_content = value;
         m_isNull = false;
@@ -51,12 +51,12 @@ public:
     static void assignTypeSymbol(type_t type, char symbol) { m_symbols[type] = symbol; }
 
     template<typename ...Args>
-    kgram_node_t(type_t type, Args... args) : kgram_node_t(type, { args... }) {}
+    node(type_t type, Args... args) : node(type, { args... }) {}
 
 
     bool isNull() const { return m_isNull; }
 
-    friend std::ostream &operator<<(std::ostream &output, const kgram_node_t &node) {
+    friend std::ostream &operator<<(std::ostream &output, const node &node) {
         if(node.isNull()) {
             output << "null";
         } else if(node.type() == single_value_type) {
@@ -82,7 +82,7 @@ public:
         return output;
     }    
 
-    friend std::ostream &operator<<(std::ostream &output, const std::vector<kgram_node_t> &vector) {
+    friend std::ostream &operator<<(std::ostream &output, const std::vector<node> &vector) {
         int i = 0;
         output << "{ ";
         for(auto v : vector) {
@@ -96,10 +96,10 @@ public:
 
 
 template<typename type_t, type_t single_value_type, typename value_t>
-bool operator !=(const kgram_node_t<type_t, single_value_type, value_t> &node1, const kgram_node_t<type_t, single_value_type, value_t> &node2);
+bool operator !=(const node<type_t, single_value_type, value_t> &node1, const node<type_t, single_value_type, value_t> &node2);
 
 template<typename type_t, type_t single_value_type, typename value_t>
-bool operator ==(const kgram_node_t<type_t, single_value_type, value_t> &node1, const kgram_node_t<type_t, single_value_type, value_t> &node2) {
+bool operator ==(const node<type_t, single_value_type, value_t> &node1, const node<type_t, single_value_type, value_t> &node2) {
     if(node1.isNull() && node2.isNull())
         return true;
 
@@ -124,12 +124,12 @@ bool operator ==(const kgram_node_t<type_t, single_value_type, value_t> &node1, 
 }
 
 template<typename type_t, type_t single_value_type, typename value_t>
-bool operator !=(const kgram_node_t<type_t, single_value_type, value_t> &node1, const kgram_node_t<type_t, single_value_type, value_t> &node2) {
+bool operator !=(const node<type_t, single_value_type, value_t> &node1, const node<type_t, single_value_type, value_t> &node2) {
     return !(node1 == node2);
 }
 
 template<typename type_t, type_t single_value_type, typename value_t, typename Func>
-void kgram_print_node_internal(kgram_node_t<type_t, single_value_type, value_t> folder, Func function) {
+void __print_node_internal(node<type_t, single_value_type, value_t> folder, Func function) {
     if(folder.isNull()) {
         function("null");
     } else if(folder.type() == single_value_type) {
@@ -140,7 +140,7 @@ void kgram_print_node_internal(kgram_node_t<type_t, single_value_type, value_t> 
         function("(");
         size_t i = 0;
         for(auto f : folders) {
-            kgram_print_node_internal(f, function);
+            __print_node_internal(f, function);
             if(i < folders.size() - 1) {
                 function(", ");
             }
@@ -152,28 +152,30 @@ void kgram_print_node_internal(kgram_node_t<type_t, single_value_type, value_t> 
 }
 
 template<typename type_t, type_t single_value_type, typename value_t, typename Func>
-void kgram_print_node(kgram_node_t<type_t, single_value_type, value_t> folder, Func function, bool endl = true) {
-    kgram_print_node_internal<type_t, single_value_type, value_t, Func>(folder, function);
+void print_node(node<type_t, single_value_type, value_t> folder, Func function, bool endl = true) {
+    __print_node_internal<type_t, single_value_type, value_t, Func>(folder, function);
     if(endl) {
         function("\n");
     }
 }
 
+//node end
+
 template<typename T>
-struct kgram_common_call_result {
-    kgram_common_call_result() { }
-    kgram_common_call_result(const T &arg, bool confirmed) { this->arg = arg; this->confirmed = confirmed; }
+struct common_call_result {
+    common_call_result() { }
+    common_call_result(const T &arg, bool confirmed) { this->arg = arg; this->confirmed = confirmed; }
     T arg;
     bool confirmed = false;
 };
 
-typedef kgram_common_call_result<kgram_argument_t> kgram_call_mono_result;
-typedef kgram_common_call_result<kgram_arg_vector_t> kgram_call_result;
+typedef common_call_result<argument> call_mono_result;
+typedef common_call_result<arg_vector> call_result;
 
-kgram_call_result kgram_call_result_cast(const kgram_call_mono_result &value);
-kgram_call_mono_result kgram_call_mono_result_cast(const kgram_call_result &value);
+call_result call_result_cast(const call_mono_result &value);
+call_mono_result call_mono_result_cast(const call_result &value);
 
-struct kgram_rule_type_t {
+struct rule_type {
     enum enum_t {
         Text = 0,
         Conjunction = 1,
@@ -182,53 +184,52 @@ struct kgram_rule_type_t {
     };
 };
 
-typedef kgram_node_t<kgram_rule_type_t::enum_t, kgram_rule_type_t::Text, std::string> kgram_rule_t;
+typedef node<rule_type::enum_t, rule_type::Text, std::string> rule;
 
-std::string kgram_rule_to_string(const kgram_rule_t &rule);
+std::string rule_to_string(const rule &r);
 
-kgram_rule_t operator &(
-        const kgram_rule_t &rule1,
-        const kgram_rule_t &rule2);
+rule operator &(
+        const rule &rule1,
+        const rule &rule2);
 
-kgram_rule_t operator |(
-        const kgram_rule_t &rule1,
-        const kgram_rule_t &rule2);
+rule operator |(
+        const rule &rule1,
+        const rule &rule2);
 
 
 
-void kgram_print_rule(const kgram_rule_t &rule);
+void print_rule(const rule &r);
 
-struct kgram_rule_transition_t {
-    enum type_t {
+struct rule_transition {
+    enum enum_t {
         ConjunctionDisjunction = 0,
         DoubleConjunction,
         DoubleDisjunction,
         Auto,
         Undefined
     };
-    kgram_rule_t rule;
-    type_t type = Undefined;
+    rule r;
+    enum_t type = Undefined;
 };
 
-kgram_rule_t kgram_simplify_rule(const kgram_rule_t &rule, kgram_rule_transition_t::type_t method = kgram_rule_transition_t::Auto);
-
+rule simplify_rule(const rule &r, rule_transition::enum_t method = rule_transition::Auto);
 
 class kgram_pattern_t {
     std::string m_name;
-    kgram_rule_t m_rule;
+    rule m_gram_rule;
 public:
-    const static inline std::function<kgram_argument_t(const kgram_arg_vector_t&)> __default_processor = [](const kgram_arg_vector_t &args) -> kgram_argument_t {
+    const static inline std::function<argument(const arg_vector&)> __default_processor = [](const arg_vector &args) -> argument {
         if(args.size() > 0) {
             if(args.size() > 1) {
                 return args;
             }
             return args[0];
         }
-        return kgram_argument_t();
+        return argument();
     };
 private:
 
-    std::function<kgram_argument_t(const kgram_arg_vector_t&)> m_callback = __default_processor;
+    std::function<argument(const arg_vector&)> m_callback = __default_processor;
 
     bool m_isValid = false;
 public:
@@ -237,13 +238,13 @@ public:
     kgram_pattern_t(std::string name) { m_name = name; m_isValid = true; };
     std::string name() const { return m_name; };
 
-    friend kgram_pattern_t &operator<< (kgram_pattern_t &pattern, const kgram_rule_t &rule);
-    friend kgram_pattern_t &operator<< (kgram_pattern_t &pattern, std::function<kgram_argument_t(kgram_arg_vector_t)> callback);
+    friend kgram_pattern_t &operator<< (kgram_pattern_t &pattern, const rule &rule);
+    friend kgram_pattern_t &operator<< (kgram_pattern_t &pattern, std::function<argument(arg_vector)> callback);
 
-    friend kgram_pattern_t operator<< (kgram_pattern_t pattern, const kgram_rule_t &rule);
-    friend kgram_pattern_t operator<< (kgram_pattern_t pattern, std::function<kgram_argument_t(kgram_arg_vector_t)> callback);
-    kgram_rule_t rule() const;
-    std::function<kgram_argument_t (kgram_arg_vector_t)> callback(bool __default = false) const;
+    friend kgram_pattern_t operator<< (kgram_pattern_t pattern, const rule &rule);
+    friend kgram_pattern_t operator<< (kgram_pattern_t pattern, std::function<argument(arg_vector)> callback);
+    gram::rule gram_rule() const;
+    std::function<argument (arg_vector)> callback(bool __default = false) const;
 
     friend void kgram_print_pattern(const kgram_pattern_t &pattern);
 
@@ -316,8 +317,8 @@ public:
 //    }
 //}
 
-kgram_pattern_t &operator<< (kgram_pattern_t &pattern, std::function<kgram_argument_t(kgram_arg_vector_t)> callback);
-kgram_pattern_t operator<< (kgram_pattern_t pattern, std::function<kgram_argument_t(kgram_arg_vector_t)> callback);
+kgram_pattern_t &operator<< (kgram_pattern_t &pattern, std::function<argument(arg_vector)> callback);
+kgram_pattern_t operator<< (kgram_pattern_t pattern, std::function<argument(arg_vector)> callback);
 
 class kgram_token_iterator {
     std::vector<wall_e::lex::token>::const_iterator it;

@@ -11,13 +11,13 @@ namespace gram { class kgram_pattern_t; }
 
 class math_patterns {
 public:
-    static gram::kgram_rule_t add_to(std::list<gram::kgram_pattern_t> *patterns, const std::string &preffix);
-    static gram::kgram_argument_t add_sub_processor(const gram::kgram_arg_vector_t &args);
-    static gram::kgram_argument_t mul_div_processor(const gram::kgram_arg_vector_t &args);
-    static gram::kgram_argument_t binary_int_operator(const gram::kgram_arg_vector_t &args, std::list<std::pair<std::string, std::function<int(int, int)>>> l);
+    static gram::rule add_to(std::list<gram::kgram_pattern_t> *patterns, const std::string &preffix);
+    static gram::argument add_sub_processor(const gram::arg_vector &args);
+    static gram::argument mul_div_processor(const gram::arg_vector &args);
+    static gram::argument binary_int_operator(const gram::arg_vector &args, std::list<std::pair<std::string, std::function<int(int, int)>>> l);
 
     static bool extract_number_str(const std::string &arg, int *number);
-    static bool extract_number(const gram::kgram_argument_t &arg, int *number);
+    static bool extract_number(const gram::argument &arg, int *number);
 };
 
 }

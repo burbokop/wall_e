@@ -155,7 +155,7 @@ call_mono_result disjunction_call(const std::vector<rule> &disjunctions, kgram_t
                 std::cout << K_GRAM_LEVEL << __err_color("deprecated operation Conjunction in Disjunction\n");
 
             //MAY BE REMOVED
-            tmp_result = kgram_call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, flags));
+            tmp_result = call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, flags));
             //--- -- -------
         } else {
             tmp_result = null_call(it, flags);
@@ -188,13 +188,13 @@ call_mono_result call(const kgram_pattern_t &p, kgram_token_iterator *it, const 
 
     call_result result;
     if(rule.type() == rule_type::Text) {
-        result = kgram_call_result_cast(text_call(rule.value(), it, patterns, flags));
+        result = call_result_cast(text_call(rule.value(), it, patterns, flags));
     } else if(rule.type() == rule_type::Disjunction) {
-        result = kgram_call_result_cast(disjunction_call(rule.children(), it, patterns, flags));
+        result = call_result_cast(disjunction_call(rule.children(), it, patterns, flags));
     } else if(rule.type() == rule_type::Conjunction) {
         result = conjunction_call(rule.children(), it, patterns, flags);
     } else if(rule.isNull()) {
-        result = kgram_call_result_cast(null_call(it, flags));
+        result = call_result_cast(null_call(it, flags));
     }
 
     if(result.confirmed) {
