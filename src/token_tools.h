@@ -11,7 +11,6 @@ wall_e::variant_vector remove_tokens(const wall_e::variant_vector &variant, cons
 std::vector<std::pair<wall_e::lex::token, wall_e::lex::token>> produce_token_pairs(const wall_e::variant &variant);
 std::ostream &operator<< (std::ostream& stream, const std::vector<std::pair<wall_e::lex::token, wall_e::lex::token>>& vector);
 
-
 }
 
 #endif // KM2_TOKEN_TOOLS_H

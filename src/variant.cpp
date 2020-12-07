@@ -45,12 +45,12 @@ std::ostream &operator<<(std::ostream &stream, const std::list<variant> &list) {
     return stream;
 }
 
-variant_vector variant_constrain(const variant &variant) {
+variant_vector constrain_variant(const variant &variant) {
     variant_vector result;
     if(variant.contains_type<variant_vector>()) {
         const auto vec = variant.value<variant_vector>();
         for(auto v : vec) {
-            auto c = variant_constrain(v);
+            auto c = constrain_variant(v);
             for(auto item : c) {
                 result.push_back(item);
             }

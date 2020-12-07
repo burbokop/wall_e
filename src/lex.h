@@ -57,12 +57,12 @@ inline bool operator < (const token &token1, const token &token2) { return token
 inline bool operator > (const token &token1, const token &token2) { return token1.position > token2.position; }
 inline bool operator == (const token &token1, const token &token2) { return token1.position == token2.position; }
 
-std::vector<token> get_tokents(std::string text, const std::list<pattern> &patternlist);
-std::vector<std::string::size_type> get_all_occurrences(const std::string &text, const std::string &substring);
+std::vector<token> make_tokents(std::string text, const std::list<pattern> &patternlist);
+std::vector<std::string::size_type> find_all_occurrences(const std::string &text, const std::string &substring);
 std::vector<token> sort_tokens(std::vector<token> tokens, std::string text);
 
 inline std::vector<token> parse(const std::string &text, const std::list<pattern> &patternlist) {
-    return wall_e::lex::sort_tokens(wall_e::lex::get_tokents(text, patternlist), text);
+    return wall_e::lex::sort_tokens(wall_e::lex::make_tokents(text, patternlist), text);
 }
 
 }

@@ -4,14 +4,13 @@
 #include <string.h>
 #include <cassert>
 
+#include "color.h"
+
 namespace wall_e {
 
-
-const char *__kgram_c_err = "\033[1;31m";
-const char *__kgram_c_end = "\033[0m";
-const char *__kgram_c_header = "\033[1;35m";
-const char *__kgram_c_ending = "\033[1;36m";
-const char *__kgram_c_warning = "\033[1;43m";
+const color::color_t __kgram_err_color = color::Red;
+const color::color_t __kgram_header_color = color::Magenta;
+const color::color_t __kgram_warning_color = color::Yellow;
 
 class kgram_end_call {
     std::function<void()> m_f;
@@ -73,7 +72,7 @@ struct __kgram_flags_private {
 kgram_call_mono_result kgram_text_call(const std::string &rule_text, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __kgram_flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __kgram_c_warning << "t " << __kgram_c_end << *it << " <- " << rule_text << "\n";
+        std::cout << K_GRAM_LEVEL << __kgram_warning_color("t ") << *it << " <- " << rule_text << "\n";
 
     auto item = kgram_determine_item(it, patterns, rule_text);
     if(item.type() == kgram_item_t::Token) {
@@ -87,7 +86,7 @@ kgram_call_mono_result kgram_text_call(const std::string &rule_text, kgram_token
 kgram_call_mono_result kgram_null_call(kgram_token_iterator *it, const __kgram_flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __kgram_c_warning << "n" << __kgram_c_end << "\n";
+        std::cout << K_GRAM_LEVEL << __kgram_warning_color("n") << "\n";
 
     const bool alwaysConfirm = false;
     return kgram_call_mono_result(wall_e::variant(), alwaysConfirm ? true : !it->isValid());
@@ -97,7 +96,7 @@ kgram_call_mono_result kgram_null_call(kgram_token_iterator *it, const __kgram_f
 kgram_call_result kgram_conjunction_call(const std::vector<kgram_rule_t> &conjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __kgram_flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __kgram_c_warning << "&" << __kgram_c_end << "\n";
+        std::cout << K_GRAM_LEVEL << __kgram_warning_color("&") << "\n";
 
     size_t i = 0;
     kgram_arg_vector_t args;
@@ -122,7 +121,7 @@ kgram_call_result kgram_conjunction_call(const std::vector<kgram_rule_t> &conjun
 
         if(tmp_result.arg.contains_type<wall_e::lex::token>()) {
             if(flags.verbose)
-                std::cout << K_GRAM_LEVEL << __kgram_c_warning << "++" << __kgram_c_end << "\n";
+                std::cout << K_GRAM_LEVEL << __kgram_warning_color("++") << "\n";
             it->next();
         }
         ++i;
@@ -136,7 +135,7 @@ kgram_call_result kgram_conjunction_call(const std::vector<kgram_rule_t> &conjun
 kgram_call_mono_result kgram_disjunction_call(const std::vector<kgram_rule_t> &disjunctions, kgram_token_iterator *it, const std::list<kgram_pattern_t> &patterns, const __kgram_flags_private &flags) {
     K_GRAM_USE_LEVEL
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __kgram_c_warning << "|" << __kgram_c_end << "\n";
+        std::cout << K_GRAM_LEVEL << __kgram_warning_color("|") << "\n";
 
     kgram_token_iterator it_backup = *it;
     for(auto particular_case : disjunctions) {
@@ -148,12 +147,12 @@ kgram_call_mono_result kgram_disjunction_call(const std::vector<kgram_rule_t> &d
             tmp_result = kgram_text_call(particular_case.value(), it, patterns, flags);
         } else if(particular_case.type() == kgram_rule_type_t::Disjunction) {
             if(flags.verbose)
-                std::cout << K_GRAM_LEVEL << __kgram_c_err << "deprecated operation Disjunction in Disjunction\n";
+                std::cout << K_GRAM_LEVEL << __kgram_err_color("deprecated operation Disjunction in Disjunction\n");
 
             tmp_result = kgram_disjunction_call(particular_case.children(), it, patterns, flags);
         } else if(particular_case.type() == kgram_rule_type_t::Conjunction) {
             if(flags.verbose)
-                std::cout << K_GRAM_LEVEL << __kgram_c_err << "deprecated operation Conjunction in Disjunction\n";
+                std::cout << K_GRAM_LEVEL << __kgram_err_color("deprecated operation Conjunction in Disjunction\n");
 
             //MAY BE REMOVED
             tmp_result = kgram_call_mono_result_cast(kgram_conjunction_call(particular_case.children(), it, patterns, flags));
@@ -180,12 +179,12 @@ kgram_call_mono_result kgram_call(const kgram_pattern_t &p, kgram_token_iterator
     K_GRAM_ENTER_USE_LEVEL
 
     if(flags.verbose && __kgram_recursion_error)
-        std::cout << K_GRAM_LEVEL << __kgram_c_err << "kgram_recursion_error (pattern: " << p.name() << __kgram_c_end << ")\n"; \
+        std::cout << K_GRAM_LEVEL << __kgram_err_color("kgram_recursion_error (pattern: " + p.name() + ")") << "\n";
 
     auto rule = kgram_simplify_rule(p.rule(), kgram_rule_transition_t::DoubleConjunction);
 
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << ">> pattern: " << p.name() << " origin rule: " << p.rule() << " sinplified rule: " << __kgram_c_header << rule << __kgram_c_end << " current word: " << *it << ")\n";
+        std::cout << K_GRAM_LEVEL << ">> pattern: " << p.name() << " origin rule: " << p.rule() << " sinplified rule: " << __kgram_header_color(rule) << " current word: " << *it << ")\n";
 
     kgram_call_result result;
     if(rule.type() == kgram_rule_type_t::Text) {

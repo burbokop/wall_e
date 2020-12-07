@@ -47,11 +47,18 @@ namespace stream_operator__ {
     };
 }
 
+class variant;
+typedef std::vector<variant> variant_vector;
+typedef std::list<variant> variant_list;
+typedef std::map<std::string, variant> variant_map;
+
+variant_vector constrain_variant(const variant &variant);
+
+
 struct variant_handle_base_t { virtual ~variant_handle_base_t() {}; };
 template<typename T>
 struct variant_handle_t : variant_handle_base_t { T value; };
 
-class variant;
 std::ostream &operator<<(std::ostream &stream, const variant &arg);
 class variant {
     variant_handle_base_t *m_data = nullptr;
@@ -138,17 +145,15 @@ public:
     bool contains_type() const { return m_type == type_name<T>(); }
 
     friend bool operator==(const variant &varian0, const variant &varian1);
+
+    inline variant_vector constrain() const { return constrain_variant(*this); }
 };
 
 
 
 
-typedef std::vector<variant> variant_vector;
-typedef std::list<variant> variant_list;
-typedef std::map<std::string, variant> variant_map;
 
 
-variant_vector variant_constrain(const variant &variant);
 
 
 std::ostream &operator<<(std::ostream &stream, const std::vector<variant> &vector);

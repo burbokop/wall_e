@@ -39,7 +39,7 @@ void wipe_substrs(std::string *text, const std::string& pattern, char c) {
     }
 }
 
-std::vector<token> get_tokents(std::string text, const std::list<pattern> &patternlist) {
+std::vector<token> make_tokents(std::string text, const std::list<pattern> &patternlist) {
     std::vector<token> result;
     const auto rep = find_repetition(patternlist);
     if(rep != std::string())
@@ -74,7 +74,7 @@ std::vector<token> get_tokents(std::string text, const std::list<pattern> &patte
 }
 
 
-std::vector<std::string::size_type> get_all_occurrences(const std::string &text, const std::string &substring) {
+std::vector<std::string::size_type> find_all_occurrences(const std::string &text, const std::string &substring) {
     std::vector<std::string::size_type> result;
 
     size_t pos = text.find(substring, 0);
@@ -92,7 +92,7 @@ std::vector<token> sort_tokens(std::vector<token> tokens, std::string text) {
     std::vector<token> result;
     std::map<std::string::size_type, token> tokmap;
     for(auto t : tokens) {
-        auto o = get_all_occurrences(text, t.text);
+        auto o = find_all_occurrences(text, t.text);
         wipe_substrs(&text, t.text);
         for(auto index : o) {
             if(index >= 0) {
