@@ -61,6 +61,10 @@ std::vector<token> get_tokents(std::string text, const std::list<pattern> &patte
 std::vector<std::string::size_type> get_all_occurrences(const std::string &text, const std::string &substring);
 std::vector<token> sort_tokens(std::vector<token> tokens, std::string text);
 
+inline std::vector<token> parse(const std::string &text, const std::list<pattern> &patternlist) {
+    return wall_e::lex::sort_tokens(wall_e::lex::get_tokents(text, patternlist), text);
+}
+
 }
 }
 #endif // LEX_H
