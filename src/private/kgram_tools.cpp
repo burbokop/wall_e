@@ -4,6 +4,7 @@
 #include <queue>
 
 namespace wall_e {
+namespace gram {
 
 std::function<kgram_argument_t (kgram_arg_vector_t)> kgram_pattern_t::callback(bool __default) const {
     if(__default) {
@@ -260,5 +261,6 @@ kgram_call_mono_result kgram_call_mono_result_cast(const kgram_call_result &valu
     result.arg = value.arg;
     result.confirmed = value.confirmed;
     return result;
+}
 }
 }

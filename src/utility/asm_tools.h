@@ -1,5 +1,5 @@
-#ifndef KM2_ASM_TOOLS_H
-#define KM2_ASM_TOOLS_H
+#ifndef ASM_TOOLS_H
+#define ASM_TOOLS_H
 
 
 #include "../private/kgram_tools.h"
@@ -23,4 +23,4 @@ asm_unit produce_asm_unit(const wall_e::variant &variant);
 
 }
 
-#endif // KM2_ASM_TOOLS_H
+#endif // ASM_TOOLS_H

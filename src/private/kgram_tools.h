@@ -13,10 +13,8 @@
 #include "../lex.h"
 #include "../variant.h"
 
-
-
 namespace wall_e {
-
+namespace gram {
 
 typedef wall_e::variant kgram_argument_t;
 typedef std::vector<kgram_argument_t> kgram_arg_vector_t;
@@ -379,6 +377,6 @@ std::string kgram_to_lowercase(std::string str);
 
 
 }
-
+}
 
 #endif // KGRAM_TOOLS_H

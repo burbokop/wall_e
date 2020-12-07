@@ -13,8 +13,8 @@ std::ostream &operator<<(std::ostream &stream, const asm_unit &unit) {
 
 asm_unit produce_asm_unit(const wall_e::variant &variant) {
     asm_unit unit;
-    if(variant.contains_type<kgram_arg_vector_t>()) {
-        const auto vec = variant.value<kgram_arg_vector_t>();
+    if(variant.contains_type<gram::kgram_arg_vector_t>()) {
+        const auto vec = variant.value<gram::kgram_arg_vector_t>();
         for(auto v : vec) {
             unit += produce_asm_unit(v);
         }
