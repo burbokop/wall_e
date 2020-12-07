@@ -1,4 +1,4 @@
-#include "kgram.h"
+#include "../kgram.h"
 #include "math_patterns.h"
 #include <iostream>
 

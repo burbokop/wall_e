@@ -1,5 +1,5 @@
 #include "tree_view_tools.h"
-#include "lex.h"
+#include "../lex.h"
 
 #include <iostream>
 #include <stdio.h>

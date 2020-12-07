@@ -1,7 +1,7 @@
 #ifndef TREE_VIEW_TOOLS_H
 #define TREE_VIEW_TOOLS_H
 
-#include "variant.h"
+#include "../variant.h"
 #include <iostream>
 
 namespace wall_e {

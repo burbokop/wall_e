@@ -2,10 +2,11 @@
 #define KGRAM_H
 
 
-#include "kgram_tools.h"
+#include "private/kgram_tools.h"
 
 namespace wall_e {
 
+//namespace gram {
 
 class kgram_recursion_error {
 public:
@@ -31,5 +32,6 @@ kgram_call_mono_result kgram_null_call(kgram_token_iterator *it, const __kgram_f
 kgram_argument_t kgram_exec(const std::list<kgram_pattern_t> &pattens, const std::vector<wall_e::lex::token> &tokens, const std::list<kgram_flags> flags = std::list<kgram_flags>());
 
 }
+//}
 
 #endif // KGRAM_H

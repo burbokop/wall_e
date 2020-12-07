@@ -2,7 +2,7 @@
 #define KM2_ASM_TOOLS_H
 
 
-#include "kgram_tools.h"
+#include "../private/kgram_tools.h"
 
 namespace wall_e {
 

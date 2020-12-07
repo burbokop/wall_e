@@ -4,8 +4,8 @@
 
 #include <string>
 #include <vector>
-#include "variant.h"
-#include "lex.h"
+#include "../variant.h"
+#include "../lex.h"
 
 
 namespace wall_e {

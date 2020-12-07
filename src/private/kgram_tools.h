@@ -10,8 +10,8 @@
 #include <cxxabi.h>
 #include <cassert>
 
-#include "lex.h"
-#include "variant.h"
+#include "../lex.h"
+#include "../variant.h"
 
 
 
