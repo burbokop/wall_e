@@ -8,7 +8,7 @@ namespace gram {
 
 std::function<argument (arg_vector)> pattern::callback(bool __default) const {
     if(__default) {
-        return __default_processor;
+        return default_processor;
     }
     return m_callback;
 }
@@ -69,6 +69,19 @@ std::string pattern::to_string(const std::list<pattern> &list) {
         result += l.name() + "\n\t<< " + ss.str() + "\n\n";
     }
     return result;
+}
+
+bool pattern::forced_transition_enabled() const {
+    return m_forced_transition_enabled;
+}
+
+std::function<argument (const arg_vector &)> pattern::pass_argument(size_t i) {
+    return [i](const arg_vector &args) -> wall_e::gram::argument {
+        if(args.size() > i) {
+            return args[i];
+        }
+        return {};
+    };
 }
 
 rule pattern::gram_rule() const { return m_gram_rule; }

@@ -9,9 +9,9 @@
 namespace wall_e {
 namespace gram {
 
-const color::color_t __err_color = color::Red;
-const color::color_t __header_color = color::Magenta;
-const color::color_t __warning_color = color::Yellow;
+const color::color_t __err_color = color::BrightRed;
+const color::color_t __header_color = color::BrightMagenta;
+const color::color_t __warning_color = color::BrightYellow;
 
 uint32_t __level = 0;
 const uint32_t __recursion_max_level = 500;
@@ -119,11 +119,27 @@ call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterat
 
         args[i] = tmp_result.arg;
 
-        if(tmp_result.arg.contains_type<wall_e::lex::token>()) {
-            if(flags.verbose)
-                std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
-            it->next();
+        const static bool use_forced_transition = true;
+        if(use_forced_transition) {
+            if(tmp_result.forced_transition || tmp_result.arg.contains_type<wall_e::lex::token>()) {
+                if(flags.verbose)
+                    std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
+                it->next();
+            } else {
+                if(flags.verbose)
+                    std::cout << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << "\n";
+            }
+        } else {
+            if(tmp_result.arg.contains_type<wall_e::lex::token>()) {
+                if(flags.verbose)
+                    std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
+                it->next();
+            } else {
+                if(flags.verbose)
+                    std::cout << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << "\n";
+            }
         }
+
         ++i;
     }
 
@@ -184,7 +200,7 @@ call_mono_result call(const pattern &p, token_iterator *it, const std::list<patt
     auto rule = simplify_rule(p.gram_rule(), rule_transition::DoubleConjunction);
 
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << ">> pattern: " << p.name() << " origin rule: " << p.gram_rule() << " sinplified rule: " << __header_color(rule) << " current word: " << *it << ")\n";
+        std::cout << K_GRAM_LEVEL << ">> pattern: " << __header_color(p.name()) << " " << p.gram_rule() << " -> " << __header_color(rule) << " current word: " << __warning_color(*it) << ")\n";
 
     call_result result;
     if(rule.type() == rule_type::Text) {
@@ -199,11 +215,11 @@ call_mono_result call(const pattern &p, token_iterator *it, const std::list<patt
 
     if(result.confirmed) {
         if(flags.verbose)
-            std::cout << K_GRAM_LEVEL << "<< " << result.arg << "\n";
-        return call_mono_result(p.callback(flags.use_default_parser)(result.arg), true);
+            std::cout << K_GRAM_LEVEL << "<< " << result.arg << ", forced_transition: " << p.forced_transition_enabled() << "\n";
+        return call_mono_result(p.callback(flags.use_default_parser)(result.arg), true, p.forced_transition_enabled());
     }
     if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << "<< ----" << "\n";
+        std::cout << K_GRAM_LEVEL << "<< " << __err_color("<(0)_(0)>") << "\n";
     return call_mono_result();
 }
 

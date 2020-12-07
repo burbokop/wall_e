@@ -5,6 +5,7 @@
 namespace wall_e {
 namespace lex {
 
+const std::string ignore = "ignore";
 
 std::vector<std::string> match(const std::regex &reg, const std::string &text) {
     std::sregex_token_iterator it(text.begin(), text.end(), reg);

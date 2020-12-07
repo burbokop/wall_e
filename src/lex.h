@@ -9,6 +9,8 @@
 namespace wall_e {
 namespace lex {
 
+extern const std::string ignore;
+
 std::vector<std::string> match(const std::regex &reg, const std::string &text);
 void remove_substrs(std::string *text, const std::string& pattern);
 void wipe_substrs(std::string *text, const std::string& pattern, char c = ' ');

@@ -92,11 +92,18 @@ public:
     ~variant() { if(m_data && m_destructor) { m_destructor(m_data); } }
 
     template<typename T>
-    T value() const {
+    inline T value() const {
         assert(contains_type<T>());
         if(m_data)
             return dynamic_cast<variant_handle_t<T>*>(m_data)->value;
         return T();
+    }
+
+    template<typename T>
+    inline T value_default(const T& def = T()) const {
+        if(contains_type<T>() && m_data)
+            return dynamic_cast<variant_handle_t<T>*>(m_data)->value;
+        return def;
     }
 
     std::string to_string() const { if(m_data && m_to_string) return m_to_string(m_data); return std::string(); }

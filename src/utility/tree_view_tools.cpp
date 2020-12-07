@@ -19,7 +19,7 @@ void kgram_getxy(int* x, int* y) {
 
 void print_tree(const wall_e::variant &input, std::ostream &stream) {
     //system("clear");
-    stream << "please install encoding: IBM850\n\nENTRY";
+    stream << "Please install encoding: IBM850\n\nENTRY";
     //initscr();
     int x, y;
     kgram_getxy(&x, &y);

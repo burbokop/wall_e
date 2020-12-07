@@ -164,9 +164,14 @@ void print_node(node<type_t, single_value_type, value_t> folder, Func function, 
 template<typename T>
 struct common_call_result {
     common_call_result() { }
-    common_call_result(const T &arg, bool confirmed) { this->arg = arg; this->confirmed = confirmed; }
+    common_call_result(const T &arg, bool confirmed, bool forced_transition = false) {
+        this->arg = arg;
+        this->confirmed = confirmed;
+        this->forced_transition = forced_transition;
+    }
     T arg;
     bool confirmed = false;
+    bool forced_transition = false;
 };
 
 typedef common_call_result<argument> call_mono_result;
@@ -217,8 +222,9 @@ rule simplify_rule(const rule &r, rule_transition::enum_t method = rule_transiti
 class pattern {
     std::string m_name;
     rule m_gram_rule;
+    bool m_forced_transition_enabled = false;
 public:
-    const static inline std::function<argument(const arg_vector&)> __default_processor = [](const arg_vector &args) -> argument {
+    const static inline std::function<argument(const arg_vector&)> default_processor = [](const arg_vector &args) -> argument {
         if(args.size() > 0) {
             if(args.size() > 1) {
                 return args;
@@ -227,15 +233,16 @@ public:
         }
         return argument();
     };
+    static std::function<argument(const arg_vector&)> pass_argument(size_t i);
 private:
 
-    std::function<argument(const arg_vector&)> m_callback = __default_processor;
+    std::function<argument(const arg_vector&)> m_callback = default_processor;
 
     bool m_isValid = false;
 public:
     pattern() {};
     pattern(const char* name) { m_name = name; m_isValid = true; };
-    pattern(std::string name) { m_name = name; m_isValid = true; };
+    pattern(const std::string &name) { m_name = name; m_isValid = true; };
     std::string name() const { return m_name; };
 
     friend pattern &operator<< (pattern &pattern, const rule &rule);
@@ -243,6 +250,11 @@ public:
 
     friend pattern operator<< (pattern pattern, const rule &rule);
     friend pattern operator<< (pattern pattern, std::function<argument(arg_vector)> callback);
+
+    struct forced_transition {};
+    inline friend pattern &operator<< (pattern &pattern, const forced_transition &) { pattern.m_forced_transition_enabled = true; return pattern; }
+    inline friend pattern operator<< (pattern pattern, const forced_transition &) { pattern.m_forced_transition_enabled = true; return pattern; }
+
     gram::rule gram_rule() const;
     std::function<argument (arg_vector)> callback(bool __default = false) const;
 
@@ -251,7 +263,10 @@ public:
     bool isValid() const;
 
     static std::string to_string(const std::list<pattern> &list);
+    bool forced_transition_enabled() const;
 };
+
+
 
 template<typename T>
 pattern find_pattern(const T &pattens, const std::string name) {

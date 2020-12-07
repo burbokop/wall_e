@@ -94,7 +94,7 @@ gram::argument math_patterns::binary_int_operator(const gram::arg_vector &args, 
                 }
             }
         }
-        return gram::pattern::__default_processor(args);
+        return gram::pattern::default_processor(args);
     }
     return gram::argument();
 }
