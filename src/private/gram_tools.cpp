@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <queue>
+#include "../gram.h"
 
 namespace wall_e {
 namespace gram {
@@ -272,5 +273,45 @@ call_mono_result call_mono_result_cast(const call_result &value) {
     result.confirmed = value.confirmed;
     return result;
 }
+
+
+
+rule rule_from_str(const std::string &string) {
+    return exec({
+        pattern("expression")
+        << (rule("disj") | rule("term")),
+        pattern("disj")
+        << ((rule("term") & "D" & "expression"))
+        << [](arg_vector args) -> argument {
+            return binary_operator<rule>(args, std::bit_or<rule>());
+        },
+        pattern("term")
+        << (rule("conj") | "factor"),
+        pattern("conj")
+        << (rule("factor") & "C" & "term")
+        << [](arg_vector args) -> argument {
+            return binary_operator<rule>(args, std::bit_and<rule>());
+        },
+        pattern("closed_expr")
+        << (rule("OP") & "expression" & "EP")
+        << pattern::pass_argument(1),
+        pattern("factor")
+        << (rule("closed_expr") | "rule"),
+        pattern("rule")
+        << rule("W")
+        << pattern::pass_token<wall_e::gram::rule>()
+    }, lex::parse(string, {
+        { std::regex("[a-zA-Z][a-zA-Z0-9]*"), "W" },
+        { std::regex("[(]"), "OP" },
+        { std::regex("[)]"), "EP" },
+        { std::regex("[&]"), "C" },
+        { std::regex("[|]"), "D" },
+        { std::regex("[ \t\n]+"), lex::ignore }
+    }), {
+        gram::unconditional_transition
+    }).value_default<gram::rule>();
+}
+
+
 }
 }

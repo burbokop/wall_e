@@ -66,6 +66,18 @@ struct __recursion_error_ubiq {
 struct __flags_private {
     bool use_default_parser = false;
     bool verbose = false;
+    bool unconditional_transition = false;
+    __flags_private(const flags_list &flags = flags_list()) {
+        for(auto f : flags) {
+            if(f == flags::use_default_parser) {
+                use_default_parser = true;
+            } else if(f == flags::verbose) {
+                verbose = true;
+            } else if(f == flags::unconditional_transition) {
+                unconditional_transition = true;
+            }
+        }
+    }
 };
 
 
@@ -119,17 +131,17 @@ call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterat
 
         args[i] = tmp_result.arg;
 
-        const static bool use_forced_transition = true;
-        if(use_forced_transition) {
+        enum { forced_transition, only_token, not_last } const static algorithm = flags.unconditional_transition ? not_last : only_token;
+        if(algorithm == forced_transition) {
             if(tmp_result.forced_transition || tmp_result.arg.contains_type<wall_e::lex::token>()) {
                 if(flags.verbose)
                     std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
                 it->next();
             } else {
                 if(flags.verbose)
-                    std::cout << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << "\n";
+                    std::cout << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << ", forced_transition: " << tmp_result.forced_transition << "\n";
             }
-        } else {
+        } else if(algorithm == only_token) {
             if(tmp_result.arg.contains_type<wall_e::lex::token>()) {
                 if(flags.verbose)
                     std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
@@ -137,6 +149,15 @@ call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterat
             } else {
                 if(flags.verbose)
                     std::cout << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << "\n";
+            }
+        } else if(algorithm == not_last) {
+            if(i < conjunctions.size() - 1) {
+                if(flags.verbose)
+                    std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
+                it->next();
+            } else {
+                if(flags.verbose)
+                    std::cout << K_GRAM_LEVEL << __warning_color("++ aborted as last") << "\n";
             }
         }
 
@@ -224,21 +245,11 @@ call_mono_result call(const pattern &p, token_iterator *it, const std::list<patt
 }
 
 
-argument exec(const std::list<pattern> &pattens, const std::vector<wall_e::lex::token> &tokens, const flags_list flags) {
-    __flags_private __flags;
-
-    for(auto f : flags) {
-        if(f == flags::use_default_parser) {
-            __flags.use_default_parser = true;
-        } else if(f == flags::verbose) {
-            __flags.verbose = true;
-        }
-    }
-
+argument exec(const std::list<pattern> &pattens, const std::vector<wall_e::lex::token> &tokens, const flags_list &flags) {
     __recursion_error = false;
     if(pattens.size() > 0 && tokens.size() > 0) {
         token_iterator it = tokens;
-        auto result = call(pattens.front(), &it, pattens, __flags).arg;
+        auto result = call(pattens.front(), &it, pattens, flags).arg;
         if(__recursion_error) {
             return recursion_error();
         }
