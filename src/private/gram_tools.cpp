@@ -76,6 +76,11 @@ bool pattern::forced_transition_enabled() const {
     return m_forced_transition_enabled;
 }
 
+pattern pattern::from_str(const std::string &string) {
+    const auto p = lex::split<lex::str_pair>(string, std::regex("[:]|<<"));
+    return pattern(p.first) << rule_from_str(p.second);
+}
+
 std::function<argument (const arg_vector &)> pattern::pass_argument(size_t i) {
     return [i](const arg_vector &args) -> wall_e::gram::argument {
         if(args.size() > i) {
@@ -281,7 +286,7 @@ rule rule_from_str(const std::string &string) {
         pattern("expression")
         << (rule("disj") | rule("term")),
         pattern("disj")
-        << ((rule("term") & "D" & "expression"))
+        << (rule("term") & "D" & "expression")
         << [](arg_vector args) -> argument {
             return binary_operator<rule>(args, std::bit_or<rule>());
         },
@@ -298,9 +303,10 @@ rule rule_from_str(const std::string &string) {
         pattern("factor")
         << (rule("closed_expr") | "rule"),
         pattern("rule")
-        << rule("W")
-        << pattern::pass_token<wall_e::gram::rule>()
+        << (rule("W") | rule("NULL"))
+        << pattern::pass_token_if<wall_e::gram::rule>("W")
     }, lex::parse(string, {
+        { std::regex("[0]"), "NULL" },
         { std::regex("[a-zA-Z][a-zA-Z0-9]*"), "W" },
         { std::regex("[(]"), "OP" },
         { std::regex("[)]"), "EP" },

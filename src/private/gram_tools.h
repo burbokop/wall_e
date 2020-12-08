@@ -246,6 +246,24 @@ public:
             return {};
         };
     }
+    template<typename T>
+    static std::function<argument(const arg_vector&)> pass_token_if(const std::string& token_name, size_t i = 0) {
+        return [i, token_name](const arg_vector &args) -> wall_e::gram::argument {
+            if(args.size() > i) {
+                if(args[i].contains_type<wall_e::lex::token>()) {
+                    const auto token = args[i].value<wall_e::lex::token>();
+                    if(token.name == token_name) {
+                        return T(token.text);
+                    } else {
+                        return T();
+                    }
+                }
+                return args[i];
+            }
+            return {};
+        };
+    }
+
 private:
 
     std::function<argument(const arg_vector&)> m_callback = default_processor;
@@ -276,6 +294,8 @@ public:
 
     static std::string to_string(const std::list<pattern> &list);
     bool forced_transition_enabled() const;
+
+    static pattern from_str(const std::string &string);
 };
 
 

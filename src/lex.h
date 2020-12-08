@@ -67,6 +67,30 @@ inline std::vector<token> parse(const std::string &text, const std::list<pattern
     return wall_e::lex::sort_tokens(wall_e::lex::make_tokents(text, patternlist), text);
 }
 
+typedef std::pair<std::string, std::string> str_pair;
+
+template<typename T>
+T split(const std::string &string, const std::regex &regex) {
+    std::sregex_token_iterator p(string.begin(), string.end(), regex, -1), end;
+    if constexpr(std::is_same<T, std::pair<std::string, std::string>>::value) {
+        std::pair<std::string, std::string> result;
+        if(p != end)
+            result.first = *p++;
+
+        if(p != end)
+            result.second = *p++;
+        return result;
+    } else {
+        T result;
+        while (p != end) {
+            result.push_back(*p++);
+        }
+        return result;
+    }
+}
+
 }
 }
+
+
 #endif // LEX_H
