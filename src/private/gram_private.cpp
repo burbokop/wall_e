@@ -1,4 +1,4 @@
-#include "gram_tools.h"
+#include "gram_private.h"
 
 #include <iostream>
 #include <queue>
@@ -7,8 +7,8 @@
 namespace wall_e {
 namespace gram {
 
-std::function<argument (arg_vector)> pattern::callback(bool __default) const {
-    if(__default) {
+pattern::processor pattern::callback(bool useDefault) const {
+    if(useDefault) {
         return default_processor;
     }
     return m_callback;
@@ -24,15 +24,6 @@ pattern operator<<(pattern pattern, const rule &r) {
     pattern.m_gram_rule = r;
     return pattern;
 }
-
-void print_rule(const rule &r) {
-    std::cout << "conj: " << rule_type::Conjunction << " disj: " << rule_type::Disjunction << " { ";
-    print_node(r, [](auto value) {
-        std::cout << value;
-    }, false);
-    std::cout << " }\n";
-}
-
 
 std::string to_lowercase(std::string str) {
     std::for_each(str.begin(), str.end(), [](char & c){
@@ -54,12 +45,6 @@ rule operator |(
     return rule(rule_type::Disjunction, rule1, rule2);
 }
 
-
-void print_pattern(const pattern &pattern) {
-    std::cout << "parrern { " << pattern.name() << " } << ";
-    print_rule(pattern.gram_rule());
-}
-
 bool pattern::isValid() const { return m_isValid; }
 
 std::string pattern::to_string(const std::list<pattern> &list) {
@@ -72,16 +57,12 @@ std::string pattern::to_string(const std::list<pattern> &list) {
     return result;
 }
 
-bool pattern::forced_transition_enabled() const {
-    return m_forced_transition_enabled;
-}
-
 pattern pattern::from_str(const std::string &string) {
     const auto p = lex::split<lex::str_pair>(string, std::regex("[:]|<<"));
     return pattern(p.first) << rule_from_str(p.second);
 }
 
-std::function<argument (const arg_vector &)> pattern::pass_argument(size_t i) {
+pattern::processor pattern::pass_argument(size_t i) {
     return [i](const arg_vector &args) -> wall_e::gram::argument {
         if(args.size() > i) {
             return args[i];
@@ -220,8 +201,8 @@ rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t 
     return result;
 }
 
-pattern &operator<<(pattern &pattern, std::function<argument (arg_vector)> callback) { pattern.m_callback = callback; return pattern; }
-pattern operator<<(pattern pattern, std::function<argument (arg_vector)> callback) { pattern.m_callback = callback; return pattern; }
+pattern &operator<<(pattern &pattern, const pattern::processor &callback) { pattern.m_callback = callback; return pattern; }
+pattern operator<<(pattern pattern, const pattern::processor &callback) { pattern.m_callback = callback; return pattern; }
 
 std::ostream &operator<<(std::ostream &stream, const token_iterator &it) {
     if(it.isValid()) {

@@ -12,6 +12,7 @@
 
 #include "../lex.h"
 #include "../variant.h"
+#include "../node.h"
 
 namespace wall_e {
 namespace gram {
@@ -20,158 +21,16 @@ typedef wall_e::variant argument;
 typedef std::vector<argument> arg_vector;
 
 
-template<typename type_t, type_t single_value_type, typename value_t>
-class node {
-    type_t m_type;
-    std::variant<value_t, std::vector<node>> m_content;
-    bool m_isNull = true;
-    static inline std::map<type_t, char> m_symbols;
-public:
-    type_t type() const { return m_type; }
-    std::variant<value_t, std::vector<node>> content() const { return m_content; }
-    value_t value() const { return m_type == single_value_type ? std::get<value_t>(m_content) : value_t(); }
-    std::vector<node> children() const { return std::get<std::vector<node>>(m_content); }
-
-    node() {}
-
-    node(const char* str) : node(value_t(str)) {}
-
-    node(value_t value) {
-        m_type = single_value_type;
-        m_content = value;
-        m_isNull = false;
-    }
-
-    node(type_t type, std::vector<node> value) {
-        m_type = type;
-        m_content = value;
-        m_isNull = false;
-    }
-
-    static void assignTypeSymbol(type_t type, char symbol) { m_symbols[type] = symbol; }
-
-    template<typename ...Args>
-    node(type_t type, Args... args) : node(type, { args... }) {}
-
-
-    bool isNull() const { return m_isNull; }
-
-    friend std::ostream &operator<<(std::ostream &output, const node &node) {
-        if(node.isNull()) {
-            output << "null";
-        } else if(node.type() == single_value_type) {
-            output << node.value();
-        } else {
-            auto c = node.children();
-            int i = 0;
-
-            std::string separator = " ";
-            auto it = m_symbols.find(node.type());
-            if(it != m_symbols.end()) {
-                separator = it->second;
-                separator = " " + separator + " ";
-            }
-
-            output << "( ";
-            for(auto cc : c) {
-                output << cc << ((i == c.size() - 1) ? "" : separator);
-                ++i;
-            }
-            output << " )";
-        }
-        return output;
-    }    
-
-    friend std::ostream &operator<<(std::ostream &output, const std::vector<node> &vector) {
-        int i = 0;
-        output << "{ ";
-        for(auto v : vector) {
-            output << v << (i == vector.size() - 1 ? "" : ", ");
-            ++i;
-        }
-        output << " }";
-        return output;
-    }
-};
-
-
-template<typename type_t, type_t single_value_type, typename value_t>
-bool operator !=(const node<type_t, single_value_type, value_t> &node1, const node<type_t, single_value_type, value_t> &node2);
-
-template<typename type_t, type_t single_value_type, typename value_t>
-bool operator ==(const node<type_t, single_value_type, value_t> &node1, const node<type_t, single_value_type, value_t> &node2) {
-    if(node1.isNull() && node2.isNull())
-        return true;
-
-    if(node1.type() == node2.type()) {
-        if(node1.type() == single_value_type && node1.value() == node2.value()) {
-            return true;
-        } else {
-            auto c1 = node1.children();
-            auto c2 = node2.children();
-
-            if(c1.size() == c2.size()) {
-                for(size_t i = 0; i < c1.size(); ++i) {
-                    if(c1[i] != c2[i])
-                        return false;
-                }
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-template<typename type_t, type_t single_value_type, typename value_t>
-bool operator !=(const node<type_t, single_value_type, value_t> &node1, const node<type_t, single_value_type, value_t> &node2) {
-    return !(node1 == node2);
-}
-
-template<typename type_t, type_t single_value_type, typename value_t, typename Func>
-void __print_node_internal(node<type_t, single_value_type, value_t> folder, Func function) {
-    if(folder.isNull()) {
-        function("null");
-    } else if(folder.type() == single_value_type) {
-        function(folder.value());
-    } else {
-        auto folders = folder.children();
-        function("ctype: "); function(folder.type()); function(" -");
-        function("(");
-        size_t i = 0;
-        for(auto f : folders) {
-            __print_node_internal(f, function);
-            if(i < folders.size() - 1) {
-                function(", ");
-            }
-            i++;
-        }
-
-        function(")");
-    }
-}
-
-template<typename type_t, type_t single_value_type, typename value_t, typename Func>
-void print_node(node<type_t, single_value_type, value_t> folder, Func function, bool endl = true) {
-    __print_node_internal<type_t, single_value_type, value_t, Func>(folder, function);
-    if(endl) {
-        function("\n");
-    }
-}
-
-//node end
 
 template<typename T>
 struct common_call_result {
     common_call_result() { }
-    common_call_result(const T &arg, bool confirmed, bool forced_transition = false) {
+    common_call_result(const T &arg, bool confirmed) {
         this->arg = arg;
         this->confirmed = confirmed;
-        this->forced_transition = forced_transition;
     }
     T arg;
     bool confirmed = false;
-    bool forced_transition = false;
 };
 
 typedef common_call_result<argument> call_mono_result;
@@ -201,10 +60,6 @@ rule operator |(
         const rule &rule1,
         const rule &rule2);
 
-
-
-void print_rule(const rule &r);
-
 struct rule_transition {
     enum enum_t {
         ConjunctionDisjunction = 0,
@@ -218,13 +73,14 @@ struct rule_transition {
 };
 
 rule simplify_rule(const rule &r, rule_transition::enum_t method = rule_transition::Auto);
+inline rule simplify_rule_default(const rule &r) { return simplify_rule(r, rule_transition::DoubleConjunction); }
 
 class pattern {
     std::string m_name;
     rule m_gram_rule;
-    bool m_forced_transition_enabled = false;
 public:
-    const static inline std::function<argument(const arg_vector&)> default_processor = [](const arg_vector &args) -> argument {
+    typedef std::function<argument(const arg_vector&)> processor;
+    const static inline processor default_processor = [](const arg_vector &args) -> argument {
         if(args.size() > 0) {
             if(args.size() > 1) {
                 return args;
@@ -233,9 +89,9 @@ public:
         }
         return argument();
     };
-    static std::function<argument(const arg_vector&)> pass_argument(size_t i);
+    static processor pass_argument(size_t i);
     template<typename T>
-    static std::function<argument(const arg_vector&)> pass_token(size_t i = 0) {
+    static processor pass_token(size_t i = 0) {
         return [i](const arg_vector &args) -> wall_e::gram::argument {
             if(args.size() > i) {
                 if(args[i].contains_type<wall_e::lex::token>()) {
@@ -247,11 +103,11 @@ public:
         };
     }
     template<typename T>
-    static std::function<argument(const arg_vector&)> pass_token_if(const std::string& token_name, size_t i = 0) {
-        return [i, token_name](const arg_vector &args) -> wall_e::gram::argument {
+    static processor pass_token_if(const std::string& token_name, size_t i = 0) {
+        return [i, token_name](const arg_vector &args) -> argument {
             if(args.size() > i) {
-                if(args[i].contains_type<wall_e::lex::token>()) {
-                    const auto token = args[i].value<wall_e::lex::token>();
+                if(args[i].contains_type<lex::token>()) {
+                    const auto token = args[i].value<lex::token>();
                     if(token.name == token_name) {
                         return T(token.text);
                     } else {
@@ -265,9 +121,7 @@ public:
     }
 
 private:
-
-    std::function<argument(const arg_vector&)> m_callback = default_processor;
-
+    processor m_callback = default_processor;
     bool m_isValid = false;
 public:
     pattern() {};
@@ -276,25 +130,15 @@ public:
     std::string name() const { return m_name; };
 
     friend pattern &operator<< (pattern &pattern, const rule &rule);
-    friend pattern &operator<< (pattern &pattern, std::function<argument(arg_vector)> callback);
+    friend pattern &operator<< (pattern &pattern, const processor& callback);
 
     friend pattern operator<< (pattern pattern, const rule &rule);
-    friend pattern operator<< (pattern pattern, std::function<argument(arg_vector)> callback);
-
-    struct forced_transition {};
-    inline friend pattern &operator<< (pattern &pattern, const forced_transition &) { pattern.m_forced_transition_enabled = true; return pattern; }
-    inline friend pattern operator<< (pattern pattern, const forced_transition &) { pattern.m_forced_transition_enabled = true; return pattern; }
+    friend pattern operator<< (pattern pattern, const processor& callback);
 
     gram::rule gram_rule() const;
-    std::function<argument (arg_vector)> callback(bool __default = false) const;
-
-    friend void print_pattern(const pattern &pattern);
-
+    processor callback(bool useDefault = false) const;
     bool isValid() const;
-
     static std::string to_string(const std::list<pattern> &list);
-    bool forced_transition_enabled() const;
-
     static pattern from_str(const std::string &string);
 };
 
@@ -337,9 +181,6 @@ public:
     }
     type_t type() const { return m_type; };
 };
-
-pattern &operator<< (pattern &pattern, std::function<argument(arg_vector)> callback);
-pattern operator<< (pattern pattern, std::function<argument(arg_vector)> callback);
 
 class token_iterator {
     std::vector<wall_e::lex::token>::const_iterator it;

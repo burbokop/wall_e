@@ -1,7 +1,7 @@
 #ifndef GRAM_H
 #define GRAM_H
 
-#include "private/gram_tools.h"
+#include "private/gram_private.h"
 
 namespace wall_e {
 
@@ -26,7 +26,8 @@ call_mono_result disjunction_call(const std::vector<rule> &disjunctions, token_i
 call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags);
 call_mono_result text_call(const std::string &rule_text, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags);
 call_mono_result null_call(token_iterator *it, const __flags_private &flags);
-argument exec(const std::list<pattern> &pattens, const std::vector<wall_e::lex::token> &tokens, const flags_list &flags = flags_list());
+
+argument exec(const std::list<pattern> &patterns, const std::vector<wall_e::lex::token> &tokens, const flags_list &flags = flags_list(), const std::function<rule(const rule&)> &simplification_function = simplify_rule_default);
 
 }
 }

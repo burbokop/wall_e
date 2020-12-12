@@ -2,7 +2,7 @@
 #define ASM_TOOLS_H
 
 
-#include "../private/gram_tools.h"
+#include "../private/gram_private.h"
 
 namespace wall_e {
 
