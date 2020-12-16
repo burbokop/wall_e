@@ -133,24 +133,21 @@ call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterat
 
         args[i] = tmp_result.arg;
 
-        enum { only_token, not_last } const static algorithm = flags.unconditional_transition ? not_last : only_token;
-        if(algorithm == only_token) {
-            if(tmp_result.arg.contains_type<wall_e::lex::token>()) {
-                if(flags.verbose)
-                    std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
-                it->next();
-            } else {
-                if(flags.verbose)
-                    std::cout << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << "\n";
-            }
-        } else if(algorithm == not_last) {
+        if(flags.unconditional_transition) {
             if(i < conjunctions.size() - 1) {
                 if(flags.verbose)
                     std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
                 it->next();
-            } else {
-                if(flags.verbose)
+            } else if(flags.verbose) {
                     std::cout << K_GRAM_LEVEL << __warning_color("++ aborted as last") << "\n";
+            }
+        } else {
+            if(tmp_result.arg.contains_type<wall_e::lex::token>()) {
+                if(flags.verbose)
+                    std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
+                it->next();
+            } else if(flags.verbose) {
+                    std::cout << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << "\n";
             }
         }
 
