@@ -9,24 +9,27 @@
 
 namespace wall_e {
 
+class flag_provider;
 class flag {
-    std::pair<std::string, std::string> m_name;
+    friend flag_provider;
     std::string m_data;
     std::string m_description;
     bool m_bool_data;
 public:
+    typedef std::pair<char, std::string> full_name;
     enum flag_type {
         bool_flag,
         value_flag,
         undefined
     };
 private:
+    full_name m_name;
     flag_type m_type = undefined;
-    static std::string name_to_string(const std::pair<std::string, std::string>& v);
+    static std::string name_to_string(const full_name& v);
+    static flag make_value_flag(const full_name &name, const std::string& data, const std::string &description);
+    static flag make_bool_flag(const full_name &name, bool data, const std::string &description);
 public:
     flag() {}
-    static flag make_value_flag(const std::pair<std::string, std::string> &name, const std::string& data, const std::string &description);
-    static flag make_bool_flag(const std::pair<std::string, std::string> &name, bool data, const std::string &description);
 
     template<typename T>
     friend inline flag &operator >>(flag &f, T& value) {
@@ -53,8 +56,8 @@ public:
         return stream;
     }
 
-    std::pair<std::string, std::string> name() const;
-    std::string complex_name() const { return m_name.first + ":" + m_name.second; }
+    full_name name() const;
+    std::string complex_name() const { return std::string(1, m_name.first) + ":" + m_name.second; }
     std::string description() const;
     flag_type type() const;
     std::string data() const;
@@ -67,12 +70,13 @@ class flag_provider {
     std::list<flag> m_flags;
     std::string m_preffix = "-";
     std::string m_extended_preffix = "--";
+    flag m_help;
 public:
     flag_provider(int argc, char **argv);
-    flag &bool_flag(const std::pair<std::string, std::string> &flag_name, const std::string &description);
-    flag &value_flag(const std::pair<std::string, std::string> &flag_name, const std::string &description, const std::string &default_value = std::string());
-    inline flag &bool_flag(const std::string &flag_name, const std::string &description) { return bool_flag({ flag_name, std::string() }, description); }
-    inline flag &value_flag(const std::string &flag_name, const std::string &description, const std::string &default_value = std::string()) { return value_flag({ flag_name, std::string() }, description, default_value); }
+    flag &bool_flag(const flag::full_name &flag_name, const std::string &description);
+    flag &value_flag(const flag::full_name &flag_name, const std::string &description, const std::string &default_value = std::string());
+    inline flag &bool_flag(char flag_name, const std::string &description) { return bool_flag({ flag_name, std::string() }, description); }
+    inline flag &value_flag(char flag_name, const std::string &description, const std::string &default_value = std::string()) { return value_flag({ flag_name, std::string() }, description, default_value); }
 
     std::string preffix() const;
     void set_preffix(const std::string &preffix);
@@ -91,6 +95,9 @@ public:
     }
 
     inline decltype (m_flags) to_list() const { return to_container<decltype (m_flags)>(); }
+
+    void finish(std::ostream &stream);
+    void print_description(std::ostream &stream);
 };
 
 }
