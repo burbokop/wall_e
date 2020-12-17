@@ -5,43 +5,57 @@
 #include <vector>
 #include <map>
 #include <ostream>
+#include <list>
+
 
 namespace wall_e {
 
-template<typename type_t, type_t single_value_type, typename value_t>
+struct relation {
+    uint64_t vertex0;
+    uint64_t vertex1;
+    char symbol;
+};
+
+typedef std::vector<std::vector<uint64_t>> graph;
+typedef std::list<relation> relation_list;
+std::ostream& write_graph(std::ostream& stream, const graph& g, const std::string &hseparator = " ", const std::string &vseparator = "\n");
+std::ostream& write_relation_list(std::ostream& stream, const relation_list& rl, const std::string &hseparator = " ", const std::string &vseparator = "\n");
+
+template<typename type_type, type_type single_value_type, typename value_type>
 class node {
-    type_t m_type;
-    std::variant<value_t, std::vector<node>> m_content;
+    type_type m_type;
+    std::variant<value_type, std::vector<node>> m_content;
     bool m_isNull = true;
-    static inline std::map<type_t, char> m_symbols;
+    static inline std::map<type_type, char> m_symbols;
 public:
     node() {}
-    node(const char* value) : node(value_t(value)) {}
-    node(const value_t& value) {
+    node(const char* value) : node(value_type(value)) {}
+    node(const value_type& value) {
         m_type = single_value_type;
         m_content = value;
         m_isNull = false;
     }
-    node(type_t type, std::vector<node> value) {
+    node(type_type type, std::vector<node> value) {
         m_type = type;
         m_content = value;
         m_isNull = false;
     }
     template<typename ...Args>
-    node(type_t type, Args... args) : node(type, { args... }) {}
+    node(type_type type, Args... args) : node(type, { args... }) {}
 
-    type_t type() const { return m_type; }
-    std::variant<value_t, std::vector<node>> content() const { return m_content; }
-    value_t value() const { return m_type == single_value_type ? std::get<value_t>(m_content) : value_t(); }
+    type_type type() const { return m_type; }
+    std::variant<value_type, std::vector<node>> content() const { return m_content; }
+    value_type value() const { return m_type == single_value_type ? std::get<value_type>(m_content) : value_type(); }
     std::vector<node> children() const { return std::get<std::vector<node>>(m_content); }
     bool isNull() const { return m_isNull; }
     bool isValue() const { return m_type == single_value_type; }
-    bool isContainer() const { return m_type != single_value_type; }
+    bool isContainer() const { return !m_isNull && m_type != single_value_type; }
 
-    node &operator[](size_t i) { return std::get<std::vector<node>>(m_content)[i]; }
-    node operator[](size_t i) const { return std::get<std::vector<node>>(m_content)[i]; }
+    inline node &operator[](size_t i) { return std::get<std::vector<node>>(m_content)[i]; }
+    inline node operator[](size_t i) const { return std::get<std::vector<node>>(m_content)[i]; }
+    inline size_t size() const { return std::get<std::vector<node>>(m_content).size(); }
 
-    static void assignTypeSymbol(type_t type, char symbol) { m_symbols[type] = symbol; }
+    static void assignTypeSymbol(type_type type, char symbol) { m_symbols[type] = symbol; }
 
     friend std::ostream &operator<<(std::ostream &output, const node &node) {
         if(node.isNull()) {
@@ -78,6 +92,40 @@ public:
         }
         output << " }";
         return output;
+    }
+
+    static void make_relation_list(const node<type_type, single_value_type, value_type>& n, relation_list& rl, uint64_t &next, uint64_t last, char last_char = 0) {
+        const auto current = next++;
+        rl.push_back({ current, last, last_char });
+        if(n.isContainer()) {
+            const auto it = m_symbols.find(n.type());
+            for(size_t i = 0; i < n.size(); ++i) {
+                make_relation_list(n[i], rl, next, current, (it != m_symbols.end()) ? it->second : ' ');
+            }
+        }
+    }
+
+    inline relation_list to_relation_list(uint64_t *count = nullptr) const {
+        uint64_t next = 0;
+        wall_e::relation_list rl;
+        make_relation_list(*this, rl, next, 0);
+        if(count)
+            *count = next;
+        return rl;
+    }
+
+    graph to_graph() const {
+        uint64_t count;
+        const relation_list rl = to_relation_list(&count);
+        graph result;
+        result.resize(count);
+        for(auto &r : result)
+            r.resize(count);
+
+        for(const auto &relation : rl) {
+            result[relation.vertex0][relation.vertex1] = relation.symbol;
+        }
+        return result;
     }
 };
 

@@ -5,6 +5,12 @@
 #include <sstream>
 
 namespace wall_e {
+template <typename Arg, typename... Args>
+inline void unpuck_to_stream(std::ostream& ss, Arg&& arg, Args&&... args) {
+    ss << std::forward<Arg>(arg);
+    ((ss << std::forward<Args>(args)), ...);
+}
+
 namespace color {
 static inline std::string f(const std::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.first) + "m"; }
 static inline std::string b(const std::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.second) + "m"; }
@@ -17,11 +23,14 @@ public:
     inline std::string f() const { return color::f(data); }
     inline std::string b() const { return color::b(data); }
     inline std::string cover(const std::string &text) const { return f() + text + reset(); }
-    inline std::string operator()(const std::string &text) const { return f() + text + reset(); }
-    template<typename T>
-    inline std::string operator()(const T &value) const {
+
+    template<typename ...Args>
+    inline std::string operator()(Args&&... args) const {
+        static_assert (sizeof... (args) > 0, "must be at least one argument");
         std::stringstream ss;
-        ss << f() << value << reset();
+        ss << f();
+        unpuck_to_stream(ss, args...);
+        ss << reset();
         return ss.str();
     }
 };
