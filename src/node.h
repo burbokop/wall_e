@@ -16,8 +16,9 @@ struct relation {
     char symbol;
 };
 
-typedef std::vector<std::vector<uint64_t>> graph;
+typedef std::vector<std::vector<char>> graph;
 typedef std::list<relation> relation_list;
+graph make_graph(size_t n, char c = 0);
 std::ostream& write_graph(std::ostream& stream, const graph& g, const std::string &hseparator = " ", const std::string &vseparator = "\n");
 std::ostream& write_relation_list(std::ostream& stream, const relation_list& rl, const std::string &hseparator = " ", const std::string &vseparator = "\n");
 
@@ -94,13 +95,21 @@ public:
         return output;
     }
 
-    static void make_relation_list(const node<type_type, single_value_type, value_type>& n, relation_list& rl, uint64_t &next, uint64_t last, char last_char = 0) {
+    static void make_relation_list(
+            const node<type_type, single_value_type, value_type>& n,
+            relation_list& rl,
+            uint64_t &next,
+            const std::optional<uint64_t> &last = {},
+            char last_char = 0
+            ) {
         const auto current = next++;
-        rl.push_back({ current, last, last_char });
+        if(last) {
+            rl.push_back({ current, last.value(), last_char });
+        }
         if(n.isContainer()) {
             const auto it = m_symbols.find(n.type());
             for(size_t i = 0; i < n.size(); ++i) {
-                make_relation_list(n[i], rl, next, current, (it != m_symbols.end()) ? it->second : ' ');
+                make_relation_list(n[i], rl, next, current, (it != m_symbols.end()) ? it->second : 0);
             }
         }
     }
@@ -108,7 +117,7 @@ public:
     inline relation_list to_relation_list(uint64_t *count = nullptr) const {
         uint64_t next = 0;
         wall_e::relation_list rl;
-        make_relation_list(*this, rl, next, 0);
+        make_relation_list(*this, rl, next);
         if(count)
             *count = next;
         return rl;
@@ -117,11 +126,7 @@ public:
     graph to_graph() const {
         uint64_t count;
         const relation_list rl = to_relation_list(&count);
-        graph result;
-        result.resize(count);
-        for(auto &r : result)
-            r.resize(count);
-
+        graph result = make_graph(count, '0');
         for(const auto &relation : rl) {
             result[relation.vertex0][relation.vertex1] = relation.symbol;
         }

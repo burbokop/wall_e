@@ -14,6 +14,7 @@ extern const std::string ignore;
 std::vector<std::string> match(const std::regex &reg, const std::string &text);
 void remove_substrs(std::string *text, const std::string& pattern);
 void wipe_substrs(std::string *text, const std::string& pattern, char c = ' ');
+std::string trim(const std::string& string, char delim = ' ');
 
 struct pattern {
     std::regex reg;
@@ -88,6 +89,8 @@ T split(const std::string &string, const std::regex &regex) {
         return result;
     }
 }
+
+
 
 }
 }

@@ -141,6 +141,15 @@ std::string to_string(const std::vector<token> &token, char separator) {
     return ss.str();
 }
 
+std::string trim(const std::string &string, char delim) {
+    size_t first = string.find_first_not_of(delim);
+    if (std::string::npos == first) {
+        return string;
+    }
+    size_t last = string.find_last_not_of(delim);
+    return string.substr(first, (last - first + 1));
+}
+
 
 }
 }
