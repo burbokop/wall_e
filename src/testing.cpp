@@ -21,7 +21,6 @@ std::map<std::string, spec> specs;
 }
 
 int wall_e::testing::registerTest(const std::string &name, const std::string &spec, const std::function<void ()> &testFunc) {
-    std::cout << "current test: " << name << " " << spec << std::endl;
     specs[spec].tests.push_back({ name, testFunc });
     return 0;
 }
