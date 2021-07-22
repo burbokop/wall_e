@@ -32,7 +32,7 @@ int wall_e::testing::exec() {
         for(const auto& t : s.second.tests) {
             std::cout << "test: " << t.name << std::endl;
             t.testFunc();
-            std::cout << "      " << t.name << "OK" << std::endl;
+            std::cout << "      " << t.name << " OK" << std::endl;
         }
     }
     return 0;

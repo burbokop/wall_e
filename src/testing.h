@@ -8,12 +8,14 @@
 
 #define wall_e_should_equal(actual, expected) \
     if(actual != expected) { \
-        std::cout << actual << " is not " << expected << " here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
+        std::cerr << actual << " is not " << expected << " here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
+        exit(1); \
     }
 
 #define wall_e_should_be_defined(option) \
     if(option.has_value()) { \
-        std::cout << "option is not defined here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
+        std::cerr << "option is not defined here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
+        exit(1); \
     }
 
 namespace wall_e {

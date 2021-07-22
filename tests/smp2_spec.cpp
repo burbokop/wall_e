@@ -18,7 +18,7 @@ void smp2_spec::common_test0(const std::function<wall_e::gram::rule (const wall_
     wall_e_should_equal(r0s.children()[1], wall_e::gram::rule("SEMICOLON"));
     wall_e_should_equal(r0s.children()[2].type(), wall_e::gram::rule_type::Disjunction);
     wall_e_should_equal(r0s.children()[2].children().size(), 2);
-    wall_e_should_equal(r0s.children()[2].children()[0], wall_e::gram::rule("0"));
+    wall_e_should_equal(r0s.children()[2].children()[0], wall_e::gram::rule());
     wall_e_should_equal(r0s.children()[2].children()[1], wall_e::gram::rule("block"));
 }
 
