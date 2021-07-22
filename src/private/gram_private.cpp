@@ -178,7 +178,7 @@ rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t 
         kgram_simplify_rule_last_rule_type_internal__ = rule_type::Disjunction;
 
         std::vector<rule> r;
-        for(auto cc : c) {
+        for(const auto& cc : c) {
             auto ffg = __simplify_rule_internal(cc, method);
 
             if(ffg.type == rule_transition::DoubleDisjunction) {
