@@ -58,6 +58,38 @@ public:
 
     static void assignTypeSymbol(type_type type, char symbol) { m_symbols[type] = symbol; }
 
+    bool replace(size_t i, const std::vector<node>& vec) {
+        if (isContainer()) {
+            auto& c = std::get<std::vector<node>>(m_content);
+            auto it = std::next(c.begin(), i);
+            if (it != c.end()) {
+                it = c.erase(it);
+                it = c.insert(it, vec.begin(), vec.end());
+                if (it != c.end()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    bool replace(size_t i, const node& node) {
+        return replace(i, { node });
+    }
+
+    std::optional<node> replaced(size_t i, const std::vector<node>& vec) const {
+        auto copy = *this;
+        if (copy.replace(i, vec)) {
+            return copy;
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    std::optional<node> replaced(size_t i, const node& node) const {
+        return replaced(i, { node });
+    }
+
     friend std::ostream &operator<<(std::ostream &output, const node &node) {
         if(node.isNull()) {
             output << "null";

@@ -49,7 +49,7 @@ bool pattern::isValid() const { return m_isValid; }
 
 std::string pattern::to_string(const std::list<pattern> &list) {
     std::string result;
-    for(auto l : list) {
+    for(const auto& l : list) {
         std::stringstream ss;
         ss << simplify_rule(l.gram_rule());
         result += l.name() + "\n\t<< " + ss.str() + "\n\n";
@@ -127,14 +127,14 @@ rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t 
         rule_transition tmptr;
         bool was = false;
 
-        for(auto cc : c) {
+        for(const auto& cc : c) {
             auto ff = __simplify_rule_internal(cc, method);
             if(ff.type == rule_transition::ConjunctionDisjunction) {
                 tmptr = ff;
                 was = true;
             } else if(ff.type == rule_transition::DoubleConjunction) {
                 auto ffc = ff.r.children();
-                for(auto offa : ffc) {
+                for(const auto& offa : ffc) {
                     tmpvec.push_back(offa);
                 }
             } else {
@@ -145,11 +145,11 @@ rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t 
         if(was) {
             std::vector<rule> r2;
             auto ffc = tmptr.r.children();
-            for(auto offa : ffc) {
+            for(const auto& offa : ffc) {
                 std::vector<rule> RULE;
 
                 RULE.push_back(offa);
-                for(auto rr : tmpvec) {
+                for(const auto& rr : tmpvec) {
                     RULE.push_back(rr);
                 }
 
@@ -183,7 +183,7 @@ rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t 
 
             if(ffg.type == rule_transition::DoubleDisjunction) {
                 auto ffc = ffg.r.children();
-                for(auto offa : ffc) {
+                for(const auto& offa : ffc) {
                     r.push_back(offa);
                 }
             } else {
@@ -222,7 +222,7 @@ std::string rule_to_string(const rule &r) {
         auto c = r.children();
         result += "(";
         size_t i = 0;
-        for(auto cc : c) {
+        for(const auto& cc : c) {
             result += rule_to_string(cc);
             if(i < c.size() - 1)
                 result += " && ";
@@ -233,7 +233,7 @@ std::string rule_to_string(const rule &r) {
         auto c = r.children();
         result += "(";
         size_t i = 0;
-        for(auto cc : c) {
+        for(const auto& cc : c) {
             result += rule_to_string(cc);
             if(i < c.size() - 1)
                 result += " || ";
