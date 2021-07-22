@@ -195,6 +195,54 @@ bool operator ==(const node<type_t, single_value_type, value_t> &node1, const no
     return false;
 }
 
+template<typename type_t, type_t single_value_type, typename value_t>
+inline bool operator !=(const node<type_t, single_value_type, value_t> &node, const value_t &value) {
+    return !(node == value);
+}
+
+template<typename type_t, type_t single_value_type, typename value_t>
+bool operator ==(const node<type_t, single_value_type, value_t> &node, const value_t &value) {
+    if(node.isNull())
+        return false;
+
+    if(node.type() == single_value_type) {
+        if(node.value() == value) {
+            return true;
+        }
+    }
+    return false;
+}
+
+template<typename type_t, type_t single_value_type, typename value_t>
+inline bool operator !=(const value_t &value, const node<type_t, single_value_type, value_t> &node) {
+    return operator!=(node, value);
+}
+
+template<typename type_t, type_t single_value_type, typename value_t>
+bool operator ==(const value_t &value, const node<type_t, single_value_type, value_t> &node) {
+    return operator==(node, value);
+}
+
+template<typename type_t, type_t single_value_type, typename value_t>
+inline bool operator !=(const node<type_t, single_value_type, value_t> &node, const char* value) {
+    return !(node == std::string(value));
+}
+
+template<typename type_t, type_t single_value_type, typename value_t>
+bool operator ==(const node<type_t, single_value_type, value_t> &node, const char* value) {
+    return node == std::string(value);
+}
+
+template<typename type_t, type_t single_value_type, typename value_t>
+inline bool operator !=(const char* value, const node<type_t, single_value_type, value_t> &node) {
+    return !(node == std::string(value));
+}
+
+template<typename type_t, type_t single_value_type, typename value_t>
+bool operator ==(const char* value, const node<type_t, single_value_type, value_t> &node) {
+    return node == std::string(value);
+}
+
 }
 
 

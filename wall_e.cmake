@@ -43,8 +43,12 @@ add_library(wall_e SHARED
 
 add_executable(wall_e_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/main.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/simplify_tests.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/simplify_tests.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/smp2_spec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/smp2_spec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/simplify_rule_spec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/simplify_rule_spec.h
     )
 
 target_link_libraries(wall_e_tests
