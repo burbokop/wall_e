@@ -59,7 +59,21 @@ std::string pattern::to_string(const std::list<pattern> &list) {
 
 pattern pattern::from_str(const std::string &string) {
     const auto p = lex::split<lex::str_pair>(string, std::regex("[:]|<<"));
-    return pattern(p.first) << rule_from_str(p.second);
+    return pattern(lex::trim(p.first)) << rule_from_str(lex::trim(p.second));
+}
+
+pattern pattern::simplified() const {
+    auto copy = pattern(*this);
+    copy.m_gram_rule = smp2::simplify(m_gram_rule);
+    return copy;
+}
+
+std::list<pattern> pattern::simplified(const std::list<pattern> &list) {
+    std::list<pattern> result;
+    for(const auto& l : list) {
+        result.push_back(l.simplified());
+    }
+    return result;
 }
 
 pattern::processor pattern::pass_argument(size_t i) {
@@ -297,6 +311,25 @@ rule rule_from_str(const std::string &string) {
     }), {
         gram::unconditional_transition
     }).value_default<gram::rule>();
+}
+
+std::string item::typeString() const {
+    switch (m_type) {
+    case Token: return "Token";
+    case Pattern: return "Pattern";
+    case Undefined: return "Undefined";
+    }
+    return "Undefined";
+}
+
+std::ostream &operator<<(std::ostream &stream, const item &item) {
+    stream << item.typeString();
+    switch (item.type()) {
+    case gram::item::Token: stream << ":" << item.token(); break;
+    case gram::item::Pattern: stream << ":" << item.gram_pattern(); break;
+    case gram::item::Undefined: break;
+    }
+    return stream;
 }
 
 

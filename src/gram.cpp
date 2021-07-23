@@ -40,22 +40,22 @@ struct __recursion_error_ubiq {
 
 #define K_GRAM_USE_LEVEL \
     if(__level > __recursion_max_level || __recursion_error) { \
-        __recursion_error = true; \
-        return __recursion_error_ubiq(); \
-    } \
+    __recursion_error = true; \
+    return __recursion_error_ubiq(); \
+} \
     __level++; \
     __end_call __level_end_call([&](){ __level--; });
 
 #define K_GRAM_ENTER_USE_LEVEL \
     if(__level > __recursion_max_level || __recursion_error) { \
-        __recursion_error = true; \
-        if(!__recursion_error_call) { \
-            return call_mono_result(p.callback(flags.use_default_parser)({ gram::recursion_error() }), true); \
-        } else { \
-            return call_mono_result(gram::recursion_error(), true); \
-        } \
-        \
-    } \
+    __recursion_error = true; \
+    if(!__recursion_error_call) { \
+    return call_mono_result(p.callback(flags.use_default_parser)({ gram::recursion_error() }), true); \
+} else { \
+    return call_mono_result(gram::recursion_error(), true); \
+} \
+    \
+} \
     __level++; \
     __end_call __level_end_call([&](){ __level--; });
 
@@ -85,10 +85,13 @@ struct __flags_private {
 
 call_mono_result text_call(const std::string &rule_text, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
-    if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __warning_color("t ") << *it << " <- " << rule_text << "\n";
+            if(flags.verbose)
+            std::cout << K_GRAM_LEVEL << __warning_color("t ") << *it << " <- " << rule_text << "\n";
 
     auto item = determine_item(it, patterns, rule_text);
+    if(flags.verbose)
+        std::cout << K_GRAM_LEVEL << "  item: " << item << "\n";
+
     if(item.type() == item::Token) {
         return call_mono_result({ argument(item.token()) }, true);
     } else if(item.type() == item::Pattern) {
@@ -99,8 +102,8 @@ call_mono_result text_call(const std::string &rule_text, token_iterator *it, con
 
 call_mono_result null_call(token_iterator *it, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
-    if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __warning_color("n") << "\n";
+            if(flags.verbose)
+            std::cout << K_GRAM_LEVEL << __warning_color("n") << "\n";
 
     const bool alwaysConfirm = false;
     return call_mono_result(wall_e::variant(), alwaysConfirm ? true : !it->isValid());
@@ -109,14 +112,14 @@ call_mono_result null_call(token_iterator *it, const __flags_private &flags) {
 
 call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
-    if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __warning_color("&") << "\n";
+            if(flags.verbose)
+            std::cout << K_GRAM_LEVEL << __warning_color("&") << "\n";
 
     size_t i = 0;
     arg_vector args;
     args.resize(conjunctions.size());
 
-    for(auto expected_token : conjunctions) {
+    for(const auto& expected_token : conjunctions) {
         call_mono_result tmp_result;
 
         if(expected_token.type() == rule_type::Text) {
@@ -139,7 +142,7 @@ call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterat
                     std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
                 it->next();
             } else if(flags.verbose) {
-                    std::cout << K_GRAM_LEVEL << __warning_color("++ aborted as last") << "\n";
+                std::cout << K_GRAM_LEVEL << __warning_color("++ aborted as last") << "\n";
             }
         } else {
             if(tmp_result.arg.contains_type<wall_e::lex::token>()) {
@@ -147,7 +150,7 @@ call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterat
                     std::cout << K_GRAM_LEVEL << __warning_color("++") << "\n";
                 it->next();
             } else if(flags.verbose) {
-                    std::cout << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << "\n";
+                std::cout << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << "\n";
             }
         }
 
@@ -161,31 +164,36 @@ call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterat
 
 call_mono_result disjunction_call(const std::vector<rule> &disjunctions, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags) {
     K_GRAM_USE_LEVEL
-    if(flags.verbose)
-        std::cout << K_GRAM_LEVEL << __warning_color("|") << "\n";
+            if(flags.verbose)
+            std::cout << K_GRAM_LEVEL << __warning_color("|") << "\n";
 
     token_iterator it_backup = *it;
-    for(auto particular_case : disjunctions) {
+    for(const auto& particular_case : disjunctions) {
         if(flags.verbose)
             std::cout << K_GRAM_LEVEL << "curr it: " << *it << "\n";
 
         call_mono_result tmp_result;
-        if(particular_case.type() == rule_type::Text) {
-            tmp_result = text_call(particular_case.value(), it, patterns, flags);
-        } else if(particular_case.type() == rule_type::Disjunction) {
-            if(flags.verbose)
-                std::cout << K_GRAM_LEVEL << __err_color("deprecated operation Disjunction in Disjunction\n");
 
-            tmp_result = disjunction_call(particular_case.children(), it, patterns, flags);
-        } else if(particular_case.type() == rule_type::Conjunction) {
-            if(flags.verbose)
-                std::cout << K_GRAM_LEVEL << __err_color("deprecated operation Conjunction in Disjunction\n");
-
-            //MAY BE REMOVED
-            tmp_result = call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, flags));
-            //--- -- -------
-        } else {
+        if(particular_case.isNull()) {
             tmp_result = null_call(it, flags);
+        } else {
+            if(particular_case.type() == rule_type::Text) {
+                tmp_result = text_call(particular_case.value(), it, patterns, flags);
+            } else if(particular_case.type() == rule_type::Disjunction) {
+                if(flags.verbose)
+                    std::cout << K_GRAM_LEVEL << __err_color("deprecated operation Disjunction in Disjunction\n");
+
+                tmp_result = disjunction_call(particular_case.children(), it, patterns, flags);
+            } else if(particular_case.type() == rule_type::Conjunction) {
+                if(flags.verbose)
+                    std::cout << K_GRAM_LEVEL << __err_color("deprecated operation Conjunction in Disjunction\n");
+
+                //MAY BE REMOVED
+                tmp_result = call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, flags));
+                //--- -- -------
+            } else {
+                tmp_result = null_call(it, flags);
+            }
         }
 
         if(tmp_result.confirmed) {
@@ -205,8 +213,8 @@ call_mono_result disjunction_call(const std::vector<rule> &disjunctions, token_i
 call_mono_result call(const pattern &p, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags) {
     K_GRAM_ENTER_USE_LEVEL
 
-    if(flags.verbose && __recursion_error)
-        std::cout << K_GRAM_LEVEL << __err_color("kgram_recursion_error (pattern: " + p.name() + ")") << "\n";
+            if(flags.verbose && __recursion_error)
+            std::cout << K_GRAM_LEVEL << __err_color("kgram_recursion_error (pattern: " + p.name() + ")") << "\n";
 
     auto rule = flags.simplification_function(p.gram_rule());
 

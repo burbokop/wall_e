@@ -141,6 +141,10 @@ public:
     bool isValid() const;
     static std::string to_string(const std::list<pattern> &list);
     static pattern from_str(const std::string &string);
+
+    pattern simplified() const;
+
+    static std::list<pattern> simplified(const std::list<pattern>& list);
 };
 
 
@@ -181,7 +185,10 @@ public:
         return pattern();
     }
     type_t type() const { return m_type; };
+    std::string typeString() const;
 };
+
+std::ostream &operator<<(std::ostream &stream, const item& item);
 
 class token_iterator {
     std::vector<wall_e::lex::token>::const_iterator it;
