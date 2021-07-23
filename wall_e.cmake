@@ -49,6 +49,8 @@ add_executable(wall_e_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/smp2_spec.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/simplify_rule_spec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/simplify_rule_spec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/rule_from_str_spec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/rule_from_str_spec.cpp
     )
 
 target_link_libraries(wall_e_tests

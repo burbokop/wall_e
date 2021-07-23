@@ -1,6 +1,7 @@
 #include "simplify_tests.h"
 
 #include "../src/testing.h"
+#include <iostream>
 
 void wall_e::simplify_tests::common_test0(const std::function<wall_e::gram::rule (const wall_e::gram::rule &)> &func) {
     const auto r0 = wall_e::gram::rule("cmd") & ("SEMICOLON" & (wall_e::gram::rule() | "block"));

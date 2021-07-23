@@ -6,7 +6,6 @@
 namespace wall_e {
 
 class smp2_spec {
-public:
     static void cc_test(); wall_e_test(smp2_spec, cc_test)
     static void dd_test(); wall_e_test(smp2_spec, dd_test)
     static void cd_test(); wall_e_test(smp2_spec, cd_test)
