@@ -16,6 +16,9 @@ void remove_substrs(std::string *text, const std::string& pattern);
 void wipe_substrs(std::string *text, const std::string& pattern, char c = ' ');
 std::string trim(const std::string& string, char delim = ' ');
 
+void remove_character(std::string* text, char c);
+std::string remove_character(std::string text, char c);
+
 struct pattern {
     std::regex reg;
     std::string name;

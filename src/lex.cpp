@@ -135,7 +135,7 @@ std::string to_string(const token &token) {
 
 std::string to_string(const std::vector<token> &token, char separator) {
     std::stringstream ss;
-    for(auto t : token) {
+    for(const auto& t : token) {
         ss << t << separator;
     }
     return ss.str();
@@ -143,11 +143,22 @@ std::string to_string(const std::vector<token> &token, char separator) {
 
 std::string trim(const std::string &string, char delim) {
     size_t first = string.find_first_not_of(delim);
-    if (std::string::npos == first) {
-        return string;
+    if (first == std::string::npos) {
+        return std::string();
     }
     size_t last = string.find_last_not_of(delim);
     return string.substr(first, (last - first + 1));
+}
+
+void remove_character(std::string *text, char c) {
+    if (text) {
+        text->erase(std::remove(text->begin(), text->end(), c), text->end());
+    }
+}
+
+std::string remove_character(std::string text, char c) {
+    remove_character(&text, c);
+    return text;
 }
 
 

@@ -1,6 +1,5 @@
 #include "gram_private.h"
 
-#include <iostream>
 #include <queue>
 #include "../gram.h"
 
@@ -59,7 +58,20 @@ std::string pattern::to_string(const std::list<pattern> &list) {
 
 pattern pattern::from_str(const std::string &string) {
     const auto p = lex::split<lex::str_pair>(string, std::regex("[:]|<<"));
-    return pattern(lex::trim(p.first)) << rule_from_str(lex::trim(p.second));
+    return pattern(lex::trim(lex::remove_character(p.first, '\n')))
+            << rule_from_str(lex::trim(lex::remove_character(p.second, '\n')));
+}
+
+std::list<pattern> pattern::list_from_str(const std::string &string) {
+     const auto lines = lex::split<std::list<std::string>>(string,  std::regex("[\n]"));
+     std::list<pattern> result;
+     for(const auto& line : lines) {
+        const auto pattern = from_str(line);
+        if (pattern.name().size() > 0) {
+            result.push_back(pattern);
+        }
+     }
+     return result;
 }
 
 pattern pattern::simplified() const {

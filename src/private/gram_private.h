@@ -14,7 +14,6 @@
 #include "../variant.h"
 #include "../node.h"
 
-#include <iostream>
 
 namespace wall_e {
 namespace gram {
@@ -77,6 +76,9 @@ struct rule_transition {
 rule simplify_rule(const rule &r, rule_transition::enum_t method = rule_transition::Auto);
 inline rule simplify_rule_default(const rule &r) { return simplify_rule(r, rule_transition::DoubleConjunction); }
 
+
+
+
 class pattern {
     std::string m_name;
     rule m_gram_rule;
@@ -107,7 +109,6 @@ public:
     template<typename T>
     static processor pass_token_if(const std::string& token_name, size_t i = 0) {
         return [i, token_name](const arg_vector &args) -> argument {
-            std::cout << "pti: " << args << std::endl;
             if(args.size() > i) {
                 if(args[i].contains_type<lex::token>()) {
                     const auto token = args[i].value<lex::token>();
@@ -143,13 +144,11 @@ public:
     bool isValid() const;
     static std::string to_string(const std::list<pattern> &list);
     static pattern from_str(const std::string &string);
-
+    static std::list<pattern> list_from_str(const std::string &string);
     pattern simplified() const;
 
     static std::list<pattern> simplified(const std::list<pattern>& list);
 };
-
-
 
 template<typename T>
 pattern find_pattern(const T &pattens, const std::string name) {
@@ -314,6 +313,23 @@ std::pair<T, T> binary_operator(const wall_e::gram::arg_vector &args) {
         }
     }
     return {};
+}
+
+
+namespace literals {
+
+inline auto operator "" _rule(const char* c, size_t s) {
+    return rule_from_str(std::string().assign(c, s));
+}
+
+inline auto operator "" _pattern(const char* c, size_t s) {
+    return pattern::from_str(std::string().assign(c, s));
+}
+
+inline auto operator "" _patterns(const char* c, size_t s) {
+    return pattern::list_from_str(std::string().assign(c, s));
+}
+
 }
 
 
