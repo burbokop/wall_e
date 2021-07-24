@@ -1,7 +1,7 @@
-#include "smp2.h"
+#include "gram_smp.h"
 
 
-wall_e::gram::rule wall_e::smp2::cc(const wall_e::gram::rule &rule) {
+wall_e::gram::rule wall_e::smp::cc(const wall_e::gram::rule &rule) {
     if (rule.type() == wall_e::gram::rule_type::Conjunction) {
         size_t i = 0;
         for(const auto& child : rule.children()) {
@@ -17,7 +17,7 @@ wall_e::gram::rule wall_e::smp2::cc(const wall_e::gram::rule &rule) {
     return rule;
 }
 
-wall_e::gram::rule wall_e::smp2::dd(const wall_e::gram::rule &rule) {
+wall_e::gram::rule wall_e::smp::dd(const wall_e::gram::rule &rule) {
     if (rule.type() == wall_e::gram::rule_type::Disjunction) {
         size_t i = 0;
         for(const auto& child : rule.children()) {
@@ -33,15 +33,15 @@ wall_e::gram::rule wall_e::smp2::dd(const wall_e::gram::rule &rule) {
     return rule;
 }
 
-wall_e::gram::rule wall_e::smp2::cd(const wall_e::gram::rule &rule) {
+wall_e::gram::rule wall_e::smp::cd(const wall_e::gram::rule &rule) {
     return rule;
 }
 
-wall_e::gram::rule wall_e::smp2::dc(const wall_e::gram::rule &rule) {
+wall_e::gram::rule wall_e::smp::dc(const wall_e::gram::rule &rule) {
     return rule;
 }
 
-wall_e::gram::rule wall_e::smp2::simplify(const wall_e::gram::rule &rule) {
+wall_e::gram::rule wall_e::smp::simplify(const wall_e::gram::rule &rule) {
     auto funcs = { cc, dd };
 
     auto current = rule;

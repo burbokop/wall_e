@@ -8,12 +8,9 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/node.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/flag.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_private.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/math_patterns.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_smp.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_view_tools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/asm_tools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/function.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/token_tools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/smp2.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.cpp
     )
 
@@ -25,21 +22,16 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/node.h
     ${CMAKE_CURRENT_LIST_DIR}/src/flag.h
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_private.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/math_patterns.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_smp.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_view_tools.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/asm_tools.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/function.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/token_tools.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/smp2.h
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.h
     )
-
 
 add_library(wall_e SHARED
     ${SOURCES}
     ${HEADERS}
 )
-
 
 add_executable(wall_e_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/main.cpp

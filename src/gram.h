@@ -2,7 +2,7 @@
 #define GRAM_H
 
 #include "private/gram_private.h"
-#include "utility/smp2.h"
+#include "private/gram_smp.h"
 
 namespace wall_e {
 
@@ -59,7 +59,7 @@ argument exec(
         const std::list<pattern> &patterns,
         const std::vector<wall_e::lex::token> &tokens,
         const flags_list &flags = flags_list(),
-        const std::function<rule(const rule&)> &simplification_function = smp2::simplify
+        const std::function<rule(const rule&)> &simplification_function = smp::simplify
         );
 
 }

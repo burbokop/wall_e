@@ -1,11 +1,11 @@
-#ifndef SMP2_H
-#define SMP2_H
+#ifndef GRAM_SMP_H
+#define GRAM_SMP_H
 
 #include "../private/gram_private.h"
 
 namespace wall_e {
 
-namespace smp2 {
+namespace smp {
     wall_e::gram::rule cc(const wall_e::gram::rule &rule);
     wall_e::gram::rule dd(const wall_e::gram::rule &rule);
     wall_e::gram::rule cd(const wall_e::gram::rule &rule);
@@ -16,4 +16,4 @@ namespace smp2 {
 
 }
 
-#endif // SMP2_H
+#endif // GRAM_SMP_H

@@ -1,7 +1,7 @@
 #include "rule_from_str_spec.h"
 
 #include "../src/private/gram_private.h"
-#include "../src/utility/smp2.h"
+#include "../src/private/gram_smp.h"
 #include <iostream>
 
 using namespace wall_e::gram::literals;
@@ -19,8 +19,8 @@ void wall_e::rule_from_str_spec::test0() {
 
     const auto r1 = (wall_e::gram::rule("cmd") & "SEMICOLON") & (wall_e::gram::rule() | "block");
 
-    const auto r0s = smp2::simplify(r0);
-    const auto r1s = smp2::simplify(r1);
+    const auto r0s = smp::simplify(r0);
+    const auto r1s = smp::simplify(r1);
 
     wall_e_should_equal(r0s, r1s)
 
@@ -49,8 +49,8 @@ void wall_e::rule_from_str_spec::test1() {
 
     const auto r1 = (wall_e::gram::rule("cmd") & "SEMICOLON") & (wall_e::gram::rule("EB") | "internal_block");
 
-    const auto r0s = smp2::simplify(r0);
-    const auto r1s = smp2::simplify(r1);
+    const auto r0s = smp::simplify(r0);
+    const auto r1s = smp::simplify(r1);
 
     wall_e_should_equal(r0s, r1s);
 
@@ -76,8 +76,8 @@ void wall_e::rule_from_str_spec::test2() {
 
     const auto r1 = gram::rule("wait") | "curr_time" | "function_call" | "function_declaration" | "asm_insertion";
 
-    const auto r0s = smp2::simplify(r0);
-    const auto r1s = smp2::simplify(r1);
+    const auto r0s = smp::simplify(r0);
+    const auto r1s = smp::simplify(r1);
 
     wall_e_should_equal(r0s, r1s);
 
@@ -117,8 +117,8 @@ void wall_e::rule_from_str_spec::test3() {
 
     const auto r1 = wall_e::gram::rule("TOK_ID") & "EQUALS" & "OP" & (wall_e::gram::rule("EP") | "decl_arg_list") & "OB" & (wall_e::gram::rule("EB") | "internal_block");
 
-    const auto r0s = smp2::simplify(r0);
-    const auto r1s = smp2::simplify(r1);
+    const auto r0s = smp::simplify(r0);
+    const auto r1s = smp::simplify(r1);
 
     wall_e_should_equal(r0s, r1s);
 

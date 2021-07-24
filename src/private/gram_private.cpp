@@ -76,7 +76,7 @@ std::list<pattern> pattern::list_from_str(const std::string &string) {
 
 pattern pattern::simplified() const {
     auto copy = pattern(*this);
-    copy.m_gram_rule = smp2::simplify(m_gram_rule);
+    copy.m_gram_rule = smp::simplify(m_gram_rule);
     return copy;
 }
 
