@@ -14,6 +14,7 @@
 #include "../variant.h"
 #include "../node.h"
 
+#include <iostream>
 
 namespace wall_e {
 namespace gram {
@@ -106,6 +107,7 @@ public:
     template<typename T>
     static processor pass_token_if(const std::string& token_name, size_t i = 0) {
         return [i, token_name](const arg_vector &args) -> argument {
+            std::cout << "pti: " << args << std::endl;
             if(args.size() > i) {
                 if(args[i].contains_type<lex::token>()) {
                     const auto token = args[i].value<lex::token>();

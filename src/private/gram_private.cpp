@@ -302,7 +302,7 @@ rule rule_from_str(const std::string &string) {
         << pattern::pass_token_if<wall_e::gram::rule>("W")
     }, lex::parse(string, {
         { std::regex("[0]"), "NULL" },
-        { std::regex("[a-zA-Z][a-zA-Z0-9]*"), "W" },
+        { std::regex("[a-zA-Z_][a-zA-Z0-9_]*"), "W" },
         { std::regex("[(]"), "OP" },
         { std::regex("[)]"), "EP" },
         { std::regex("[&]"), "C" },

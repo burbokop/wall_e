@@ -7,6 +7,7 @@ namespace wall_e {
 
 class rule_from_str_spec {
     static void test0(); wall_e_test(rule_from_str_spec, test0)
+    static void test1(); wall_e_test(rule_from_str_spec, test1)
 };
 
 }
