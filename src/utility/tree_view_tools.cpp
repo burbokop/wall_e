@@ -68,7 +68,7 @@ void print_branch(const wall_e::variant &branch, int x, int y, std::ostream &str
         auto string = branch.value<std::string>();
         stream << string;
     } else {
-        stream << "???";
+        stream << "?" << branch.type() << "?";
     }
 }
 

@@ -150,6 +150,8 @@ public:
     static std::list<pattern> simplified(const std::list<pattern>& list);
 };
 
+std::ostream &operator<<(std::ostream &stream, const pattern& p);
+
 template<typename T>
 pattern find_pattern(const T &pattens, const std::string name) {
     for(auto p : pattens) {
@@ -172,8 +174,9 @@ private:
     std::variant<wall_e::lex::token, pattern> m_data;
 public:
     item() { }
-    item(const wall_e::lex::token &token) { m_data = token; m_type = Token; }
-    item(const pattern &pattern) { m_data = pattern; m_type = Pattern; }
+
+    static item from_token(const wall_e::lex::token &token);
+    static item from_pattern(const pattern &pattern);
 
     wall_e::lex::token token() const {
         if(m_type == Token)
@@ -230,12 +233,12 @@ template<typename pattern_container_T>
 item determine_item(const token_iterator *it, const pattern_container_T &pattens, const std::string text) {
     if(it->isValid()) {
         if(it->data().name == text) {
-            return it->data();
+            return item::from_token(it->data());
         }
     }
     auto p = find_pattern(pattens, text);
     if(p.isValid()) {
-        return p;
+        return item::from_pattern(p);
     }
     return item();
 }

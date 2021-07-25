@@ -93,9 +93,21 @@ public:
 
     template<typename T>
     inline T value() const {
-        assert(contains_type<T>());
+        if(!contains_type<T>()) {
+            throw std::runtime_error("wall_e::variant::value: actual type: " + m_type + " expected: " + type_name<T>());
+        }
         if(m_data)
             return dynamic_cast<variant_handle_t<T>*>(m_data)->value;
+        return T();
+    }
+
+    template<typename T>
+    inline std::optional<T> option() const {
+        if (!contains_type<T>()) {
+            return std::nullopt;
+        } else if(m_data) {
+            return dynamic_cast<variant_handle_t<T>*>(m_data)->value;
+        }
         return T();
     }
 

@@ -9,6 +9,8 @@
 namespace wall_e {
 namespace gram {
 
+using namespace literals;
+
 const color::color_t __err_color = color::BrightRed;
 const color::color_t __header_color = color::BrightMagenta;
 const color::color_t __warning_color = color::BrightYellow;
@@ -87,6 +89,7 @@ call_mono_result text_call(const std::string &rule_text, token_iterator *it, con
     K_GRAM_USE_LEVEL
             if(flags.verbose)
             std::cout << K_GRAM_LEVEL << __warning_color("t ") << *it << " <- " << rule_text << "\n";
+
 
     auto item = determine_item(it, patterns, rule_text);
     if(flags.verbose)

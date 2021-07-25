@@ -46,9 +46,9 @@ std::vector<token> make_tokents(std::string text, const std::list<pattern> &patt
     if(rep != std::string())
         throw std::runtime_error("klex_get_tokents: repetition found (" + rep + ")");
 
-    for(auto pattern : patternlist) {
+    for(const auto& pattern : patternlist) {
         auto l = match(pattern.reg, text);
-        for(auto ll : l) {
+        for(const auto& ll : l) {
             remove_substrs(&text, ll);
             //klex_wipe_substrs(&text, ll);
             token token;
@@ -159,6 +159,24 @@ void remove_character(std::string *text, char c) {
 std::string remove_character(std::string text, char c) {
     remove_character(&text, c);
     return text;
+}
+
+str_vec names(const std::vector<token> &tokens) {
+    std::vector<std::string> result;
+    result.reserve(tokens.size());
+    for(const auto& t : tokens) {
+        result.push_back(t.name);
+    }
+    return result;
+}
+
+str_vec texts(const std::vector<token> &tokens) {
+    std::vector<std::string> result;
+    result.reserve(tokens.size());
+    for(const auto& t : tokens) {
+        result.push_back(t.text);
+    }
+    return result;
 }
 
 

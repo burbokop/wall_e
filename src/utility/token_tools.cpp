@@ -64,4 +64,29 @@ wall_e::variant_vector remove_tokens(const wall_e::variant_vector &variant, cons
     }
     return vec;
 }
+
+std::vector<std::pair<lex::token, lex::token> > invert(const std::vector<std::pair<lex::token, lex::token> > &a) {
+    std::vector<std::pair<lex::token, lex::token> > result;
+    for(const auto& aa : a) {
+        result.push_back({ aa.second, aa.first });
+    }
+    return result;
+}
+
+std::vector<lex::token> left_every_second(const variant &variant) {
+    std::vector<lex::token> result;
+    for(const auto& pair : produce_token_pairs(variant)) {
+        result.push_back(pair.first);
+    }
+    return result;
+}
+
+std::vector<lex::token> right_every_second(const variant &variant) {
+    std::vector<lex::token> result;
+    for(const auto& pair : produce_token_pairs(variant)) {
+        result.push_back(pair.second);
+    }
+    return result;
+}
+
 }

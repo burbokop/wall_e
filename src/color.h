@@ -55,8 +55,7 @@ inline const color_t BrightWhite   = { 97, 107 };
 }
 
 inline std::ostream &operator << (std::ostream &stream, const wall_e::color::color_t &color) {
-    stream << color.f();
-    return stream;
+    return stream << color.f();
 }
 
 #endif // COLOR_H

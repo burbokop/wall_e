@@ -72,6 +72,7 @@ inline std::vector<token> parse(const std::string &text, const std::list<pattern
 }
 
 typedef std::pair<std::string, std::string> str_pair;
+typedef std::vector<std::string> str_vec;
 
 template<typename T>
 T split(const std::string &string, const std::regex &regex) {
@@ -93,6 +94,9 @@ T split(const std::string &string, const std::regex &regex) {
     }
 }
 
+
+str_vec names(const std::vector<lex::token>& tokens);
+str_vec texts(const std::vector<lex::token>& tokens);
 
 
 }

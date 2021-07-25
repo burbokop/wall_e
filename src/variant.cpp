@@ -11,11 +11,11 @@ std::ostream &operator<<(std::ostream &stream, const variant &arg) {
     }
 
     auto s = arg.to_string();
-    if(s.size() > 0)
+    if(s.size() > 0) {
         stream << s;
-    else
-        stream << "unknown type { " << arg.type() << " }";
-
+    } else {
+        stream << "type { " << arg.type() << " }";
+    }
     return stream;
 }
 

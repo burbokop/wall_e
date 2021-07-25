@@ -97,6 +97,10 @@ pattern::processor pattern::pass_argument(size_t i) {
     };
 }
 
+std::ostream &operator<<(std::ostream &stream, const pattern &p) {
+    return stream << p.name() << " << " << p.gram_rule();
+}
+
 rule pattern::gram_rule() const { return m_gram_rule; }
 
 
@@ -323,6 +327,20 @@ rule rule_from_str(const std::string &string) {
     }), {
         gram::unconditional_transition
     }).value_default<gram::rule>();
+}
+
+item item::from_token(const lex::token &token) {
+    item result;
+    result.m_data = token;
+    result.m_type = Token;
+    return result;
+}
+
+item item::from_pattern(const pattern &pattern) {
+    item result;
+    result.m_data = pattern;
+    result.m_type = Pattern;
+    return result;
 }
 
 std::string item::typeString() const {
