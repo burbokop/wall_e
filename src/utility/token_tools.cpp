@@ -29,9 +29,9 @@ std::vector<std::pair<wall_e::lex::token, wall_e::lex::token> > produce_token_pa
         if(vec.size() == 2 && vec[0].contains_type<wall_e::lex::token>() && vec[1].contains_type<wall_e::lex::token>()) {
             return { { vec[0].value<wall_e::lex::token>(), vec[1].value<wall_e::lex::token>() } };
         } else {
-            for(auto v : vec) {
+            for(const auto& v : vec) {
                 auto c = produce_token_pairs(v);
-                for(auto pair : c) {
+                for(const auto& pair : c) {
                     result.push_back(pair);
                 }
             }

@@ -179,6 +179,54 @@ str_vec texts(const std::vector<token> &tokens) {
     return result;
 }
 
+std::vector<str_pair> names(const std::vector<token_pair> &tokens) {
+    std::vector<str_pair> result;
+    result.reserve(tokens.size());
+    for(const auto& t : tokens) {
+        result.push_back({ t.first.name, t.second.name });
+    }
+    return result;
+}
+
+std::vector<str_pair> texts(const std::vector<token_pair> &tokens) {
+    std::vector<str_pair> result;
+    result.reserve(tokens.size());
+    for(const auto& t : tokens) {
+        result.push_back({ t.first.text, t.second.text });
+    }
+    return result;
+}
+
+std::string parse_string_literal(std::string str, bool remove_quotes, char quotes_char) {
+    if (remove_quotes && str.size() > 1) {
+        if(str[0] == quotes_char && str[str.size() - 1] == quotes_char) {
+            str = str.substr(1, str.size() - 2);
+        }
+    }
+    return convert_special_symbol(str);
+}
+
+char special_symbol(char name) {
+    switch (name) {
+        case 'n': return '\n';
+        case 't': return '\t';
+    }
+    return name;
+}
+
+std::string convert_special_symbol(std::string str) {
+    for(auto it = str.begin(); it != str.end(); ++it) {
+        if(*it == '\\') {
+            const auto next = (it + 1);
+            if(it != str.end() && next != str.end()) {
+                *it = special_symbol(*next);
+                it = str.erase(next) - 1;
+            }
+        }
+    }
+    return str;
+}
+
 
 }
 }

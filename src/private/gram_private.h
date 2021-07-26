@@ -339,4 +339,41 @@ inline auto operator "" _patterns(const char* c, size_t s) {
 }
 }
 
+
+template<typename T>
+std::ostream &operator<<(std::ostream &stream, const std::list<T> &list) {
+    int i = 0;
+    stream << "{ ";
+    for(const auto& l : list) {
+        stream << l;
+        if(i != list.size() - 1) {
+            stream << ", ";
+        }
+        ++i;
+    }
+    stream << " }";
+    return stream;
+}
+
+template<typename T>
+std::ostream &operator<<(std::ostream &stream, const std::vector<T> &vec) {
+    int i = 0;
+    stream << "{ ";
+    for(const auto& v : vec) {
+        stream << v;
+        if(i != vec.size() - 1) {
+            stream << ", ";
+        }
+        ++i;
+    }
+    stream << " }";
+    return stream;
+}
+
+template<typename A, typename B>
+std::ostream &operator<<(std::ostream &stream, const std::pair<A, B> &pair) {
+    return stream << "{ " << pair.first << ", " << pair.second << " }";
+}
+
+
 #endif // GRAM_TOOLS_H

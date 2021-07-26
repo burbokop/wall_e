@@ -11,6 +11,7 @@
 #include <list>
 #include <map>
 #include <cassert>
+#include <type_traits>
 
 namespace wall_e {
 
@@ -35,16 +36,45 @@ std::string type_name() {
 }
 
 namespace stream_operator__ {
-    struct no { bool b[2]; };
-    template<typename T, typename Arg> no operator<< (T&, const Arg&);
+struct no { bool b[2]; };
+template<typename T, typename Arg> no operator<< (T&, const Arg&);
 
-    bool check (...);
-    no& check (const no&);
+bool check (...);
+no& check (const no&);
 
-    template <typename T, typename Arg = T>
-    struct exists {
-        enum { value = (sizeof(check(*(T*)(0) << *(Arg*)(0))) != sizeof(no)) };
-    };
+template <typename T, typename Arg = T>
+struct exists {
+    enum { value = (sizeof(check(*(T*)(0) << *(Arg*)(0))) != sizeof(no)) };
+};
+}
+
+
+template <typename T>
+class has_super_type {
+private:
+    typedef char yes_type[1];
+    typedef char no_type[2];
+
+    template <typename C> static yes_type& test(typename C::super_type*) ;
+    template <typename C> static no_type& test(...);
+public:
+    enum { value = sizeof(test<T>(0)) == sizeof(yes_type) };
+};
+
+
+template<typename T>
+std::list<std::string> class_lineage() {
+    if constexpr (has_super_type<T>::value) {
+        static const std::list<std::string> lineage = []{
+            auto list = class_lineage<typename T::super_type>();
+            list.push_front(wall_e::type_name<T>());
+            return list;
+        }();
+        return lineage;
+    } else {
+        static const std::list<std::string> lineage = { wall_e::type_name<T>() };
+        return lineage;
+    }
 }
 
 class variant;
@@ -54,7 +84,6 @@ typedef std::map<std::string, variant> variant_map;
 
 variant_vector constrain_variant(const variant &variant);
 
-
 struct variant_handle_base_t { virtual ~variant_handle_base_t() {}; };
 template<typename T>
 struct variant_handle_t : variant_handle_base_t { T value; };
@@ -63,10 +92,13 @@ std::ostream &operator<<(std::ostream &stream, const variant &arg);
 class variant {
     variant_handle_base_t *m_data = nullptr;
     std::string m_type;
+    std::list<std::string> m_lineage;
 
     std::function<void(variant_handle_base_t*)> m_destructor;
     std::function<variant_handle_base_t*(variant_handle_base_t*)> m_copy_constructor;
     std::function<std::string(variant_handle_base_t*)> m_to_string;
+
+    std::function<void*(variant_handle_base_t*)> m_addr;
 
     std::function<bool(variant_handle_base_t*, variant_handle_base_t*)> m_comparator;
 
@@ -81,10 +113,12 @@ public:
     void operator=(T value) { assign(value); }
     void operator=(const variant &obj) {
         m_type = obj.m_type;
+        m_lineage = obj.m_lineage;
         m_destructor = obj.m_destructor;
         m_copy_constructor = obj.m_copy_constructor;
         m_to_string = obj.m_to_string;
         m_comparator = obj.m_comparator;
+        m_addr = obj.m_addr;
         if(obj.m_data && obj.m_copy_constructor)
             m_data = obj.m_copy_constructor(obj.m_data);
     }
@@ -102,6 +136,31 @@ public:
     }
 
     template<typename T>
+    inline bool inherited_by() const {
+        const auto tt = type_name<typename std::remove_pointer<T>::type>();
+        for(const auto& ll : m_lineage) {
+            if(ll == tt) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    template<typename T>
+    inline T cast() const {
+        static_assert (std::is_pointer<T>::value, "template type must be a pointer");
+        if constexpr(std::is_pointer<T>::value) {
+            if (!inherited_by<T>())
+                throw std::runtime_error("wall_e::variant::cast: actual lineage: " + lineage_str() + " expected type: " + type_name<T>());
+
+            if(m_data && m_addr)
+                return reinterpret_cast<T>(m_addr(m_data));
+            return nullptr;
+        }
+        return T();
+    }
+
+    template<typename T>
     inline std::optional<T> option() const {
         if (!contains_type<T>()) {
             return std::nullopt;
@@ -110,6 +169,35 @@ public:
         }
         return T();
     }
+
+    template<typename T>
+    inline std::optional<T> option_cast() const {
+        static_assert (std::is_pointer<T>::value, "template type must be a pointer");
+        if constexpr(std::is_pointer<T>::value) {
+            if (!inherited_by<T>())
+                return std::nullopt;
+
+            if(m_data && m_addr)
+                return reinterpret_cast<T>(m_addr(m_data));
+            return nullptr;
+        }
+        return T();
+    }
+
+    template<typename T>
+    inline T default_cast(const T &default_value = nullptr) const {
+        static_assert (std::is_pointer<T>::value, "template type must be a pointer");
+        if constexpr(std::is_pointer<T>::value) {
+            if (!inherited_by<T>())
+                return default_value;
+
+            if(m_data && m_addr)
+                return reinterpret_cast<T>(m_addr(m_data));
+            return nullptr;
+        }
+        return T();
+    }
+
 
     template<typename T>
     inline T value_default(const T& def = T()) const {
@@ -141,25 +229,39 @@ public:
 
             m_comparator = [](variant_handle_base_t* obj1, variant_handle_base_t* obj2) -> bool {
                 return dynamic_cast<variant_handle_t<T>*>(obj1)->value
-                == dynamic_cast<variant_handle_t<T>*>(obj2)->value;
+                        == dynamic_cast<variant_handle_t<T>*>(obj2)->value;
             };
 
             if (stream_operator__::exists<std::ostream, T>::value) {
                 m_to_string = [](variant_handle_base_t* obj) {
                     variant_handle_t<T>* casted_obj = dynamic_cast<variant_handle_t<T>*>(obj);
                     std::stringstream ss;
-                        ss << casted_obj->value;
+                    ss << casted_obj->value;
                     return ss.str();
+                };
+            }
+
+            if constexpr(std::is_pointer<T>::value) {
+                m_addr = [](variant_handle_base_t* obj) -> void* {
+                    variant_handle_t<T>* casted_obj = dynamic_cast<variant_handle_t<T>*>(obj);
+                    return casted_obj->value;
                 };
             }
 
 
             m_type = t;
+            m_lineage = class_lineage<typename std::remove_pointer<T>::type>();
         }
 
         dynamic_cast<variant_handle_t<T>*>(m_data)->value = value;
     }
     std::string type() const { return m_type; }
+    std::list<std::string> lineage() const { return m_lineage; }
+    std::string lineage_str() const {
+        std::stringstream ss;
+        ss << m_lineage;
+        return ss.str();
+    }
     template<typename T>
     bool contains_type() const { return m_type == type_name<T>(); }
 
