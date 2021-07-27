@@ -1,6 +1,8 @@
 #ifndef LEX_H
 #define LEX_H
 
+#include "text_segment.h"
+
 #include <vector>
 #include <list>
 #include <regex>
@@ -32,7 +34,10 @@ struct token {
     std::string name;
     std::string text;
     std::string::size_type position = -1;
+    std::string::size_type end_position = -1;
     uint8_t meta = 0;
+
+    text_segment segment() const;
 };
 
 inline std::ostream &operator << (std::ostream &stream, const token &token) {

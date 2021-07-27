@@ -7,11 +7,13 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/variant.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/node.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/flag.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/either.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_private.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_smp.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_view_tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/token_tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/text_segment.cpp
     )
 
 set(HEADERS
@@ -21,11 +23,13 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/variant.h
     ${CMAKE_CURRENT_LIST_DIR}/src/node.h
     ${CMAKE_CURRENT_LIST_DIR}/src/flag.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/either.h
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_private.h
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_smp.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_view_tools.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/token_tools.h
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/text_segment.h
     )
 
 add_library(wall_e SHARED

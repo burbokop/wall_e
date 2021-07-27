@@ -227,6 +227,10 @@ std::string convert_special_symbol(std::string str) {
     return str;
 }
 
+text_segment token::segment() const {
+    return text_segment(position, position + text.size());
+}
+
 
 }
 }
