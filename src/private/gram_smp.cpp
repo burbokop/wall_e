@@ -2,7 +2,7 @@
 
 
 wall_e::gram::rule wall_e::smp::cc(const wall_e::gram::rule &rule) {
-    if (rule.type() == wall_e::gram::rule_type::Conjunction) {
+    if (!rule.isNull() && rule.type() == wall_e::gram::rule_type::Conjunction) {
         size_t i = 0;
         for(const auto& child : rule.children()) {
             if(child.type() == wall_e::gram::rule_type::Conjunction) {
@@ -18,7 +18,7 @@ wall_e::gram::rule wall_e::smp::cc(const wall_e::gram::rule &rule) {
 }
 
 wall_e::gram::rule wall_e::smp::dd(const wall_e::gram::rule &rule) {
-    if (rule.type() == wall_e::gram::rule_type::Disjunction) {
+    if (!rule.isNull() && rule.type() == wall_e::gram::rule_type::Disjunction) {
         size_t i = 0;
         for(const auto& child : rule.children()) {
             if(child.type() == wall_e::gram::rule_type::Disjunction) {
