@@ -176,6 +176,7 @@ public:
         m_to_string = obj.m_to_string;
         m_comparator = obj.m_comparator;
         m_addr = obj.m_addr;
+        m_shared_addr = obj.m_shared_addr;
         if(obj.m_data && obj.m_copy_constructor)
             m_data = obj.m_copy_constructor(obj.m_data);
     }
@@ -238,7 +239,7 @@ public:
                 return std::nullopt;
 
             if(m_data && m_shared_addr)
-                return std::static_pointer_cast<typename T::element_type>(m_shared_addr(m_data));
+                return std::reinterpret_pointer_cast<typename T::element_type>(m_shared_addr(m_data));
             return nullptr;
         }
         return T();
