@@ -12,6 +12,7 @@
 #include <map>
 #include <cassert>
 #include <type_traits>
+#include <memory>
 
 namespace wall_e {
 
@@ -61,6 +62,31 @@ public:
     enum { value = sizeof(test<T>(0)) == sizeof(yes_type) };
 };
 
+template <typename T>
+class has_element_type {
+private:
+    typedef char yes_type[1];
+    typedef char no_type[2];
+
+    template <typename C> static yes_type& test(typename C::element_type*) ;
+    template <typename C> static no_type& test(...);
+public:
+    enum { value = sizeof(test<T>(0)) == sizeof(yes_type) };
+};
+
+template <typename T>
+class has_super_shared_type {
+private:
+    typedef char yes_type[1];
+    typedef char no_type[2];
+
+    template <typename C> static yes_type& test(typename C::element_type::super_type*) ;
+    template <typename C> static no_type& test(...);
+public:
+    enum { value = sizeof(test<T>(0)) == sizeof(yes_type) };
+};
+
+
 
 template<typename T>
 std::list<std::string> class_lineage() {
@@ -68,6 +94,36 @@ std::list<std::string> class_lineage() {
         static const std::list<std::string> lineage = []{
             auto list = class_lineage<typename T::super_type>();
             list.push_front(wall_e::type_name<T>());
+            return list;
+        }();
+        return lineage;
+    } else {
+        static const std::list<std::string> lineage = { wall_e::type_name<T>() };
+        return lineage;
+    }
+}
+
+template<typename T>
+std::list<std::string> shared_lineage() {
+    if constexpr (has_super_shared_type<T>::value) {
+        static const std::list<std::string> lineage = []{
+            auto list = shared_lineage<std::shared_ptr<typename T::element_type::super_type>>();
+            list.push_front(wall_e::type_name<T>());
+            return list;
+        }();
+        return lineage;
+    } else {
+        static const std::list<std::string> lineage = { wall_e::type_name<T>() };
+        return lineage;
+    }
+}
+
+template<typename T>
+std::list<std::string> shared_elem_lineage() {
+    if constexpr (has_super_shared_type<T>::value) {
+        static const std::list<std::string> lineage = []{
+            auto list = class_lineage<typename T::element_type::super_type>();
+            list.push_front(wall_e::type_name<typename T::element_type>());
             return list;
         }();
         return lineage;
@@ -99,6 +155,7 @@ class variant {
     std::function<std::string(variant_handle_base_t*)> m_to_string;
 
     std::function<void*(variant_handle_base_t*)> m_addr;
+    std::function<std::shared_ptr<void>(variant_handle_base_t*)> m_shared_addr;
 
     std::function<bool(variant_handle_base_t*, variant_handle_base_t*)> m_comparator;
 
@@ -148,16 +205,12 @@ public:
 
     template<typename T>
     inline T cast() const {
-        static_assert (std::is_pointer<T>::value, "template type must be a pointer");
-        if constexpr(std::is_pointer<T>::value) {
-            if (!inherited_by<T>())
-                throw std::runtime_error("wall_e::variant::cast: actual lineage: " + lineage_str() + " expected type: " + type_name<T>());
-
-            if(m_data && m_addr)
-                return reinterpret_cast<T>(m_addr(m_data));
-            return nullptr;
+        const auto opt = option_cast<T>();
+        if(opt.has_value()) {
+            return opt.value();
+        } else {
+            throw std::runtime_error("wall_e::variant::cast: actual lineage: " + lineage_str() + " expected type: " + type_name<T>());
         }
-        return T();
     }
 
     template<typename T>
@@ -172,7 +225,7 @@ public:
 
     template<typename T>
     inline std::optional<T> option_cast() const {
-        static_assert (std::is_pointer<T>::value, "template type must be a pointer");
+        static_assert (std::is_pointer<T>::value || has_element_type<T>::value, "template type must be a pointer or shared_ptr");
         if constexpr(std::is_pointer<T>::value) {
             if (!inherited_by<T>())
                 return std::nullopt;
@@ -180,22 +233,25 @@ public:
             if(m_data && m_addr)
                 return reinterpret_cast<T>(m_addr(m_data));
             return nullptr;
+        } else if constexpr(has_element_type<T>::value) {
+            if (!inherited_by<T>())
+                return std::nullopt;
+
+            if(m_data && m_shared_addr)
+                return std::static_pointer_cast<typename T::element_type>(m_shared_addr(m_data));
+            return nullptr;
         }
         return T();
     }
 
     template<typename T>
     inline T default_cast(const T &default_value = nullptr) const {
-        static_assert (std::is_pointer<T>::value, "template type must be a pointer");
-        if constexpr(std::is_pointer<T>::value) {
-            if (!inherited_by<T>())
-                return default_value;
-
-            if(m_data && m_addr)
-                return reinterpret_cast<T>(m_addr(m_data));
-            return nullptr;
+        const auto opt = option_cast<T>();
+        if(opt.has_value()) {
+            return opt.value();
+        } else {
+            return default_value;
         }
-        return T();
     }
 
 
@@ -205,6 +261,21 @@ public:
             return dynamic_cast<variant_handle_t<T>*>(m_data)->value;
         return def;
     }
+
+
+    //template<typename T>
+    //inline std::shared_ptr<typename std::remove_pointer<T>::type> shared_cast() const {
+    //    static_assert (std::is_pointer<T>::value, "template type must be a pointer");
+    //    if constexpr(std::is_pointer<T>::value) {
+    //        if (!inherited_by<T>())
+    //            throw std::runtime_error("wall_e::variant::cast: actual lineage: " + lineage_str() + " expected type: " + type_name<T>());
+    //
+    //        if(m_data && m_addr)
+    //            return reinterpret_cast<T>(m_addr(m_data));
+    //        return nullptr;
+    //    }
+    //    return T();
+    //}
 
     std::string to_string() const { if(m_data && m_to_string) return m_to_string(m_data); return std::string(); }
     bool single_print() const { return m_single_print; };
@@ -246,11 +317,20 @@ public:
                     variant_handle_t<T>* casted_obj = dynamic_cast<variant_handle_t<T>*>(obj);
                     return casted_obj->value;
                 };
+            } else if constexpr(has_element_type<T>::value) {
+                m_shared_addr = [](variant_handle_base_t* obj) -> std::shared_ptr<void> {
+                    variant_handle_t<T>* casted_obj = dynamic_cast<variant_handle_t<T>*>(obj);
+                    return casted_obj->value;
+                };
             }
 
 
             m_type = t;
-            m_lineage = class_lineage<typename std::remove_pointer<T>::type>();
+            if constexpr (has_super_shared_type<T>::value) {
+                m_lineage = shared_lineage<typename std::remove_pointer<T>::type>();
+            } else {
+                m_lineage = class_lineage<typename std::remove_pointer<T>::type>();
+            }
         }
 
         dynamic_cast<variant_handle_t<T>*>(m_data)->value = value;

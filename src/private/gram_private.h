@@ -375,5 +375,16 @@ std::ostream &operator<<(std::ostream &stream, const std::pair<A, B> &pair) {
     return stream << "{ " << pair.first << ", " << pair.second << " }";
 }
 
+template<typename T>
+std::ostream &operator<<(std::ostream &stream, const std::optional<T> &opt) {
+    stream << "{ ";
+    if(opt.has_value()) {
+        stream << opt.value();
+    } else {
+        stream << "std::nullopt";
+    }
+    return stream << " }";
+}
+
 
 #endif // GRAM_TOOLS_H
