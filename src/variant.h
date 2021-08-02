@@ -246,10 +246,9 @@ public:
     }
 
     template<typename T>
-    inline T default_cast(const T &default_value = nullptr) const {
-        const auto opt = option_cast<T>();
-        if(opt.has_value()) {
-            return opt.value();
+    inline T cast_or(const T &default_value = nullptr) const {
+        if(const auto opt = option_cast<T>()) {
+            return *opt;
         } else {
             return default_value;
         }
@@ -257,7 +256,7 @@ public:
 
 
     template<typename T>
-    inline T value_default(const T& def = T()) const {
+    inline T value_or(const T& def = T()) const {
         if(contains_type<T>() && m_data)
             return dynamic_cast<variant_handle_t<T>*>(m_data)->value;
         return def;

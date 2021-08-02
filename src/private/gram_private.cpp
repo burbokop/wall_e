@@ -326,7 +326,7 @@ rule rule_from_str(const std::string &string) {
         { std::regex("[ \t\n]+"), lex::ignore }
     }), {
         gram::unconditional_transition
-    }).value_default<gram::rule>();
+    }).value_or<gram::rule>();
 }
 
 item item::from_token(const lex::token &token) {
