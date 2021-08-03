@@ -21,8 +21,8 @@ public:
     L left_value() const { return std::get<0>(m_data); }
     R right_value() const { return std::get<1>(m_data); }
 
-    inline auto left() const { return wall_e::left(left_value()); }
-    inline auto right() const { return wall_e::right(right_value()); }
+    inline auto left() const { return operator bool() ? wall_e::left<L>() : wall_e::left(left_value()); }
+    inline auto right() const { return operator bool() ? wall_e::right(right_value()) : wall_e::right<R>(); }
 
 
     template<typename Result>
@@ -78,34 +78,42 @@ public:
 
 template<typename L>
 class left {
-    L m_value;
+    template<typename EL, typename ER> friend class either;
+    std::optional<L> m_value;
+    left() {}
 public:
     left(const L& value) { m_value = value; }
 
     template<typename R>
     operator either<L, R>() const {
         either<L, R> result;
-        result.m_data = m_value;
+        result.m_data = *m_value;
         return result;
     }
 
-    const L value() const { return m_value; };
+    operator bool() const { return m_value.has_value(); }
+
+    const L value() const { return *m_value; };
 };
 
 template<typename R>
 class right {
-    R m_value;
+    template<typename EL, typename ER> friend class either;
+    std::optional<R> m_value;
+    right() {}
 public:
     right(const R& value) { m_value = value; }
 
     template<typename L>
     operator either<L, R>() const {
         either<L, R> result;
-        result.m_data = m_value;
+        result.m_data = m_value.value();
         return result;
     }
 
-    const R value() const { return m_value; };
+    operator bool() const { return m_value.has_value(); }
+
+    const R value() const { return m_value.value(); };
 };
 
 } // namespace wall_e
