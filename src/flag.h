@@ -96,10 +96,15 @@ public:
 
     inline decltype (m_flags) to_list() const { return to_container<decltype (m_flags)>(); }
 
+    std::vector<std::string> args() const { return m_args; };
+
+
     void finish(std::ostream &stream);
     void print_description(std::ostream &stream);
 };
 
 }
+
+std::ostream& operator << (std::ostream& stream, const wall_e::flag_provider& flag_provider);
 
 #endif // FLAG_H

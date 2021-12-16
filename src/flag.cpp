@@ -1,4 +1,5 @@
 #include "flag.h"
+#include <algorithm>
 
 
 std::string wall_e::flag::data() const { return m_data; }
@@ -121,5 +122,14 @@ wall_e::flag &wall_e::flag_provider::value_flag(const flag::full_name &flag_name
         m_flags.push_back(flag::make_value_flag(flag_name, default_value, description));
     }
     return m_flags.back();
+}
+
+std::ostream& operator << (std::ostream& stream, const wall_e::flag_provider& flag_provider) {
+    std::vector<std::string> args = flag_provider.args();
+    const char* const delim = " ";
+    std::copy(args.begin(), args.end(),
+               std::ostream_iterator<std::string>(stream, delim));
+
+    return stream;
 }
 
