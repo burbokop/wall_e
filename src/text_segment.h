@@ -22,11 +22,12 @@ public:
     bool valid_direction() const;
 };
 
+bool operator==(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1);
+std::ostream &operator<<(std::ostream& stream, const wall_e::text_segment &seg);
+
 } // namespace km2
 
-bool operator==(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1);
 
-std::ostream &operator<<(std::ostream& stream, const wall_e::text_segment &seg);
 
 
 #endif // KM2_TEXT_SEGMENT_H

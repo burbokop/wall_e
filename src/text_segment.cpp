@@ -21,10 +21,10 @@ wall_e::text_segment::text_segment(std::string::size_type begin, std::string::si
     : m_begin(begin), m_end(end) {}
 
 
-bool operator==(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1) {
+bool wall_e::operator==(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1) {
     return seg0.begin() == seg1.begin() && seg0.end() == seg1.end();
 }
 
-std::ostream &operator<<(std::ostream &stream, const wall_e::text_segment &seg) {
+std::ostream &wall_e::operator<<(std::ostream &stream, const wall_e::text_segment &seg) {
     return stream << "{ " << seg.begin() << ", " << seg.end();
 }

@@ -51,11 +51,13 @@ inline const color_t BrightBlue    = { 94, 104 };
 inline const color_t BrightMagenta = { 95, 105 };
 inline const color_t BrightCyan    = { 96, 106 };
 inline const color_t BrightWhite   = { 97, 107 };
-}
-}
 
 inline std::ostream &operator << (std::ostream &stream, const wall_e::color::color_t &color) {
     return stream << color.f();
 }
+
+}
+}
+
 
 #endif // COLOR_H

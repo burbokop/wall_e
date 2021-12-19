@@ -333,15 +333,14 @@ inline auto operator "" _patterns(const char* c, size_t s) {
     return pattern::list_from_str(std::string().assign(c, s));
 }
 
-}
+} // namespace literals
+} // namespace gram
+} // namespace wall_e
 
-
-}
-}
 
 
 template<typename T>
-std::ostream &operator<<(std::ostream &stream, const std::list<T> &list) {
+inline std::ostream &operator<<(std::ostream &stream, const std::list<T> &list) {
     int i = 0;
     stream << "{ ";
     for(const auto& l : list) {
@@ -355,8 +354,9 @@ std::ostream &operator<<(std::ostream &stream, const std::list<T> &list) {
     return stream;
 }
 
+
 template<typename T>
-std::ostream &operator<<(std::ostream &stream, const std::vector<T> &vec) {
+inline std::ostream &operator<<(std::ostream &stream, const std::vector<T> &vec) {
     int i = 0;
     stream << "{ ";
     for(const auto& v : vec) {
@@ -371,12 +371,12 @@ std::ostream &operator<<(std::ostream &stream, const std::vector<T> &vec) {
 }
 
 template<typename A, typename B>
-std::ostream &operator<<(std::ostream &stream, const std::pair<A, B> &pair) {
+inline std::ostream &operator<<(std::ostream &stream, const std::pair<A, B> &pair) {
     return stream << "{ " << pair.first << ", " << pair.second << " }";
 }
 
 template<typename T>
-std::ostream &operator<<(std::ostream &stream, const std::optional<T> &opt) {
+inline std::ostream &operator<<(std::ostream &stream, const std::optional<T> &opt) {
     stream << "{ ";
     if(opt.has_value()) {
         stream << opt.value();
@@ -385,6 +385,7 @@ std::ostream &operator<<(std::ostream &stream, const std::optional<T> &opt) {
     }
     return stream << " }";
 }
+
 
 
 #endif // GRAM_TOOLS_H

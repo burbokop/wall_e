@@ -14,6 +14,7 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/token_tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/text_segment.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/compiler_info.cpp
     )
 
 set(HEADERS
@@ -30,6 +31,7 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/token_tools.h
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.h
     ${CMAKE_CURRENT_LIST_DIR}/src/text_segment.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/compiler_info.h
     )
 
 add_library(wall_e SHARED

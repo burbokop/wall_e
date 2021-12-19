@@ -103,8 +103,10 @@ public:
     void print_description(std::ostream &stream);
 };
 
+std::ostream& operator << (std::ostream& stream, const wall_e::flag_provider& flag_provider);
+
+
 }
 
-std::ostream& operator << (std::ostream& stream, const wall_e::flag_provider& flag_provider);
 
 #endif // FLAG_H
