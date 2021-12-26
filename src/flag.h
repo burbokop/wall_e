@@ -29,6 +29,7 @@ private:
     static flag make_value_flag(const full_name &name, const std::string& data, const std::string &description);
     static flag make_bool_flag(const full_name &name, bool data, const std::string &description);
 public:
+    static full_name name_from_string(const std::string& name);
     flag() {}
 
     template<typename T>

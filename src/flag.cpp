@@ -19,6 +19,10 @@ std::string wall_e::flag::name_to_string(const full_name &v) {
     }
 }
 
+wall_e::flag::full_name wall_e::flag::name_from_string(const std::string &name) {
+    return { 0, name };
+}
+
 wall_e::flag wall_e::flag::make_value_flag(const full_name &name, const std::string &data, const std::string &description) {
     flag result;
     result.m_data = data;

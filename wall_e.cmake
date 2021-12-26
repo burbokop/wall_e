@@ -65,3 +65,11 @@ add_custom_command(
 )
 
 
+
+install(TARGETS wall_e DESTINATION lib)
+
+install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/src/"
+        DESTINATION include/wall_e
+        FILES_MATCHING
+        PATTERN "*.h"
+)
