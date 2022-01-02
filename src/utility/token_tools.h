@@ -1,7 +1,7 @@
 #ifndef KM2_TOKEN_TOOLS_H
 #define KM2_TOKEN_TOOLS_H
 
-#include "../variant.h"
+#include "../models/variant.h"
 #include "../lex.h"
 
 namespace wall_e {

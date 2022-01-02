@@ -56,20 +56,19 @@ std::string pattern::to_string(const std::list<pattern> &list) {
     return result;
 }
 
-pattern pattern::from_str(const std::string &string) {
+either<error, pattern> pattern::from_str(const std::string &string) {
     const auto p = lex::split<lex::str_pair>(string, std::regex("[:]|<<"));
-    return pattern(lex::trim(lex::remove_character(p.first, '\n')))
-            << rule_from_str(lex::trim(lex::remove_character(p.second, '\n')));
+    return rule_from_str(lex::trim(lex::remove_character(p.second, '\n'))).map<pattern>([&p](const rule& rule){
+        return pattern(lex::trim(lex::remove_character(p.first, '\n')))
+                    << rule;
+    });
 }
 
-std::list<pattern> pattern::list_from_str(const std::string &string) {
+std::list<either<error, pattern>> pattern::list_from_str(const std::string &string) {
      const auto lines = lex::split<std::list<std::string>>(string,  std::regex("[\n]"));
-     std::list<pattern> result;
+     std::list<either<error, pattern>> result;
      for(const auto& line : lines) {
-        const auto pattern = from_str(line);
-        if (pattern.name().size() > 0) {
-            result.push_back(pattern);
-        }
+        result.push_back(from_str(line));
      }
      return result;
 }
@@ -292,7 +291,7 @@ call_mono_result call_mono_result_cast(const call_result &value) {
 
 
 
-rule rule_from_str(const std::string &string) {
+either<error, rule> rule_from_str(const std::string &string) {
     return exec({
         pattern("expression")
         << (rule("disj") | rule("term")),
@@ -326,7 +325,8 @@ rule rule_from_str(const std::string &string) {
         { std::regex("[ \t\n]+"), lex::ignore }
     }), {
         gram::unconditional_transition
-    }).value_or<gram::rule>();
+    })
+            .map<rule>([](const variant& _) { return _.value_or<gram::rule>(); });
 }
 
 item item::from_token(const lex::token &token) {

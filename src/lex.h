@@ -1,7 +1,7 @@
-#ifndef LEX_H
-#define LEX_H
+#ifndef WALL_E_LEX_H
+#define WALL_E_LEX_H
 
-#include "text_segment.h"
+#include "models/error.h"
 
 #include <vector>
 #include <list>
@@ -11,12 +11,25 @@
 namespace wall_e {
 namespace lex {
 
+namespace errors {
+enum  { undefined_token };
+}
+
 extern const std::string ignore;
 
 std::vector<std::string> match(const std::regex &reg, const std::string &text);
 void remove_substrs(std::string *text, const std::string& pattern);
 void wipe_substrs(std::string *text, const std::string& pattern, char c = ' ');
 std::string trim(const std::string& string, char delim = ' ');
+
+template<template<typename, typename> typename C>
+std::string join(const C<std::string, std::allocator<std::string>>& collection, const std::string& separator) {
+    std::string result;
+    for(const auto& str : collection)
+        result += str + separator;
+
+    return result.substr(0, result.size() - separator.size());
+}
 
 void remove_character(std::string* text, char c);
 std::string remove_character(std::string text, char c);
@@ -36,8 +49,10 @@ struct token {
     std::string::size_type position = -1;
     std::string::size_type end_position = -1;
     uint8_t meta = 0;
+    bool undefined = false;
 
     text_segment segment() const;
+    std::optional<error> undef_error() const;
 };
 
 inline std::ostream &operator << (std::ostream &stream, const token &token) {
@@ -51,7 +66,7 @@ std::string to_string(const std::vector<token> &token, char separator = '\n');
 inline std::ostream &operator << (std::ostream &stream, const std::vector<token> &vector) {
     stream << "std::vector<wall_e::lex::token> [";
     std::vector<token>::size_type i = 0;
-    for(auto v : vector) {
+    for(const auto& v : vector) {
         stream << v;
         if(i < vector.size() - 1) {
             stream << ", ";
@@ -116,4 +131,4 @@ std::vector<str_pair> texts(const std::vector<lex::token_pair>& tokens);
 }
 
 
-#endif // LEX_H
+#endif // WALL_E_LEX_H

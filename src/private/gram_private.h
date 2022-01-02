@@ -11,9 +11,9 @@
 #include <cassert>
 
 #include "../lex.h"
-#include "../variant.h"
-#include "../node.h"
-
+#include "../models/variant.h"
+#include "../models/node.h"
+#include "../models/either.h"
 
 namespace wall_e {
 namespace gram {
@@ -31,7 +31,22 @@ struct common_call_result {
         this->confirmed = confirmed;
     }
     T arg;
+    std::optional<wall_e::error> error;
     bool confirmed = false;
+
+    static common_call_result<T> from_error(const wall_e::error& err) {
+        common_call_result result;
+        result.error = err;
+        return result;
+    }
+
+    operator either<wall_e::error, T>() const {
+        if(error) {
+            return left(error.value());
+        } else {
+            return right(arg);
+        }
+    }
 };
 
 typedef common_call_result<argument> call_mono_result;
@@ -143,8 +158,8 @@ public:
     processor callback(bool useDefault = false) const;
     bool isValid() const;
     static std::string to_string(const std::list<pattern> &list);
-    static pattern from_str(const std::string &string);
-    static std::list<pattern> list_from_str(const std::string &string);
+    static either<error, pattern> from_str(const std::string &string);
+    static std::list<either<error, pattern> > list_from_str(const std::string &string);
     pattern simplified() const;
 
     static std::list<pattern> simplified(const std::list<pattern>& list);
@@ -223,6 +238,13 @@ public:
         return false;
     }
 
+    inline text_segment segment() const {
+        if(isValid()) {
+            return text_segment(it->segment());
+        }
+        return {};
+    }
+
     inline wall_e::lex::token data() const { return (*it); }
     inline int offset() const { return it - begin; }
 };
@@ -244,7 +266,7 @@ item determine_item(const token_iterator *it, const pattern_container_T &pattens
 }
 
 std::string to_lowercase(std::string str);
-rule rule_from_str(const std::string &string);
+either<error, rule> rule_from_str(const std::string &string);
 
 
 template<typename T>
@@ -322,15 +344,18 @@ std::pair<T, T> binary_operator(const wall_e::gram::arg_vector &args) {
 namespace literals {
 
 inline auto operator "" _rule(const char* c, size_t s) {
-    return rule_from_str(std::string().assign(c, s));
+    return rule_from_str(std::string().assign(c, s))
+            .get_or();
 }
 
 inline auto operator "" _pattern(const char* c, size_t s) {
-    return pattern::from_str(std::string().assign(c, s));
+    return pattern::from_str(std::string().assign(c, s))
+            .get_or();
 }
 
 inline auto operator "" _patterns(const char* c, size_t s) {
-    return pattern::list_from_str(std::string().assign(c, s));
+    return wall_e::partition<std::list, error, pattern>(pattern::list_from_str(std::string().assign(c, s)))
+            .get_or();
 }
 
 } // namespace literals

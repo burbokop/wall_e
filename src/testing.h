@@ -4,7 +4,7 @@
 #include <cassert>
 #include <functional>
 #include <string>
-#include "variant.h"
+#include "models/variant.h"
 
 #define wall_e_should_equal(actual, expected) \
     if(actual != expected) { \
@@ -13,8 +13,14 @@
     }
 
 #define wall_e_should_be_defined(option) \
-    if(option.has_value()) { \
+    if(!option.has_value()) { \
         std::cerr << "option is not defined here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
+        exit(1); \
+    }
+
+#define wall_e_should_be_right(_either) \
+    if(!_either.defined()) { \
+        std::cerr << "either should be right but " << _either << " here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
         exit(1); \
     }
 

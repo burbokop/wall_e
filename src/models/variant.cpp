@@ -1,5 +1,5 @@
 #include "variant.h"
-#include "lex.h"
+#include "../lex.h"
 
 
 namespace wall_e {
@@ -19,39 +19,14 @@ std::ostream &operator<<(std::ostream &stream, const variant &arg) {
     return stream;
 }
 
-std::ostream &operator<<(std::ostream &stream, const std::vector<variant> &vector) {
-    stream << "[";
-    std::vector<variant>::size_type i = 0;
-    for(auto v : vector) {
-        stream << v;
-        if(i < vector.size() - 1) {
-            stream << ", ";
-        }
-    }
-    stream << "]";
-    return stream;
-}
-
-std::ostream &operator<<(std::ostream &stream, const std::list<variant> &list) {
-    stream << "[";
-    std::vector<variant>::size_type i = 0;
-    for(auto v : list) {
-        stream << v;
-        if(i < list.size() - 1) {
-            stream << ", ";
-        }
-    }
-    stream << "]";
-    return stream;
-}
 
 variant_vector constrain_variant(const variant &variant) {
     variant_vector result;
     if(variant.contains_type<variant_vector>()) {
         const auto vec = variant.value<variant_vector>();
-        for(auto v : vec) {
+        for(const auto& v : vec) {
             auto c = constrain_variant(v);
-            for(auto item : c) {
+            for(const auto& item : c) {
                 result.push_back(item);
             }
         }
@@ -174,5 +149,32 @@ bool is_number(const std::string &string) {
     return !string.empty() && it == string.end();
 }
 
+}
 
+
+
+std::ostream &operator<<(std::ostream &stream, const std::vector<wall_e::variant> &vector) {
+    stream << "[";
+    std::vector<wall_e::variant>::size_type i = 0;
+    for(const auto& v : vector) {
+        stream << v;
+        if(i < vector.size() - 1) {
+            stream << ", ";
+        }
+    }
+    stream << "]";
+    return stream;
+}
+
+std::ostream &operator<<(std::ostream &stream, const std::list<wall_e::variant> &list) {
+    stream << "[";
+    std::vector<wall_e::variant>::size_type i = 0;
+    for(const auto& v : list) {
+        stream << v;
+        if(i < list.size() - 1) {
+            stream << ", ";
+        }
+    }
+    stream << "]";
+    return stream;
 }

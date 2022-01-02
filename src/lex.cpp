@@ -62,7 +62,8 @@ std::vector<token> make_tokents(std::string text, const std::list<pattern> &patt
 
     for(auto c : text) {
         token errt;
-        errt.name = "error";
+        errt.name = "undefined";
+        errt.undefined = true;
         errt.text = c;
         result.push_back(errt);
     }
@@ -113,7 +114,7 @@ std::vector<token> sort_tokens(std::vector<token> tokens, std::string text) {
 
 std::string find_repetition(const std::list<pattern> &patternlist) {
     std::map<pattern, char> m;
-    for(auto p : patternlist) {
+    for(const auto& p : patternlist) {
         auto it = m.find(p);
         if(it != m.end()) {
             return p.name;
@@ -229,6 +230,14 @@ std::string convert_special_symbol(std::string str) {
 
 text_segment token::segment() const {
     return text_segment(position, position + text.size());
+}
+
+std::optional<error> token::undef_error() const {
+    if(undefined) {
+        return error("undefined token", error::err, error::lexic, errors::undefined_token, segment());
+    } else {
+        return std::nullopt;
+    }
 }
 
 

@@ -128,7 +128,7 @@ wall_e::flag &wall_e::flag_provider::value_flag(const flag::full_name &flag_name
     return m_flags.back();
 }
 
-std::ostream& operator << (std::ostream& stream, const wall_e::flag_provider& flag_provider) {
+std::ostream& wall_e::operator << (std::ostream& stream, const wall_e::flag_provider& flag_provider) {
     std::vector<std::string> args = flag_provider.args();
     const char* const delim = " ";
     std::copy(args.begin(), args.end(),

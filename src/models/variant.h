@@ -141,8 +141,17 @@ typedef std::map<std::string, variant> variant_map;
 variant_vector constrain_variant(const variant &variant);
 
 struct variant_handle_base_t { virtual ~variant_handle_base_t() {}; };
+
+template<typename L> class left;
+template<typename R> class right;
+template<typename EL, typename ER> class either;
+
 template<typename T>
 struct variant_handle_t : variant_handle_base_t { T value; };
+
+template<typename L, typename R>
+struct variant_handle_t<either<L, R>> : variant_handle_base_t { either<L, R> value = right<R>(R()); };
+
 
 std::ostream &operator<<(std::ostream &stream, const variant &arg);
 class variant {
@@ -262,21 +271,6 @@ public:
         return def;
     }
 
-
-    //template<typename T>
-    //inline std::shared_ptr<typename std::remove_pointer<T>::type> shared_cast() const {
-    //    static_assert (std::is_pointer<T>::value, "template type must be a pointer");
-    //    if constexpr(std::is_pointer<T>::value) {
-    //        if (!inherited_by<T>())
-    //            throw std::runtime_error("wall_e::variant::cast: actual lineage: " + lineage_str() + " expected type: " + type_name<T>());
-    //
-    //        if(m_data && m_addr)
-    //            return reinterpret_cast<T>(m_addr(m_data));
-    //        return nullptr;
-    //    }
-    //    return T();
-    //}
-
     std::string to_string() const { if(m_data && m_to_string) return m_to_string(m_data); return std::string(); }
     bool single_print() const { return m_single_print; };
 
@@ -357,9 +351,6 @@ public:
 
 
 
-std::ostream &operator<<(std::ostream &stream, const std::vector<variant> &vector);
-std::ostream &operator<<(std::ostream &stream, const std::list<variant> &vector);
-
 
 
 
@@ -370,6 +361,10 @@ bool is_number(const std::string& string);
 double to_double(const variant &variant, bool *ok = nullptr);
 
 }
+
+
+std::ostream &operator<<(std::ostream &stream, const std::vector<wall_e::variant> &vector);
+std::ostream &operator<<(std::ostream &stream, const std::list<wall_e::variant> &vector);
 
 
 #endif // TV2_H

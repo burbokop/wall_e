@@ -4,40 +4,46 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/lex.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/color.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/gram.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/variant.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/node.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/variant.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/node.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/flag.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/either.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/either.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_private.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_smp.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_view_tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/token_tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/text_segment.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/compiler_info.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/text_segment.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/compiler_info.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/error.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/stack.cpp
     )
 
 set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/lex.h
     ${CMAKE_CURRENT_LIST_DIR}/src/color.h
     ${CMAKE_CURRENT_LIST_DIR}/src/gram.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/variant.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/node.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/variant.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/node.h
     ${CMAKE_CURRENT_LIST_DIR}/src/flag.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/either.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/either.h
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_private.h
     ${CMAKE_CURRENT_LIST_DIR}/src/private/gram_smp.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_view_tools.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/token_tools.h
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/text_segment.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/compiler_info.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/text_segment.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/compiler_info.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/error.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/stack.h
     )
 
 add_library(wall_e SHARED
     ${SOURCES}
     ${HEADERS}
 )
+set_property(TARGET wall_e PROPERTY AUTOMOC OFF)
+set_property(TARGET wall_e PROPERTY AUTOUIC OFF)
 
 add_executable(wall_e_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/main.cpp
@@ -55,14 +61,14 @@ target_link_libraries(wall_e_tests
     wall_e
     )
 
-enable_testing()
-add_test(wall_e_tests wall_e_tests)
-add_custom_command(
-     TARGET wall_e_tests
-     COMMENT "wall_e_tests"
-     POST_BUILD
-     COMMAND wall_e_tests
-)
+#enable_testing()
+#add_test(wall_e_tests wall_e_tests)
+#add_custom_command(
+#     TARGET wall_e_tests
+#     COMMENT "wall_e_tests"
+#     POST_BUILD
+#     COMMAND wall_e_tests
+#)
 
 
 
