@@ -16,6 +16,7 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/models/text_segment.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/models/compiler_info.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/models/error.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/index.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/stack.cpp
     )
 
@@ -35,6 +36,7 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/models/text_segment.h
     ${CMAKE_CURRENT_LIST_DIR}/src/models/compiler_info.h
     ${CMAKE_CURRENT_LIST_DIR}/src/models/error.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/models/index.h
     ${CMAKE_CURRENT_LIST_DIR}/src/stack.h
     )
 

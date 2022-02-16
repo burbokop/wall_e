@@ -22,11 +22,16 @@ void remove_substrs(std::string *text, const std::string& pattern);
 void wipe_substrs(std::string *text, const std::string& pattern, char c = ' ');
 std::string trim(const std::string& string, char delim = ' ');
 
+
 template<template<typename, typename> typename C>
-std::string join(const C<std::string, std::allocator<std::string>>& collection, const std::string& separator) {
+std::string join(
+        const C<std::string, std::allocator<std::string>>& collection,
+        const std::string& separator,
+        const std::function<std::string(const std::string&)>& mapper = nullptr
+        ) {
     std::string result;
     for(const auto& str : collection)
-        result += str + separator;
+        result += (mapper ? mapper(str) : str) + separator;
 
     return result.substr(0, result.size() - separator.size());
 }

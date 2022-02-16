@@ -88,7 +88,7 @@ std::list<pattern> pattern::simplified(const std::list<pattern> &list) {
 }
 
 pattern::processor pattern::pass_argument(size_t i) {
-    return [i](const arg_vector &args) -> wall_e::gram::argument {
+    return [i](const arg_vector &args, const index&) -> wall_e::gram::argument {
         if(args.size() > i) {
             return args[i];
         }
@@ -297,14 +297,14 @@ either<error, rule> rule_from_str(const std::string &string) {
         << (rule("disj") | rule("term")),
         pattern("disj")
         << (rule("term") & "D" & "expression")
-        << [](arg_vector args) -> argument {
+        << [](arg_vector args, const index&) -> argument {
             return binary_operator<rule>(args, std::bit_or<rule>());
         },
         pattern("term")
         << (rule("conj") | "factor"),
         pattern("conj")
         << (rule("factor") & "C" & "term")
-        << [](arg_vector args) -> argument {
+        << [](arg_vector args, const index&) -> argument {
             return binary_operator<rule>(args, std::bit_and<rule>());
         },
         pattern("closed_expr")
