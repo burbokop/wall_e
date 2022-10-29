@@ -13,6 +13,7 @@
 #include <type_traits>
 #include <memory>
 #include "../utility/typename.h"
+#include "../utility/collections.h""
 
 namespace wall_e {
 
@@ -69,31 +70,31 @@ public:
 
 
 template<typename T>
-std::list<std::string> class_lineage() {
+wall_e::list<std::string> class_lineage() {
     if constexpr (has_super_type<T>::value) {
-        static const std::list<std::string> lineage = []{
+        static const wall_e::list<std::string> lineage = []{
             auto list = class_lineage<typename T::super_type>();
             list.push_front(wall_e::type_name<T>());
             return list;
         }();
         return lineage;
     } else {
-        static const std::list<std::string> lineage = { wall_e::type_name<T>() };
+        static const wall_e::list<std::string> lineage = { wall_e::type_name<T>() };
         return lineage;
     }
 }
 
 template<typename T>
-std::list<std::string> shared_lineage() {
+wall_e::list<std::string> shared_lineage() {
     if constexpr (has_super_shared_type<T>::value) {
-        static const std::list<std::string> lineage = []{
+        static const wall_e::list<std::string> lineage = []{
             auto list = shared_lineage<std::shared_ptr<typename T::element_type::super_type>>();
             list.push_front(wall_e::type_name<T>());
             return list;
         }();
         return lineage;
     } else {
-        static const std::list<std::string> lineage = { wall_e::type_name<T>() };
+        static const wall_e::list<std::string> lineage = { wall_e::type_name<T>() };
         return lineage;
     }
 }
@@ -137,7 +138,7 @@ std::ostream &operator<<(std::ostream &stream, const variant &arg);
 class variant {
     variant_handle_base_t *m_data = nullptr;
     std::string m_type;
-    std::list<std::string> m_lineage;
+    wall_e::list<std::string> m_lineage;
 
     std::function<void(variant_handle_base_t*)> m_destructor;
     std::function<variant_handle_base_t*(variant_handle_base_t*)> m_copy_constructor;
@@ -310,7 +311,7 @@ public:
         dynamic_cast<variant_handle_t<T>*>(m_data)->value = value;
     }
     std::string type() const { return m_type; }
-    std::list<std::string> lineage() const { return m_lineage; }
+    wall_e::list<std::string> lineage() const { return m_lineage; }
     std::string lineage_str() const {
         std::stringstream ss;
         ss << m_lineage;

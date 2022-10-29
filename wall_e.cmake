@@ -41,6 +41,8 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/stack.h
     ${CMAKE_CURRENT_LIST_DIR}/src/enums.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/typename.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/collections.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/collections.cpp
     )
 
 add_library(wall_e SHARED

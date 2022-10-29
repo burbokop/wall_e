@@ -60,7 +60,11 @@ struct token {
 };
 
 inline std::ostream &operator << (std::ostream &stream, const token &token) {
-    stream << "{ " << token.position << ", " << token.name << ", " << token.text << " }";
+    stream << "{ " << token.position
+           << ", " << token.name
+           << ", " << token.text
+           << ", " << token.segment()
+           << " }";
     return stream;
 }
 

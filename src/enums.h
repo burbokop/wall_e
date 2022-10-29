@@ -1,5 +1,5 @@
-#ifndef ENUMS_H
-#define ENUMS_H
+#ifndef WALL_E_ENUMS_H
+#define WALL_E_ENUMS_H
 
 #include <vector>
 #include <map>
@@ -104,4 +104,4 @@ inline std::optional<T> from_string(const std::string& str) {
     private:
 
 
-#endif // ENUMS_H
+#endif // WALL_E_ENUMS_H
