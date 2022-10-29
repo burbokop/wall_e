@@ -1,7 +1,5 @@
 
 
-
-#include "smp2_spec.h"
 #include "../src/testing.h"
 
 int main() {

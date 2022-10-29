@@ -229,7 +229,11 @@ std::string convert_special_symbol(std::string str) {
 }
 
 text_segment token::segment() const {
-    return text_segment(position, position + text.size());
+    if(position >= 0) {
+        return text_segment(position, position + text.size());
+    } else {
+        return text_segment();
+    }
 }
 
 std::optional<error> token::undef_error() const {
