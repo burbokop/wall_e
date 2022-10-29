@@ -244,6 +244,19 @@ std::optional<error> token::undef_error() const {
     }
 }
 
+std::string encode_special_syms(std::string str) {
+    const auto&& replace_all = [](std::string& data, const std::string& to_search, const std::string& replace_str) {
+        size_t pos = data.find(to_search);
+        while(pos != std::string::npos) {
+            data.replace(pos, to_search.size(), replace_str);
+            pos = data.find(to_search, pos + replace_str.size());
+        }
+    };
+    replace_all(str, "\n", "\\n");
+    replace_all(str, "\t", "\\t");
+    return str;
+}
+
 
 }
 }

@@ -21,7 +21,7 @@ std::vector<std::string> match(const std::regex &reg, const std::string &text);
 void remove_substrs(std::string *text, const std::string& pattern);
 void wipe_substrs(std::string *text, const std::string& pattern, char c = ' ');
 std::string trim(const std::string& string, char delim = ' ');
-
+std::string encode_special_syms(std::string str);
 
 template<template<typename, typename> typename C>
 std::string join(
