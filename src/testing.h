@@ -14,9 +14,9 @@
         exit(1); \
     }
 
-#define wall_e_should_be_defined(option) \
-    if(!option.has_value()) { \
-        std::cerr << "option is not defined here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
+#define wall_e_should_be_defined(option_or_ptr) \
+    if(!option_or_ptr) { \
+        std::cerr << "option or ptr is not defined here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
         exit(1); \
     }
 
