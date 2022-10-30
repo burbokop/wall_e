@@ -31,7 +31,7 @@ struct common_call_result {
         this->confirmed = confirmed;
     }
     T arg;
-    std::optional<wall_e::error> error;
+    wall_e::opt<wall_e::error> error;
     bool confirmed = false;
 
     static common_call_result<T> from_error(const wall_e::error& err) {
@@ -65,6 +65,7 @@ struct rule_type {
 };
 
 typedef node<rule_type::enum_t, rule_type::Text, std::string> rule;
+typedef wall_e::vec<rule> rule_vec;
 
 std::string rule_to_string(const rule &r);
 
@@ -157,13 +158,15 @@ public:
     gram::rule gram_rule() const;
     processor callback(bool useDefault = false) const;
     bool isValid() const;
-    static std::string to_string(const std::list<pattern> &list);
+    static std::string to_string(const wall_e::list<pattern> &list);
     static either<error, pattern> from_str(const std::string &string);
-    static std::list<either<error, pattern> > list_from_str(const std::string &string);
+    static wall_e::list<either<error, pattern> > list_from_str(const std::string &string);
     pattern simplified() const;
 
-    static std::list<pattern> simplified(const std::list<pattern>& list);
+    static wall_e::list<pattern> simplified(const wall_e::list<pattern>& list);
 };
+
+typedef wall_e::list<pattern> pattern_list;
 
 std::ostream &operator<<(std::ostream &stream, const pattern& p);
 
@@ -210,11 +213,11 @@ public:
 std::ostream &operator<<(std::ostream &stream, const item& item);
 
 class token_iterator {
-    std::vector<wall_e::lex::token>::const_iterator it;
-    std::vector<wall_e::lex::token>::const_iterator begin;
-    std::vector<wall_e::lex::token>::const_iterator end;
+    lex::token_vec::const_iterator it;
+    lex::token_vec::const_iterator begin;
+    lex::token_vec::const_iterator end;
 public:
-    inline token_iterator(const std::vector<wall_e::lex::token> &container) {
+    inline token_iterator(const lex::token_vec &container) {
         it = container.begin();
         begin = container.begin();
         end = container.end();
@@ -270,7 +273,7 @@ either<error, rule> rule_from_str(const std::string &string);
 
 
 template<typename T>
-wall_e::gram::argument binary_operator(const wall_e::gram::arg_vector &args, const std::list<std::pair<std::string, std::function<T (T, T)>>> &processors) {
+wall_e::gram::argument binary_operator(const wall_e::gram::arg_vector &args, const wall_e::list<wall_e::pair<std::string, std::function<T (T, T)>>> &processors) {
     if(args.size() > 2) {
         const auto val = [](const wall_e::gram::argument &arg, T& value) -> bool {
             if(arg.contains_type<T>()) {
@@ -319,7 +322,7 @@ wall_e::gram::argument binary_operator(const wall_e::gram::arg_vector &args, con
 }
 
 template<typename T>
-std::pair<T, T> binary_operator(const wall_e::gram::arg_vector &args) {
+wall_e::pair<T, T> binary_operator(const wall_e::gram::arg_vector &args) {
     if(args.size() > 2) {
         const auto val = [](const wall_e::gram::argument &arg, T& value) -> bool {
             if(arg.contains_type<T>()) {
@@ -354,7 +357,7 @@ inline auto operator "" _pattern(const char* c, size_t s) {
 }
 
 inline auto operator "" _patterns(const char* c, size_t s) {
-    return wall_e::partition<std::list, error, pattern>(pattern::list_from_str(std::string().assign(c, s)))
+    return wall_e::partition<wall_e::list, error, pattern>(pattern::list_from_str(std::string().assign(c, s)))
             .get_or();
 }
 

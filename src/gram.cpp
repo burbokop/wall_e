@@ -73,7 +73,7 @@ struct __flags_private {
 };
 
 
-call_mono_result text_call(const std::string &rule_text, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags, index_iter index_it, std::size_t *construction_index) {
+call_mono_result text_call(const std::string &rule_text, token_iterator *it, const pattern_list &patterns, const __flags_private &flags, index_iter index_it, std::size_t *construction_index) {
     K_GRAM_CHECK_LEVEL
     if(flags.verbose) { log << K_GRAM_LEVEL << __warning_color("t ") << *it << " <- " << rule_text << std::endl; }
 
@@ -100,7 +100,7 @@ call_mono_result null_call(token_iterator *it, const __flags_private &flags, ind
 }
 
 
-call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags, index_iter index_it, std::size_t *construction_index) {
+call_result conjunction_call(const rule_vec &conjunctions, token_iterator *it, const pattern_list &patterns, const __flags_private &flags, index_iter index_it, std::size_t *construction_index) {
     K_GRAM_CHECK_LEVEL
     if(flags.verbose) { log << K_GRAM_LEVEL << __warning_color("&") << "\n"; }
 
@@ -153,13 +153,12 @@ call_result conjunction_call(const std::vector<rule> &conjunctions, token_iterat
     return call_result(args, true);
 }
 
-call_mono_result disjunction_call(const std::vector<rule> &disjunctions, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags, index_iter index_it, std::size_t *construction_index) {
+call_mono_result disjunction_call(const rule_vec &disjunctions, token_iterator *it, const pattern_list &patterns, const __flags_private &flags, index_iter index_it, std::size_t *construction_index) {
     K_GRAM_CHECK_LEVEL
     if(flags.verbose) { log << K_GRAM_LEVEL << __warning_color("|") << "\n"; }
 
     token_iterator it_backup = *it;
-
-    std::vector<std::string> expectations;
+    str_vec expectations;
 
     for(const auto& particular_case : disjunctions) {
         std::stringstream ess;
@@ -210,7 +209,7 @@ call_mono_result disjunction_call(const std::vector<rule> &disjunctions, token_i
 }
 
 
-call_mono_result call(const pattern &p, token_iterator *it, const std::list<pattern> &patterns, const __flags_private &flags, index_iter index_it, std::size_t *construction_index) {
+call_mono_result call(const pattern &p, token_iterator *it, const pattern_list &patterns, const __flags_private &flags, index_iter index_it, std::size_t *construction_index) {
     K_GRAM_CHECK_LEVEL
 
     auto rule = flags.simplification_function(p.gram_rule());
@@ -246,7 +245,7 @@ call_mono_result call(const pattern &p, token_iterator *it, const std::list<patt
 }
 
 
-either<error, argument> exec(const std::list<pattern> &patterns, const std::vector<wall_e::lex::token> &tokens, const flags_list &flags, const std::function<rule(const rule &)> &simplification_function) {
+either<error, argument> exec(const pattern_list &patterns, const lex::token_vec &tokens, const flags_list &flags, const std::function<rule(const rule &)> &simplification_function) {
     const auto verbose = __flags_private(flags, simplification_function).verbose;
 
     if(verbose) {

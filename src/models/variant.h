@@ -13,7 +13,7 @@
 #include <type_traits>
 #include <memory>
 #include "../utility/typename.h"
-#include "../utility/collections.h""
+#include "../utility/collections.h"
 
 namespace wall_e {
 
@@ -205,7 +205,7 @@ public:
     }
 
     template<typename T>
-    inline std::optional<T> option() const {
+    inline wall_e::opt<T> option() const {
         if (!contains_type<T>()) {
             return std::nullopt;
         } else if(m_data) {
@@ -215,7 +215,7 @@ public:
     }
 
     template<typename T>
-    inline std::optional<T> option_cast() const {
+    inline wall_e::opt<T> option_cast() const {
         static_assert (std::is_pointer<T>::value || has_element_type<T>::value, "template type must be a pointer or shared_ptr");
         if constexpr(std::is_pointer<T>::value) {
             if (!inherited_by<T>())

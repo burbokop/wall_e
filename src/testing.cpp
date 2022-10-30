@@ -18,8 +18,8 @@ struct benchmark {
 };
 
 struct spec {
-    std::list<test> tests;
-    std::list<benchmark> benchmarks;
+    wall_e::list<test> tests;
+    wall_e::list<benchmark> benchmarks;
 };
 
 std::map<std::string, spec> specs;

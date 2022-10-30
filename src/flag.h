@@ -1,6 +1,7 @@
 #ifndef FLAG_H
 #define FLAG_H
 
+#include "utility/collections.h"
 #include <vector>
 #include <string>
 #include <sstream>
@@ -16,7 +17,7 @@ class flag {
     std::string m_description;
     bool m_bool_data;
 public:
-    typedef std::pair<char, std::string> full_name;
+    typedef wall_e::pair<char, std::string> full_name;
     enum flag_type {
         bool_flag,
         value_flag,
@@ -67,8 +68,8 @@ public:
 
 
 class flag_provider {
-    std::vector<std::string> m_args;
-    std::list<flag> m_flags;
+    str_vec m_args;
+    wall_e::list<flag> m_flags;
     std::string m_preffix = "-";
     std::string m_extended_preffix = "--";
     flag m_help;
@@ -97,7 +98,7 @@ public:
 
     inline decltype (m_flags) to_list() const { return to_container<decltype (m_flags)>(); }
 
-    std::vector<std::string> args() const { return m_args; };
+    str_vec args() const { return m_args; };
 
 
     void finish(std::ostream &stream);

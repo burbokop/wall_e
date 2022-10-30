@@ -24,8 +24,7 @@ enum flags {
     unconditional_transition
 };
 
-
-typedef std::list<flags> flags_list;
+typedef wall_e::list<flags> flags_list;
 
 struct __flags_private;
 
@@ -45,25 +44,25 @@ struct index_iter {
 call_mono_result call(
         const pattern &p,
         token_iterator *it,
-        const std::list<pattern> &patterns,
+        const pattern_list &patterns,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index
         );
 
 call_mono_result disjunction_call(
-        const std::vector<rule> &disjunctions,
+        const rule_vec &disjunctions,
         token_iterator *it,
-        const std::list<pattern> &patterns,
+        const pattern_list &patterns,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index
         );
 
 call_result conjunction_call(
-        const std::vector<rule> &conjunctions,
+        const rule_vec &conjunctions,
         token_iterator *it,
-        const std::list<pattern> &patterns,
+        const pattern_list &patterns,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index
@@ -72,7 +71,7 @@ call_result conjunction_call(
 call_mono_result text_call(
         const std::string &rule_text,
         token_iterator *it,
-        const std::list<pattern> &patterns,
+        const pattern_list &patterns,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index
@@ -86,8 +85,8 @@ call_mono_result null_call(
         );
 
 either<error, argument> exec(
-        const std::list<pattern> &patterns,
-        const std::vector<wall_e::lex::token> &tokens,
+        const pattern_list &patterns,
+        const lex::token_vec &tokens,
         const flags_list &flags = flags_list(),
         const std::function<rule(const rule&)> &simplification_function = smp::simplify
         );

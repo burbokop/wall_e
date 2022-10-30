@@ -7,10 +7,10 @@ namespace lex {
 
 const std::string ignore = "ignore";
 
-std::vector<std::string> match(const std::regex &reg, const std::string &text) {
+wall_e::vec<std::string> match(const std::regex &reg, const std::string &text) {
     std::sregex_token_iterator it(text.begin(), text.end(), reg);
     std::sregex_token_iterator end;
-    std::vector<std::string> result;
+    str_vec result;
     while(it != end) {
         result.push_back(it.operator*());
         ++it;
@@ -40,8 +40,8 @@ void wipe_substrs(std::string *text, const std::string& pattern, char c) {
     }
 }
 
-std::vector<token> make_tokents(std::string text, const std::list<pattern> &patternlist) {
-    std::vector<token> result;
+token_vec make_tokents(std::string text, const pattern_list &patternlist) {
+    token_vec result;
     const auto rep = find_repetition(patternlist);
     if(rep != std::string())
         throw std::runtime_error("klex_get_tokents: repetition found (" + rep + ")");
@@ -76,22 +76,19 @@ std::vector<token> make_tokents(std::string text, const std::list<pattern> &patt
 }
 
 
-std::vector<std::string::size_type> find_all_occurrences(const std::string &text, const std::string &substring) {
-    std::vector<std::string::size_type> result;
-
+wall_e::vec<std::string::size_type> find_all_occurrences(const std::string &text, const std::string &substring) {
+    wall_e::vec<std::string::size_type> result;
     size_t pos = text.find(substring, 0);
     while(pos != std::string::npos) {
         result.push_back(pos);
         pos = text.find(substring, pos + 1);
     }
-
     return result;
 }
 
-std::vector<token> sort_tokens(std::vector<token> tokens, std::string text) {
+token_vec sort_tokens(token_vec tokens, std::string text) {
     std::sort(tokens.begin(), tokens.end(), [](const token &a, const token &b) { return a.text.size() > b.text.size(); });
-
-    std::vector<token> result;
+    token_vec result;
     std::map<std::string::size_type, token> tokmap;
     for(auto t : tokens) {
         auto o = find_all_occurrences(text, t.text);
@@ -112,7 +109,7 @@ std::vector<token> sort_tokens(std::vector<token> tokens, std::string text) {
     return result;
 }
 
-std::string find_repetition(const std::list<pattern> &patternlist) {
+std::string find_repetition(const pattern_list &patternlist) {
     std::map<pattern, char> m;
     for(const auto& p : patternlist) {
         auto it = m.find(p);
@@ -134,7 +131,7 @@ std::string to_string(const token &token) {
     return ss.str();
 }
 
-std::string to_string(const std::vector<token> &token, char separator) {
+std::string to_string(const wall_e::vec<wall_e::lex::token> &token, char separator) {
     std::stringstream ss;
     for(const auto& t : token) {
         ss << t << separator;
@@ -162,8 +159,8 @@ std::string remove_character(std::string text, char c) {
     return text;
 }
 
-str_vec names(const std::vector<token> &tokens) {
-    std::vector<std::string> result;
+str_vec names(const token_vec &tokens) {
+    str_vec result;
     result.reserve(tokens.size());
     for(const auto& t : tokens) {
         result.push_back(t.name);
@@ -171,8 +168,8 @@ str_vec names(const std::vector<token> &tokens) {
     return result;
 }
 
-str_vec texts(const std::vector<token> &tokens) {
-    std::vector<std::string> result;
+str_vec texts(const token_vec &tokens) {
+    str_vec result;
     result.reserve(tokens.size());
     for(const auto& t : tokens) {
         result.push_back(t.text);
@@ -180,8 +177,8 @@ str_vec texts(const std::vector<token> &tokens) {
     return result;
 }
 
-std::vector<str_pair> names(const std::vector<token_pair> &tokens) {
-    std::vector<str_pair> result;
+wall_e::vec<str_pair> names(const wall_e::vec<token_pair> &tokens) {
+    wall_e::vec<str_pair> result;
     result.reserve(tokens.size());
     for(const auto& t : tokens) {
         result.push_back({ t.first.name, t.second.name });
@@ -189,8 +186,8 @@ std::vector<str_pair> names(const std::vector<token_pair> &tokens) {
     return result;
 }
 
-std::vector<str_pair> texts(const std::vector<token_pair> &tokens) {
-    std::vector<str_pair> result;
+wall_e::vec<str_pair> texts(const wall_e::vec<token_pair> &tokens) {
+    wall_e::vec<str_pair> result;
     result.reserve(tokens.size());
     for(const auto& t : tokens) {
         result.push_back({ t.first.text, t.second.text });
@@ -236,7 +233,7 @@ text_segment token::segment() const {
     }
 }
 
-std::optional<error> token::undef_error() const {
+wall_e::opt<error> token::undef_error() const {
     if(undefined) {
         return error("undefined token", error::err, error::lexic, errors::undefined_token, segment());
     } else {

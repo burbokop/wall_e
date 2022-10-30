@@ -94,7 +94,7 @@ wall_e::flag_provider::flag_provider(int argc, char **argv) {
     for(int i = 0; i < argc; ++i) {
         m_args[i] = argv[i];
     }
-    m_help = bool_flag(std::pair { 'h', "help" }, "Display halp");
+    m_help = bool_flag(flag::full_name { 'h', "help" }, "Display halp");
 }
 
 wall_e::flag &wall_e::flag_provider::bool_flag(const flag::full_name &flag_name, const std::string &description) {
@@ -129,7 +129,7 @@ wall_e::flag &wall_e::flag_provider::value_flag(const flag::full_name &flag_name
 }
 
 std::ostream& wall_e::operator << (std::ostream& stream, const wall_e::flag_provider& flag_provider) {
-    std::vector<std::string> args = flag_provider.args();
+    str_vec args = flag_provider.args();
     const char* const delim = " ";
     std::copy(args.begin(), args.end(),
                std::ostream_iterator<std::string>(stream, delim));

@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "utility/typename.h"
+#include "utility/collections.h"
 
 namespace wall_e {
 
@@ -13,7 +14,7 @@ class __private_tools {
     static void print_err(const std::string& str);
 public:
     static std::string trim(const std::string& str);
-    static std::vector<std::string> split(const std::string& s, char delimiter);
+    static wall_e::vec<std::string> split(const std::string& s, char delimiter);
 
     template<typename T>
     static const std::map<T, std::string>* va_args_to_map(const std::string &str) {
@@ -70,7 +71,7 @@ inline std::string to_string(T value) {
 }
 
 template<typename T>
-inline std::optional<T> from_string(const std::string& str) {
+inline wall_e::opt<T> from_string(const std::string& str) {
     for(const auto& p : reflect_names<T>()) {
         if(p.second == str) { return p.first; }
     }

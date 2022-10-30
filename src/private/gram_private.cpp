@@ -46,7 +46,7 @@ rule operator |(
 
 bool pattern::isValid() const { return m_isValid; }
 
-std::string pattern::to_string(const std::list<pattern> &list) {
+std::string pattern::to_string(const wall_e::list<pattern> &list) {
     std::string result;
     for(const auto& l : list) {
         std::stringstream ss;
@@ -57,16 +57,16 @@ std::string pattern::to_string(const std::list<pattern> &list) {
 }
 
 either<error, pattern> pattern::from_str(const std::string &string) {
-    const auto p = lex::split<lex::str_pair>(string, std::regex("[:]|<<"));
+    const auto p = lex::split<str_pair>(string, std::regex("[:]|<<"));
     return rule_from_str(lex::trim(lex::remove_character(p.second, '\n'))).map<pattern>([&p](const rule& rule){
         return pattern(lex::trim(lex::remove_character(p.first, '\n')))
                     << rule;
     });
 }
 
-std::list<either<error, pattern>> pattern::list_from_str(const std::string &string) {
-     const auto lines = lex::split<std::list<std::string>>(string,  std::regex("[\n]"));
-     std::list<either<error, pattern>> result;
+wall_e::list<either<error, pattern> > pattern::list_from_str(const std::string &string) {
+     const auto lines = lex::split<str_list>(string,  std::regex("[\n]"));
+     wall_e::list<either<error, pattern>> result;
      for(const auto& line : lines) {
         result.push_back(from_str(line));
      }
@@ -79,8 +79,8 @@ pattern pattern::simplified() const {
     return copy;
 }
 
-std::list<pattern> pattern::simplified(const std::list<pattern> &list) {
-    std::list<pattern> result;
+wall_e::list<pattern> pattern::simplified(const wall_e::list<pattern> &list) {
+    pattern_list result;
     for(const auto& l : list) {
         result.push_back(l.simplified());
     }
@@ -152,7 +152,7 @@ rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t 
         }
         kgram_simplify_rule_last_rule_type_internal__ = rule_type::Conjunction;
 
-        std::vector<rule> tmpvec;
+        rule_vec tmpvec;
         rule_transition tmptr;
         bool was = false;
 
@@ -172,10 +172,10 @@ rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t 
         }
 
         if(was) {
-            std::vector<rule> r2;
+            rule_vec r2;
             auto ffc = tmptr.r.children();
             for(const auto& offa : ffc) {
-                std::vector<rule> RULE;
+                rule_vec RULE;
 
                 RULE.push_back(offa);
                 for(const auto& rr : tmpvec) {
@@ -206,7 +206,7 @@ rule_transition __simplify_rule_internal(const rule &r, rule_transition::enum_t 
 
         kgram_simplify_rule_last_rule_type_internal__ = rule_type::Disjunction;
 
-        std::vector<rule> r;
+        rule_vec r;
         for(const auto& cc : c) {
             auto ffg = __simplify_rule_internal(cc, method);
 

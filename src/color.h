@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include "utility/collections.h"
 
 namespace wall_e {
 template <typename Arg, typename... Args>
@@ -12,12 +13,12 @@ inline void unpuck_to_stream(std::ostream& ss, Arg&& arg, Args&&... args) {
 }
 
 namespace color {
-static inline std::string f(const std::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.first) + "m"; }
-static inline std::string b(const std::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.second) + "m"; }
+static inline std::string f(const wall_e::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.first) + "m"; }
+static inline std::string b(const wall_e::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.second) + "m"; }
 inline std::string reset() { return "\033[0m"; }
 
 class color_t {
-    std::pair<uint8_t, uint8_t> data;
+    wall_e::pair<uint8_t, uint8_t> data;
 public:
     color_t(uint8_t foreground, uint8_t background) { data = { foreground, background }; }
     inline std::string f() const { return color::f(data); }

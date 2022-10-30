@@ -4,6 +4,7 @@
 #include <variant>
 #include <functional>
 #include <ostream>
+#include "../utility/collections.h"
 
 namespace wall_e {
 
@@ -93,7 +94,7 @@ public:
         return *this;
     }
 
-    std::optional<R> option() {
+    wall_e::opt<R> option() {
         if(*this) {
             return right_value();
         } else {
@@ -117,7 +118,7 @@ public:
 template<typename L>
 class left {
     template<typename EL, typename ER> friend class either;
-    std::optional<L> m_value;
+    wall_e::opt<L> m_value;
     left() {}
 public:
     typedef L left_type;
@@ -135,7 +136,7 @@ public:
 template<typename R>
 class right {
     template<typename EL, typename ER> friend class either;
-    std::optional<R> m_value;
+    wall_e::opt<R> m_value;
     right() {}
 public:
     typedef R right_type;

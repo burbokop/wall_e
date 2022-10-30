@@ -25,5 +25,5 @@ std::ostream &wall_e::write_relation_list(std::ostream &stream, const wall_e::re
 }
 
 wall_e::graph wall_e::make_graph(size_t n, char c) {
-    return graph(n, std::vector<char>(n, c));
+    return graph(n, wall_e::vec<char>(n, c));
 }

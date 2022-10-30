@@ -152,6 +152,10 @@ inline list<T> &&operator+(list<T> && l0, const list<T> &l1) {
     return std::move(l0);
 }
 
+typedef wall_e::pair<std::string, std::string> str_pair;
+typedef wall_e::vec<std::string> str_vec;
+typedef wall_e::vec<std::string> str_list;
+
 }
 
 

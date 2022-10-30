@@ -6,7 +6,7 @@
 #include <map>
 #include <ostream>
 #include <list>
-
+#include "../utility/collections.h"
 
 namespace wall_e {
 
@@ -16,8 +16,8 @@ struct relation {
     char symbol;
 };
 
-typedef std::vector<std::vector<char>> graph;
-typedef std::list<relation> relation_list;
+typedef wall_e::vec<wall_e::vec<char>> graph;
+typedef wall_e::list<relation> relation_list;
 graph make_graph(size_t n, char c = 0);
 std::ostream& write_graph(std::ostream& stream, const graph& g, const std::string &hseparator = " ", const std::string &vseparator = "\n");
 std::ostream& write_relation_list(std::ostream& stream, const relation_list& rl, const std::string &hseparator = " ", const std::string &vseparator = "\n");
@@ -25,7 +25,7 @@ std::ostream& write_relation_list(std::ostream& stream, const relation_list& rl,
 template<typename type_type, type_type single_value_type, typename value_type>
 class node {
     type_type m_type;
-    std::variant<value_type, std::vector<node>> m_content;
+    std::variant<value_type, wall_e::vec<node>> m_content;
     bool m_isNull = true;
     static inline std::map<type_type, char> m_symbols;
 public:
@@ -36,7 +36,7 @@ public:
         m_content = value;
         m_isNull = false;
     }
-    node(type_type type, std::vector<node> value) {
+    node(type_type type, wall_e::vec<node> value) {
         m_type = type;
         m_content = value;
         m_isNull = false;
@@ -45,22 +45,22 @@ public:
     node(type_type type, Args... args) : node(type, { args... }) {}
 
     type_type type() const { return m_type; }
-    std::variant<value_type, std::vector<node>> content() const { return m_content; }
+    std::variant<value_type, wall_e::vec<node>> content() const { return m_content; }
     value_type value() const { return m_type == single_value_type ? std::get<value_type>(m_content) : value_type(); }
-    std::vector<node> children() const { return std::get<std::vector<node>>(m_content); }
+    wall_e::vec<node> children() const { return std::get<wall_e::vec<node>>(m_content); }
     bool isNull() const { return m_isNull; }
     bool isValue() const { return m_type == single_value_type; }
     bool isContainer() const { return !m_isNull && m_type != single_value_type; }
 
-    inline node &operator[](size_t i) { return std::get<std::vector<node>>(m_content)[i]; }
-    inline node operator[](size_t i) const { return std::get<std::vector<node>>(m_content)[i]; }
-    inline size_t size() const { return std::get<std::vector<node>>(m_content).size(); }
+    inline node &operator[](size_t i) { return std::get<wall_e::vec<node>>(m_content)[i]; }
+    inline node operator[](size_t i) const { return std::get<wall_e::vec<node>>(m_content)[i]; }
+    inline size_t size() const { return std::get<wall_e::vec<node>>(m_content).size(); }
 
     static void assignTypeSymbol(type_type type, char symbol) { m_symbols[type] = symbol; }
 
-    bool replace(size_t i, const std::vector<node>& vec) {
+    bool replace(size_t i, const wall_e::vec<node>& vec) {
         if (isContainer()) {
-            auto& c = std::get<std::vector<node>>(m_content);
+            auto& c = std::get<wall_e::vec<node>>(m_content);
             auto it = std::next(c.begin(), i);
             if (it != c.end()) {
                 it = c.erase(it);
@@ -77,7 +77,7 @@ public:
         return replace(i, { node });
     }
 
-    std::optional<node> replaced(size_t i, const std::vector<node>& vec) const {
+    wall_e::opt<node> replaced(size_t i, const wall_e::vec<node>& vec) const {
         auto copy = *this;
         if (copy.replace(i, vec)) {
             return copy;
@@ -86,7 +86,7 @@ public:
         }
     }
 
-    std::optional<node> replaced(size_t i, const node& node) const {
+    wall_e::opt<node> replaced(size_t i, const node& node) const {
         return replaced(i, { node });
     }
 
@@ -116,22 +116,11 @@ public:
         return output;
     }
 
-    friend std::ostream &operator<<(std::ostream &output, const std::vector<node> &vector) {
-        int i = 0;
-        output << "{ ";
-        for(auto v : vector) {
-            output << v << (i == vector.size() - 1 ? "" : ", ");
-            ++i;
-        }
-        output << " }";
-        return output;
-    }
-
     static void make_relation_list(
             const node<type_type, single_value_type, value_type>& n,
             relation_list& rl,
             uint64_t &next,
-            const std::optional<uint64_t> &last = {},
+            const wall_e::opt<uint64_t> &last = {},
             char last_char = 0
             ) {
         const auto current = next++;
