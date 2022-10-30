@@ -21,9 +21,7 @@ namespace wall_e {
 namespace gram {
 
 typedef wall_e::variant argument;
-typedef std::vector<argument> arg_vector;
-
-
+typedef wall_e::vec<argument> arg_vector;
 
 template<typename T>
 struct common_call_result {

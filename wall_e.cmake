@@ -64,6 +64,8 @@ add_executable(wall_e_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/rule_from_str_spec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/enums_spec.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/enums_spec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/collections_spec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/collections_spec.cpp
     )
 
 target_link_libraries(wall_e_tests

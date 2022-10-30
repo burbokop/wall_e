@@ -100,23 +100,23 @@ wall_e::list<std::string> shared_lineage() {
 }
 
 template<typename T>
-std::list<std::string> shared_elem_lineage() {
+wall_e::list<std::string> shared_elem_lineage() {
     if constexpr (has_super_shared_type<T>::value) {
-        static const std::list<std::string> lineage = []{
+        static const wall_e::list<std::string> lineage = []{
             auto list = class_lineage<typename T::element_type::super_type>();
             list.push_front(wall_e::type_name<typename T::element_type>());
             return list;
         }();
         return lineage;
     } else {
-        static const std::list<std::string> lineage = { wall_e::type_name<T>() };
+        static const wall_e::list<std::string> lineage = { wall_e::type_name<T>() };
         return lineage;
     }
 }
 
 class variant;
-typedef std::vector<variant> variant_vector;
-typedef std::list<variant> variant_list;
+typedef wall_e::vec<variant> variant_vector;
+typedef wall_e::list<variant> variant_list;
 typedef std::map<std::string, variant> variant_map;
 
 variant_vector constrain_variant(const variant &variant);
@@ -325,16 +325,6 @@ public:
     inline variant_vector constrain() const { return constrain_variant(*this); }
 };
 
-
-
-
-
-
-
-
-
-
-
 bool is_number(const variant &variant, std::string expected_token = std::string());
 bool is_number(const std::string& string);
 
@@ -342,10 +332,6 @@ bool is_number(const std::string& string);
 double to_double(const variant &variant, bool *ok = nullptr);
 
 }
-
-
-std::ostream &operator<<(std::ostream &stream, const std::vector<wall_e::variant> &vector);
-std::ostream &operator<<(std::ostream &stream, const std::list<wall_e::variant> &vector);
 
 
 #endif // TV2_H

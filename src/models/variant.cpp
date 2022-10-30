@@ -150,31 +150,3 @@ bool is_number(const std::string &string) {
 }
 
 }
-
-
-
-std::ostream &operator<<(std::ostream &stream, const std::vector<wall_e::variant> &vector) {
-    stream << "[";
-    std::vector<wall_e::variant>::size_type i = 0;
-    for(const auto& v : vector) {
-        stream << v;
-        if(i < vector.size() - 1) {
-            stream << ", ";
-        }
-    }
-    stream << "]";
-    return stream;
-}
-
-std::ostream &operator<<(std::ostream &stream, const std::list<wall_e::variant> &list) {
-    stream << "[";
-    std::vector<wall_e::variant>::size_type i = 0;
-    for(const auto& v : list) {
-        stream << v;
-        if(i < list.size() - 1) {
-            stream << ", ";
-        }
-    }
-    stream << "]";
-    return stream;
-}
