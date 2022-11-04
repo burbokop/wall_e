@@ -7,22 +7,36 @@
 #include <chrono>
 #include "models/variant.h"
 
+#ifdef __linux__
+#define wall_e_assert_function __ASSERT_FUNCTION
+#else
+#define wall_e_assert_function __PRETTY_FUNCTION__
+#endif
+
+
+namespace wall_e {
+namespace testing {
+std::ostream& err_stream();
+}
+}
+
+
 
 #define wall_e_should_equal(actual, expected) \
     if(actual != expected) { \
-        std::cerr << actual << " is not " << expected << " here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
+        wall_e::testing::err_stream() << __FILE__ << ":" << __LINE__ << ": " << actual << " is not " << expected << " in " << wall_e_assert_function << std::endl; \
         exit(1); \
     }
 
 #define wall_e_should_be_defined(option_or_ptr) \
     if(!option_or_ptr) { \
-        std::cerr << "option or ptr is not defined here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
+        wall_e::testing::err_stream() << __FILE__ << ":" << __LINE__ << ": option or ptr is not defined in " << wall_e_assert_function << std::endl; \
         exit(1); \
     }
 
 #define wall_e_should_be_right(_either) \
     if(!_either.defined()) { \
-        std::cerr << "either should be right but " << _either << " here " << __FILE__ << ":" << __LINE__ << " " << __ASSERT_FUNCTION << std::endl; \
+        wall_e::testing::err_stream() << __FILE__ << ":" << __LINE__ << ": either should be right but " << _either << " in " << wall_e_assert_function << std::endl; \
         exit(1); \
     }
 
@@ -68,8 +82,8 @@ public:
 }
 }
 
-#define wall_e_test(SPEC, TEST) static int inline __ ## TEST ## _test_registration = wall_e::testing::register_test(#TEST, #SPEC, &TEST);
-#define wall_e_bench(SPEC, TEST) static int inline __ ## TEST ## _test_registration = wall_e::testing::register_benchmark(#TEST, #SPEC, &TEST);
+#define wall_e_test(SPEC, TEST) ; static int inline __ ## TEST ## _test_registration = wall_e::testing::register_test(#TEST, #SPEC, &TEST)
+#define wall_e_bench(SPEC, TEST) ; static int inline __ ## TEST ## _test_registration = wall_e::testing::register_benchmark(#TEST, #SPEC, &TEST)
 
 #define wall_e_register_class(TAG) auto __ ## TAG ## _class_registration() { \
     static constexpr wall_e::testing::class_registerer<std::remove_pointer<decltype (this)>::type> result; \

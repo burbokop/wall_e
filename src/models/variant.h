@@ -17,7 +17,7 @@
 
 namespace wall_e {
 
-namespace stream_operator__ {
+namespace stream_operator {
 struct no { bool b[2]; };
 template<typename T, typename Arg> no operator<< (T&, const Arg&);
 
@@ -133,8 +133,8 @@ struct variant_handle_t : variant_handle_base_t { T value; };
 template<typename L, typename R>
 struct variant_handle_t<either<L, R>> : variant_handle_base_t { either<L, R> value = right<R>(R()); };
 
-
 std::ostream &operator<<(std::ostream &stream, const variant &arg);
+
 class variant {
     variant_handle_base_t *m_data = nullptr;
     std::string m_type;
@@ -150,11 +150,13 @@ class variant {
     std::function<bool(variant_handle_base_t*, variant_handle_base_t*)> m_comparator;
 
     bool m_single_print = false;
+
 public:
-    variant() {};
     template<typename T>
-    variant(T value) { assign(value); }
+    variant(const T& value) { assign(value); }
+    variant() {};
     variant(const char *value) : variant(std::string(value)) {}
+
     variant(const variant &obj) { operator=(obj); }
     template<typename T>
     void operator=(T value) { assign(value); }
@@ -172,6 +174,8 @@ public:
     }
 
     ~variant() { if(m_data && m_destructor) { m_destructor(m_data); } }
+
+    inline bool is_null() const { return !m_data; }
 
     template<typename T>
     inline T value() const {
@@ -278,7 +282,7 @@ public:
                         == dynamic_cast<variant_handle_t<T>*>(obj2)->value;
             };
 
-            if (stream_operator__::exists<std::ostream, T>::value) {
+            if (stream_operator::exists<std::ostream, T>::value) {
                 m_to_string = [](variant_handle_base_t* obj) {
                     variant_handle_t<T>* casted_obj = dynamic_cast<variant_handle_t<T>*>(obj);
                     std::stringstream ss;
@@ -310,7 +314,7 @@ public:
 
         dynamic_cast<variant_handle_t<T>*>(m_data)->value = value;
     }
-    std::string type() const { return m_type; }
+    const std::string& type() const { return m_type; }
     wall_e::list<std::string> lineage() const { return m_lineage; }
     std::string lineage_str() const {
         std::stringstream ss;

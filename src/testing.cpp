@@ -45,9 +45,11 @@ public:
 
 
 struct min_max_sum {
-    long min = std::numeric_limits<decltype(min)>::max();
-    long max = std::numeric_limits<decltype(max)>::min();
-    long sum = 0;
+    typedef std::chrono::nanoseconds::rep nanos;
+
+    nanos min = std::numeric_limits<decltype(min)>::max();
+    nanos max = std::numeric_limits<decltype(max)>::min();
+    nanos sum = 0;
     std::size_t count = 0;
 
 
@@ -59,6 +61,10 @@ struct min_max_sum {
                       << " }";
     }
 };
+
+std::ostream &err_stream() {
+    return std::cerr;
+}
 
 }
 }

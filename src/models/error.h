@@ -33,12 +33,13 @@ public:
 
 bool operator==(const wall_e::error &error0, const wall_e::error &error1);
 
+std::ostream& operator<<(std::ostream& stream, const error &error);
+std::ostream& operator<<(std::ostream& stream, const error::severity &severity);
+std::ostream& operator<<(std::ostream& stream, const error::stage &stage);
+
 } // namespace wall_e
 
 
-std::ostream& operator<<(std::ostream& stream, const wall_e::error &error);
-std::ostream& operator<<(std::ostream& stream, const wall_e::error::severity &severity);
-std::ostream& operator<<(std::ostream& stream, const wall_e::error::stage &stage);
 
 
 #endif // WALL_E_ERROR_H

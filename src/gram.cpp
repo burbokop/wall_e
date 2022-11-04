@@ -6,8 +6,10 @@
 #include <fstream>
 #include <streambuf>
 #include "color.h"
+#ifdef __linux__
 #include <boost/iostreams/tee.hpp>
 #include <boost/iostreams/stream.hpp>
+#endif
 
 namespace wall_e {
 namespace gram {
@@ -20,8 +22,12 @@ const color::color_t& __warning_color = color::BrightYellow;
 
 const uint32_t __recursion_max_level = 500;
 
+#ifdef __linux__
 std::ofstream flog = std::ofstream("wall_e.gram.ansi");
 boost::iostreams::stream log = boost::iostreams::tee(flog, std::cout);
+#else
+std::ofstream log = std::ofstream("wall_e.gram.ansi");
+#endif
 
 class __defer {
     std::function<void()> m_f;
@@ -83,7 +89,7 @@ call_mono_result text_call(const std::string &rule_text, token_iterator *it, con
         log << K_GRAM_LEVEL << "  item: " << item << "\n";
 
     if(item.type() == item::Token) {
-        return call_mono_result({ argument(item.token()) }, true);
+        return call_mono_result({ item.token() }, true);
     } else if(item.type() == item::Pattern) {
         return call(item.gram_pattern(), it, patterns, flags, index_it.next_level(), construction_index);
     }

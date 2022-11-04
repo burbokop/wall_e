@@ -19,6 +19,9 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/models/index.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/stack.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/enums.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/typename.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/box.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/collections.cpp
     )
 
 set(HEADERS
@@ -42,7 +45,8 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/enums.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/typename.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/collections.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/collections.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/box.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/defer.h
     )
 
 add_library(wall_e SHARED
@@ -66,6 +70,8 @@ add_executable(wall_e_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/enums_spec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/collections_spec.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/collections_spec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/variant_spec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/variant_spec.cpp
     )
 
 target_link_libraries(wall_e_tests

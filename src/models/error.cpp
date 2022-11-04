@@ -29,11 +29,11 @@ bool wall_e::operator==(const wall_e::error &error0, const wall_e::error &error1
             && error0.kind() == error1.kind();
 }
 
-std::ostream &operator<<(std::ostream &stream, const wall_e::error &error) {
+std::ostream &wall_e::operator<<(std::ostream &stream, const wall_e::error &error) {
     return stream << error.sev() << ":" << error.message() << " at " << error.segment() << "(stage: " << error.stg() << ", kind: " << error.kind() << ")";
 }
 
-std::ostream& operator<<(std::ostream& stream, const wall_e::error::severity &severity) {
+std::ostream& wall_e::operator<<(std::ostream& stream, const wall_e::error::severity &severity) {
     switch (severity) {
         case wall_e::error::severity::err: return stream << "err";
         case wall_e::error::severity::warn: return stream << "warn";
@@ -43,7 +43,7 @@ std::ostream& operator<<(std::ostream& stream, const wall_e::error::severity &se
     }
 }
 
-std::ostream& operator<<(std::ostream& stream, const wall_e::error::stage &stage) {
+std::ostream& wall_e::operator<<(std::ostream& stream, const wall_e::error::stage &stage) {
     switch (stage) {
         case wall_e::error::stage::lexic: return stream << "lexic";
         case wall_e::error::stage::gramatic: return stream << "gramatic";

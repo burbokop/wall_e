@@ -5,6 +5,8 @@
 namespace wall_e {
 
 std::ostream &operator<<(std::ostream &stream, const variant &arg) {
+    if(arg.is_null()) return stream << "nullvar";
+
     if(arg.single_print()) {
         stream << "single print";
         return stream;
@@ -14,7 +16,11 @@ std::ostream &operator<<(std::ostream &stream, const variant &arg) {
     if(s.size() > 0) {
         stream << s;
     } else {
-        stream << "type { " << arg.type() << " }";
+        if(arg.type().empty()) {
+            stream << "vartype {}";
+        } else {
+            stream << "vartype { " << arg.type() << " }";
+        }
     }
     return stream;
 }
