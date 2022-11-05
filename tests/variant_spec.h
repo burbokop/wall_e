@@ -7,6 +7,7 @@ namespace wall_e {
 
 class variant_spec {
     static void print_to_stream_test() wall_e_test(variant_spec, print_to_stream_test);
+    static void typename_test() wall_e_test(variant_spec, typename_test);
 };
 
 }

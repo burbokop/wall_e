@@ -1,6 +1,7 @@
 #include "lex.h"
 
 #include <cassert>
+#include <sstream>
 
 namespace wall_e {
 namespace lex {

@@ -7,7 +7,6 @@
 #include <functional>
 #include <list>
 #include <ostream>
-#include <cxxabi.h>
 #include <cassert>
 
 #include "../lex.h"

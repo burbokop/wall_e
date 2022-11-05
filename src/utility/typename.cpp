@@ -1,5 +1,16 @@
 #include "typename.h"
 
+#if _MSC_VER && !__INTEL_COMPILER
+std::string wall_e::demangle(const std::string &mangled) {
+    const std::string& c = "class ";
+    if(mangled.starts_with(c)) {
+        return mangled.substr(c.size(), mangled.size() - c.size());
+    }
+    return mangled;
+}
+#else
+#include <cxxabi.h>
+
 std::string wall_e::demangle(const std::string &mangled) {
     size_t mangled_size = mangled.size();
     int status = 0;
@@ -17,3 +28,4 @@ std::string wall_e::demangle(const std::string &mangled) {
     printf("wall_e::demangle: Undefined error.");
     return {};
 }
+#endif

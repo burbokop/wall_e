@@ -151,6 +151,8 @@ public:
     bool operator ==(const right<R>& other) const { return this->m_value == other.m_value; }
 };
 
+/*
+WORKING ON GCC BUT NOT ON MSVC
 template<template<typename> typename C, typename L, typename R>
 either<C<L>, C<R>> partition(const C<either<L, R>>& collection) {
     C<L> left;
@@ -167,7 +169,7 @@ either<C<L>, C<R>> partition(const C<either<L, R>>& collection) {
     } else {
         return wall_e::right(right);
     }
-}
+}*/
 
 template<template<typename, typename> typename C, typename L, typename R>
 either<C<L, std::allocator<L>>, C<R, std::allocator<R>>> partition(const C<either<L, R>, std::allocator<either<L, R>>>& collection) {

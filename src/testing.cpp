@@ -3,6 +3,7 @@
 #include <map>
 #include <iostream>
 #include <chrono>
+#include <cstring>
 
 namespace wall_e {
 namespace testing {
@@ -10,19 +11,36 @@ namespace testing {
 struct test {
     std::string name;
     std::function<void()> test_func;
+    friend std::ostream& operator<<(std::ostream& stream, const test& s) {
+        return stream << "{ name: " << s.name
+                      << ", test_func: " << (s.test_func ? true : false)
+                      << " }";
+    }
 };
 
 struct benchmark {
     std::string name;
     std::function<void(const benchmark_ctx&)> benchmark_func;
+    friend std::ostream& operator<<(std::ostream& stream, const benchmark& s) {
+        return stream << "{ name: " << s.name
+                      << ", benchmark_func: " << (s.benchmark_func ? true : false)
+                      << " }";
+    }
 };
 
 struct spec {
-    wall_e::list<test> tests;
-    wall_e::list<benchmark> benchmarks;
+    const char* name;
+    buf<test> tests;
+    buf<benchmark> benchmarks;
+    friend std::ostream& operator<<(std::ostream& stream, const spec& s) {
+        return stream << "{ name: " << s.name
+                      << ", tests: " << s.tests
+                      << ", benchmarks: " << s.benchmarks
+                      << " }";
+    }
 };
 
-std::map<std::string, spec> specs;
+buf<spec> specs;
 
 template<typename Rep, typename Period>
 class pretty_dur {
@@ -88,33 +106,56 @@ void wall_e::testing::benchmark_ctx::each(const std::string &name, const std::fu
     std::cout << "loop: " << m_spec << "." << m_bench_name << "." << name << " -> " << mms << std::endl;
 }
 
-int wall_e::testing::register_test(const std::string &name, const std::string &spec, const std::function<void ()> &test_func) {
-    specs[spec].tests.push_back({ name, test_func });
+
+bool cmp(const char* a, const char* b){ return std::strcmp(a, b) == 0; }
+
+int wall_e::testing::register_test(const char* name, const char* spec, const std::function<void ()> &test_func) {
+    auto it = specs.find(&spec::name, cmp, spec);
+    if(it == specs.end()) {
+        it = specs.insert_back({ .name = spec });
+    }
+    it->tests.push_back({ .name = name, .test_func = test_func });
     return 0;
 }
 
-int wall_e::testing::register_benchmark(const std::string &name, const std::string &spec, const std::function<void (const benchmark_ctx &)> &benchmark_func) {
-    specs[spec].benchmarks.push_back({ name, benchmark_func });
+int wall_e::testing::register_benchmark(const char* name, const char* spec, const std::function<void (const benchmark_ctx &)> &benchmark_func) {
+    auto it = specs.find(&spec::name, cmp, spec);
+    if(it == specs.end()) {
+        it = specs.insert_back({ .name = spec });
+    }
+    it->benchmarks.push_back({ .name = name, .benchmark_func = benchmark_func });
     return 0;
 }
 
 int wall_e::testing::exec() {
+    if(specs.empty()) {
+        std::cout << "TEST NOT FOUND" << std::endl;
+    }
+
     for(const auto& s : specs) {
-        if(s.second.tests.size() > 0) {
-            std::cout << "---- " << s.first << " TESTS ----" << std::endl;
-            for(const auto& t : s.second.tests) {
+        if(s.tests.size() > 0) {
+            std::cout << "---- " << s.name << " TESTS ----" << std::endl;
+            for(const auto& t : s.tests) {
                 std::cout << "test: " << t.name << std::endl;
-                t.test_func();
-                std::cout << "      " << t.name << " OK" << std::endl;
+                if(t.test_func) {
+                    t.test_func();
+                    std::cout << "      " << t.name << " OK" << std::endl;
+                } else {
+                    std::cout << "      " << t.name << " SOMETHING WANT WRONG. TEST FUNC IS NULL" << std::endl;
+                }
             }
         }
-        if(s.second.benchmarks.size() > 0) {
-            std::cout << "---- " << s.first << " BENCHMARKS ----" << std::endl;
-            for(const auto& b : s.second.benchmarks) {
+        if(s.benchmarks.size() > 0) {
+            std::cout << "---- " << s.name << " BENCHMARKS ----" << std::endl;
+            for(const auto& b : s.benchmarks) {
                 std::cout << "benchmarks: " << b.name << std::endl;
-                benchmark_ctx ctx(s.first, b.name, 1000, std::chrono::duration_cast<dur>(std::chrono::seconds(1)));
-                b.benchmark_func(ctx);
-                std::cout << "      " << b.name << " OK" << std::endl;
+                benchmark_ctx ctx(s.name, b.name, 1000, std::chrono::duration_cast<dur>(std::chrono::seconds(1)));
+                if(b.benchmark_func) {
+                    b.benchmark_func(ctx);
+                    std::cout << "      " << b.name << " OK" << std::endl;
+                } else {
+                    std::cout << "      " << b.name << " SOMETHING WANT WRONG. TEST FUNC IS NULL" << std::endl;
+                }
             }
         }
     }

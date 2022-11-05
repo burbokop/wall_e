@@ -6,42 +6,33 @@
 #include <string>
 #include <chrono>
 #include "models/variant.h"
+#include "wall_e/src/macro.h"
 
-#ifdef __linux__
-#define wall_e_assert_function __ASSERT_FUNCTION
-#else
-#define wall_e_assert_function __PRETTY_FUNCTION__
-#endif
-
-
-namespace wall_e {
-namespace testing {
-std::ostream& err_stream();
-}
-}
 
 
 
 #define wall_e_should_equal(actual, expected) \
     if(actual != expected) { \
-        wall_e::testing::err_stream() << __FILE__ << ":" << __LINE__ << ": " << actual << " is not " << expected << " in " << wall_e_assert_function << std::endl; \
+        wall_e::testing::err_stream() << __FILE__ << ":" << __LINE__ << ": " << actual << " is not " << expected << " in " << wall_e_this_function << std::endl; \
         exit(1); \
     }
 
 #define wall_e_should_be_defined(option_or_ptr) \
     if(!option_or_ptr) { \
-        wall_e::testing::err_stream() << __FILE__ << ":" << __LINE__ << ": option or ptr is not defined in " << wall_e_assert_function << std::endl; \
+        wall_e::testing::err_stream() << __FILE__ << ":" << __LINE__ << ": option or ptr is not defined in " << wall_e_this_function << std::endl; \
         exit(1); \
     }
 
 #define wall_e_should_be_right(_either) \
     if(!_either.defined()) { \
-        wall_e::testing::err_stream() << __FILE__ << ":" << __LINE__ << ": either should be right but " << _either << " in " << wall_e_assert_function << std::endl; \
+        wall_e::testing::err_stream() << __FILE__ << ":" << __LINE__ << ": either should be right but " << _either << " in " << wall_e_this_function << std::endl; \
         exit(1); \
     }
 
 namespace wall_e {
 namespace testing {
+
+std::ostream& err_stream();
 
 int exec();
 
@@ -68,8 +59,8 @@ public:
     void each(const std::string& name, const std::function<void()>& f) const;
 };
 
-int register_test(const std::string& name, const std::string& spec, const std::function<void()> &test_func);
-int register_benchmark(const std::string& name, const std::string& spec, const std::function<void(const benchmark_ctx&)> &benchmark_func);
+int register_test(const char* name, const char* spec, const std::function<void()> &test_func);
+int register_benchmark(const char* name, const char* spec, const std::function<void(const benchmark_ctx&)> &benchmark_func);
 
 template<typename T>
 class class_registerer {

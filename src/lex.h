@@ -58,7 +58,7 @@ struct token {
     uint8_t meta = 0;
     bool undefined = false;
 
-    text_segment segment() const;
+    __declspec(dllexport) text_segment segment() const;
     wall_e::opt<error> undef_error() const;
 };
 

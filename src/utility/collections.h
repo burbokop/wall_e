@@ -9,6 +9,9 @@
 #include <map>
 #include <stack>
 
+#include <iostream>
+
+
 namespace wall_e {
 
 template<typename T>
@@ -164,6 +167,62 @@ public:
     }
 };
 
+template<typename T, std::size_t S = 256>
+struct buf {
+    std::size_t m_size;
+    T m_data[S];
+public:
+    using value_type                      = T;
+    static constexpr std::size_t capacity = S;
+    using iterator                        = T*;
+    using const_iterator                  = const T*;
+
+    buf() : m_size(0) {}
+
+    std::size_t size() const { return m_size; }
+    bool empty() const { return m_size == 0; }
+    void push_back(const T& val) { insert_back(val); }
+
+    const T& operator[](std::size_t i) const { return m_data[i]; }
+    T& operator[](std::size_t i) { return m_data[i]; }
+
+    const_iterator begin() const { return m_data; }
+    const_iterator end() const { return ((T*)m_data) + m_size; }
+    iterator begin() { return m_data; }
+    iterator end() { return ((T*)m_data) + m_size; }
+
+    iterator insert_back(const T& val) {
+        m_data[m_size++] = val;
+        return ((T*)m_data) + m_size - 1;
+    }
+
+    iterator find(const T& what) {
+        auto it = begin();
+        while(it != end()) {
+            if(*it == what) return it;
+            ++it;
+        }
+        return end();
+    }
+    template<typename F>
+    iterator find(F(T::*f), const F& what) {
+        auto it = begin();
+        while(it != end()) {
+            if((it->*f) == what) return it;
+            ++it;
+        }
+        return end();
+    }
+    template<typename F>
+    iterator find(F(T::*f), bool(*cmp)(const F, const F), const F& what) {
+        auto it = begin();
+        while(it != end()) {
+            if(cmp((it->*f), what)) return it;
+            ++it;
+        }
+        return end();
+    }
+};
 
 template<
         typename Key,
@@ -219,6 +278,21 @@ inline std::ostream &operator<<(std::ostream &stream, const vec<T> &vec) {
     return stream;
 }
 
+template<typename T>
+inline std::ostream &operator<<(std::ostream &stream, const buf<T> &b) {
+    if(b.empty()) return stream << "[]";
+    int i = 0;
+    stream << "[ ";
+    for(const auto& v : b) {
+        stream << v;
+        if(i != b.size() - 1) {
+            stream << ", ";
+        }
+        ++i;
+    }
+    stream << " ]";
+    return stream;
+}
 
 
 template<typename A, typename B>

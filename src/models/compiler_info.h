@@ -24,14 +24,18 @@ struct compiler_info {
 
 std::ostream& operator<<(std::ostream& stream, const compiler_info& cinfo);
 
-#ifdef __clang__
-#define WALL_E_COMPILER_INFO compiler_info("clang++", __clang_major__, __clang_minor__, __clang_patchlevel__);
+#if _MSC_VER && !__INTEL_COMPILER
+    #define wall_e_compiler_info compiler_info("msvc", _MSC_VER, 0, _MSC_FULL_VER);
 #else
-#define WALL_E_COMPILER_INFO compiler_info("g++", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    #ifdef __clang__
+        #define wall_e_compiler_info compiler_info("clang++", __clang_major__, __clang_minor__, __clang_patchlevel__);
+    #else
+        #define wall_e_compiler_info compiler_info("g++", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    #endif
 #endif
 
 extern const compiler_info cxx_info;
-inline const compiler_info inline_cxx_info = WALL_E_COMPILER_INFO;
+inline const compiler_info inline_cxx_info = wall_e_compiler_info;
 
 }
 

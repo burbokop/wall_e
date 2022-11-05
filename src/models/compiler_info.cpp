@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-const wall_e::compiler_info wall_e::cxx_info = WALL_E_COMPILER_INFO;
+const wall_e::compiler_info wall_e::cxx_info = wall_e_compiler_info;
 
 std::ostream& wall_e::operator<<(std::ostream& stream, const compiler_info& cinfo) {
     return stream << cinfo.to_string();

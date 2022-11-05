@@ -1,8 +1,8 @@
-#ifndef TYPENAME_H
-#define TYPENAME_H
+#ifndef WALL_E_TYPENAME_H
+#define WALL_E_TYPENAME_H
 
 #include <string>
-#include <cxxabi.h>
+#include <typeinfo>
 
 namespace wall_e {
 
@@ -13,4 +13,4 @@ std::string type_name() { return demangle(typeid (T).name()); }
 
 }
 
-#endif // TYPENAME_H
+#endif // WALL_E_TYPENAME_H

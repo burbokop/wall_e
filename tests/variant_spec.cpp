@@ -71,3 +71,12 @@ void wall_e::variant_spec::print_to_stream_test() {
         wall_e_should_equal(ss.str(), "err:some_message at { 0, 0(stage: undefined_stage, kind: 0)");
     }
 }
+
+namespace some_nspace {
+class some_class {};
+}
+
+void wall_e::variant_spec::typename_test() {
+    wall_e_should_equal(type_name<some_struct>(), "some_struct");
+    wall_e_should_equal(type_name<some_nspace::some_class>(), "some_nspace::some_class");
+}

@@ -47,12 +47,15 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/collections.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/box.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/defer.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/macro.h
     )
 
-add_library(wall_e SHARED
-    ${SOURCES}
-    ${HEADERS}
-)
+if(LINK_ALL_STATIC)
+    add_library(wall_e STATIC ${SOURCES} ${HEADERS})
+else()
+    add_library(wall_e SHARED ${SOURCES} ${HEADERS})
+endif()
+
 set_property(TARGET wall_e PROPERTY AUTOMOC OFF)
 set_property(TARGET wall_e PROPERTY AUTOUIC OFF)
 
@@ -80,12 +83,12 @@ target_link_libraries(wall_e_tests
 
 enable_testing()
 add_test(wall_e_tests wall_e_tests)
-add_custom_command(
-     TARGET wall_e_tests
-     COMMENT "wall_e_tests"
-     POST_BUILD
-     COMMAND wall_e_tests
-)
+#add_custom_command(
+#     TARGET wall_e_tests
+#     COMMENT "wall_e_tests"
+#     POST_BUILD
+#     COMMAND wall_e_tests
+#)
 
 
 
