@@ -6,14 +6,12 @@
 namespace wall_e {
 namespace lex {
 
-const std::string ignore = "ignore";
-
 wall_e::vec<std::string> match(const std::regex &reg, const std::string &text) {
     std::sregex_token_iterator it(text.begin(), text.end(), reg);
     std::sregex_token_iterator end;
     str_vec result;
     while(it != end) {
-        result.push_back(it.operator*());
+        result.push_back(*it);
         ++it;
     }
     return result;
@@ -41,13 +39,13 @@ void wipe_substrs(std::string *text, const std::string& pattern, char c) {
     }
 }
 
-token_vec make_tokents(std::string text, const pattern_list &patternlist) {
+token_vec make_tokents(std::string text, const pattern_list &pattern_list) {
     token_vec result;
-    const auto rep = find_repetition(patternlist);
+    const auto rep = find_repetition(pattern_list);
     if(rep != std::string())
         throw std::runtime_error("klex_get_tokents: repetition found (" + rep + ")");
 
-    for(const auto& pattern : patternlist) {
+    for(const auto& pattern : pattern_list) {
         auto l = match(pattern.reg, text);
         for(const auto& ll : l) {
             remove_substrs(&text, ll);
@@ -55,7 +53,7 @@ token_vec make_tokents(std::string text, const pattern_list &patternlist) {
             token token;
             token.name = pattern.name;
             token.text = ll;
-            if(pattern.name.size() > 0 && pattern.name != "" && pattern.name != "ignore" && pattern.name != "null") {
+            if(pattern.name.size() > 0 && pattern.name != "" && pattern.name != special::ignore) {
                 result.push_back(token);
             }
         }
@@ -110,9 +108,10 @@ token_vec sort_tokens(token_vec tokens, std::string text) {
     return result;
 }
 
-std::string find_repetition(const pattern_list &patternlist) {
+std::string find_repetition(const pattern_list &pattern_list) {
     std::map<pattern, char> m;
-    for(const auto& p : patternlist) {
+    for(const auto& p : pattern_list) {
+        if(p.name == special::ignore) continue;
         auto it = m.find(p);
         if(it != m.end()) {
             return p.name;
@@ -253,6 +252,34 @@ std::string encode_special_syms(std::string str) {
     replace_all(str, "\n", "\\n");
     replace_all(str, "\t", "\\t");
     return str;
+}
+
+
+token_vec v2::make_tokents(std::string text, const pattern_list &pattern_list, const char replacer) {
+    token_vec result;
+    const auto rep = find_repetition(pattern_list);
+    if(rep != std::string())
+        throw std::runtime_error("klex_get_tokents: repetition found (" + rep + ")");
+
+    for(const auto& pattern : pattern_list) {
+        std::sregex_token_iterator it(text.begin(), text.end(), pattern.reg);
+        std::sregex_token_iterator end;
+        while(it != end) {
+            if(pattern.name.size() > 0 && pattern.name != special::ignore) {
+                wall_e::lex::token token;
+                token.name = pattern.name;
+                token.text = *it;
+                token.position = it->first - text.begin();
+                result.push_back(token);
+            }
+            text.replace(it->first, it->second, std::string(it->length(), replacer));
+            ++it;
+        }
+    }
+    std::sort(result.begin(), result.end(), [](const token& a, const token& b){
+        return a.position < b.position;
+    });
+    return result;
 }
 
 

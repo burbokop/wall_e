@@ -75,6 +75,8 @@ add_executable(wall_e_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/collections_spec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/variant_spec.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/variant_spec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/lex_spec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/lex_spec.cpp
     )
 
 target_link_libraries(wall_e_tests
@@ -83,12 +85,12 @@ target_link_libraries(wall_e_tests
 
 enable_testing()
 add_test(wall_e_tests wall_e_tests)
-#add_custom_command(
-#     TARGET wall_e_tests
-#     COMMENT "wall_e_tests"
-#     POST_BUILD
-#     COMMAND wall_e_tests
-#)
+add_custom_command(
+     TARGET wall_e_tests
+     COMMENT "wall_e_tests"
+     POST_BUILD
+     COMMAND wall_e_tests
+)
 
 
 

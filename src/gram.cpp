@@ -83,6 +83,11 @@ call_mono_result text_call(const std::string &rule_text, token_iterator *it, con
     K_GRAM_CHECK_LEVEL
     if(flags.verbose) { log << K_GRAM_LEVEL << __warning_color("t ") << *it << " <- " << rule_text << std::endl; }
 
+    if(rule_text == "-") {
+        if(flags.verbose)
+            log << K_GRAM_LEVEL << "  item: skip (no increment iter)\n";
+        return call_mono_result({}, true, true);
+    }
 
     auto item = determine_item(it, patterns, rule_text);
     if(flags.verbose)
@@ -135,6 +140,8 @@ call_result conjunction_call(const rule_vec &conjunctions, token_iterator *it, c
 
         args[i] = tmp_result.arg;
 
+
+
         if(flags.unconditional_transition) {
             if(i < conjunctions.size() - 1) {
                 if(flags.verbose) { log << K_GRAM_LEVEL << __warning_color("++") << "\n"; }
@@ -149,6 +156,11 @@ call_result conjunction_call(const rule_vec &conjunctions, token_iterator *it, c
             } else if(flags.verbose) {
                 log << K_GRAM_LEVEL << __err_color("++ aborted") << " arg: " << tmp_result.arg << "\n";
             }
+        }
+
+        if(tmp_result.no_increment_it) {
+            if(flags.verbose) { log << K_GRAM_LEVEL << __warning_color("--") << "\n"; }
+            it->goBack();
         }
 
         index_it = index_it.next_x();

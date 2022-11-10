@@ -9,15 +9,38 @@
 #include <map>
 #include <stack>
 
-#include <iostream>
-
-
 namespace wall_e {
 
 template<typename T>
 class opt : public std::optional<T> {
 public:
     using std::optional<T>::optional;
+
+    template<typename R>
+    inline opt<R> map(const std::function<R(const T&)>& f) const {
+        if(this->has_value()) {
+            return f(this->value());
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    template<typename R>
+    inline opt<R> flatMap(const std::function<opt<R>(const T&)>& f) const {
+        if(this->has_value()) {
+            return f(this->value());
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    inline bool exists(const std::function<bool(const T&)>& f) const {
+        if(this->has_value()) {
+            return f(this->value());
+        } else {
+            return false;
+        }
+    }
 };
 
 template<typename R, typename T, typename RAlloc, typename Alloc, template <typename, typename> typename C>
@@ -84,6 +107,10 @@ public:
             return this->front();
         }
     }
+
+    inline bool contains(const T& v) const {
+        return std::find(this->begin(), this->end(), v) != this->end();
+    }
 };
 
 
@@ -143,6 +170,14 @@ public:
         } else {
             return std::nullopt;
         }
+    }
+
+    inline wall_e::list<Key> keys() const {
+        wall_e::list<Key> res;
+        for(const auto& k : *this) {
+            res.push_back(k.first);
+        }
+        return res;
     }
 };
 

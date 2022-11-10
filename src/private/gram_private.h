@@ -25,13 +25,15 @@ typedef wall_e::vec<argument> arg_vector;
 template<typename T>
 struct common_call_result {
     common_call_result() { }
-    common_call_result(const T &arg, bool confirmed) {
+    common_call_result(const T &arg, bool confirmed, bool no_increment_it = false) {
         this->arg = arg;
         this->confirmed = confirmed;
+        this->no_increment_it = no_increment_it;
     }
     T arg;
     wall_e::opt<wall_e::error> error;
     bool confirmed = false;
+    bool no_increment_it = false;
 
     static common_call_result<T> from_error(const wall_e::error& err) {
         common_call_result result;
@@ -122,12 +124,12 @@ public:
         };
     }
     template<typename T>
-    static processor pass_token_if(const std::string& token_name, size_t i = 0) {
-        return [i, token_name](const arg_vector &args, const index&) -> argument {
+    static processor pass_token_if(const wall_e::vec<std::string>& token_names, size_t i = 0) {
+        return [i, token_names](const arg_vector &args, const index&) -> argument {
             if(args.size() > i) {
                 if(args[i].contains_type<lex::token>()) {
                     const auto token = args[i].value<lex::token>();
-                    if(token.name == token_name) {
+                    if(token_names.contains(token.name)) {
                         return T(token.text);
                     } else {
                         return T();

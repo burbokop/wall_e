@@ -75,6 +75,7 @@ class flag_provider {
     flag m_help;
 public:
     flag_provider(int argc, char **argv);
+    flag_provider(int argc, const char **argv);
     flag &bool_flag(const flag::full_name &flag_name, const std::string &description);
     flag &value_flag(const flag::full_name &flag_name, const std::string &description, const std::string &default_value = std::string());
     inline flag &bool_flag(char flag_name, const std::string &description) { return bool_flag({ flag_name, std::string() }, description); }

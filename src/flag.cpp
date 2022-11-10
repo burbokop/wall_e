@@ -89,7 +89,10 @@ void wall_e::flag_provider::print_description(std::ostream &stream) {
     }
 }
 
-wall_e::flag_provider::flag_provider(int argc, char **argv) {
+wall_e::flag_provider::flag_provider(int argc, char **argv)
+    : flag_provider(argc, (const char**)argv) {}
+
+wall_e::flag_provider::flag_provider(int argc, const char **argv) {
     m_args.resize(argc);
     for(int i = 0; i < argc; ++i) {
         m_args[i] = argv[i];
@@ -112,7 +115,7 @@ wall_e::flag &wall_e::flag_provider::value_flag(const flag::full_name &flag_name
             found = true;
             m_flags.push_back(flag::make_value_flag(flag_name, *it, description));
         }
-    } else {
+    } else if(!flag_name.second.empty()) {
         it = std::find(m_args.begin(), m_args.end(), m_extended_preffix + flag_name.second);
         if(it != m_args.end()) {
             if(++it != m_args.end()) {

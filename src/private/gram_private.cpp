@@ -313,16 +313,17 @@ either<error, rule> rule_from_str(const std::string &string) {
         pattern("factor")
         << (rule("closed_expr") | "rule"),
         pattern("rule")
-        << (rule("W") | rule("NULL"))
-        << pattern::pass_token_if<wall_e::gram::rule>("W")
+        << (rule("W") | rule("NULL") | rule("SKIP"))
+        << pattern::pass_token_if<wall_e::gram::rule>({ "W", "SKIP" })
     }, lex::parse(string, {
         { std::regex("[0]"), "NULL" },
+        { std::regex("[-]"), "SKIP" },
         { std::regex("[a-zA-Z_][a-zA-Z0-9_]*"), "W" },
         { std::regex("[(]"), "OP" },
         { std::regex("[)]"), "EP" },
         { std::regex("[&]"), "C" },
         { std::regex("[|]"), "D" },
-        { std::regex("[ \t\n]+"), lex::ignore }
+        { std::regex("[ \t\n]+"), lex::special::ignore }
     }), {
         gram::unconditional_transition
     })

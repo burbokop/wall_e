@@ -327,6 +327,14 @@ public:
     friend bool operator==(const variant &varian0, const variant &varian1);
 
     inline variant_vector constrain() const { return constrain_variant(*this); }
+
+    template<typename R, typename T>
+    inline variant map(const std::function<R(const T&)>& f) const {
+        if(const auto& opt  = option<T>()) {
+            return f(*opt);
+        }
+        return *this;
+    }
 };
 
 bool is_number(const variant &variant, std::string expected_token = std::string());

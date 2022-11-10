@@ -17,14 +17,37 @@ void kgram_getxy(int* x, int* y) {
 }
 
 
-void print_tree(const wall_e::variant &input, std::ostream &stream) {
-    //system("clear");
-    stream << "Please install encoding: IBM850\n\nENTRY";
-    //initscr();
-    int x, y;
-    kgram_getxy(&x, &y);
-    print_branch(input, x, y + 2, stream);
-    kgram_ctoxy(0, 20);
+void print_branch_simple(const wall_e::variant &branch, size_t level, std::ostream &stream) {
+    if(branch.contains_type<wall_e::variant_vector>()) {
+        auto vec = branch.value<wall_e::variant_vector>();
+        int pos = 0;
+        for(size_t i = 0, cnt = vec.size(); i < cnt; ++i) {
+            print_branch_simple(vec[i], level + 1, stream);
+        }
+    } else if(branch.contains_type<wall_e::lex::token>()) {
+        auto token = branch.value<wall_e::lex::token>();
+        stream << std::string(level, '.') << token.text << std::endl;
+    } else if(branch.contains_type<std::string>()) {
+        auto string = branch.value<std::string>();
+        stream << std::string(level, '.') << string << std::endl;
+    } else {
+        stream << std::string(level, '.') << "?" << branch.type() << "?" << std::endl;
+    }
+}
+
+
+void print_tree(const wall_e::variant &input, std::ostream &stream, tree_print_format format) {
+    if(format == Pretty) {
+        //system("clear");
+        stream << "wall_e::print_tree: Pretty format need IBM850 encoding\n\nENTRY";
+        //initscr();
+        int x, y;
+        kgram_getxy(&x, &y);
+        print_branch(input, x, y + 2, stream);
+        kgram_ctoxy(0, 20);
+    } else {
+        print_branch_simple(input, 0, stream);
+    }
 }
 
 void print_branch(const wall_e::variant &branch, int x, int y, std::ostream &stream) {

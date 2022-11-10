@@ -54,6 +54,8 @@ public:
             return stream << std::chrono::duration_cast<std::chrono::seconds>(mms.m_val).count() << " s";
         } else if(mms.m_val > std::chrono::milliseconds(1)) {
             return stream << std::chrono::duration_cast<std::chrono::milliseconds>(mms.m_val).count() << " ms";
+        } else if(mms.m_val > std::chrono::microseconds(1)) {
+            return stream << std::chrono::duration_cast<std::chrono::microseconds>(mms.m_val).count() << " μs";
         } else {
             return stream << std::chrono::duration_cast<std::chrono::nanoseconds>(mms.m_val).count() << " ns";
         }
@@ -70,13 +72,17 @@ struct min_max_sum {
     nanos sum = 0;
     std::size_t count = 0;
 
-
     friend std::ostream& operator<<(std::ostream& stream, const min_max_sum& mms) {
-
-        return stream << "{ min: " << pretty_dur(std::chrono::nanoseconds(mms.min))
-                      << ", max: " << pretty_dur(std::chrono::nanoseconds(mms.max))
-                      << ", avr: " << pretty_dur(std::chrono::nanoseconds(mms.max / mms.count))
-                      << " }";
+        if(mms.count > 0) {
+            return stream << "{ count: " << mms.count
+                          << ", sum: " << pretty_dur(std::chrono::nanoseconds(mms.sum))
+                          << ", min: " << pretty_dur(std::chrono::nanoseconds(mms.min))
+                          << ", max: " << pretty_dur(std::chrono::nanoseconds(mms.max))
+                          << ", avr: " << pretty_dur(std::chrono::nanoseconds(mms.sum / mms.count))
+                          << " }";
+        } else {
+            return stream << "{}";
+        }
     }
 };
 
@@ -149,7 +155,7 @@ int wall_e::testing::exec() {
             std::cout << "---- " << s.name << " BENCHMARKS ----" << std::endl;
             for(const auto& b : s.benchmarks) {
                 std::cout << "benchmarks: " << b.name << std::endl;
-                benchmark_ctx ctx(s.name, b.name, 1000, std::chrono::duration_cast<dur>(std::chrono::seconds(1)));
+                benchmark_ctx ctx(s.name, b.name, 1000, std::chrono::duration_cast<dur>(std::chrono::seconds(4)));
                 if(b.benchmark_func) {
                     b.benchmark_func(ctx);
                     std::cout << "      " << b.name << " OK" << std::endl;
