@@ -9,6 +9,10 @@
 #include <map>
 #include <stack>
 
+#ifdef QT_CORE_LIB
+    #include <QDebug>
+#endif
+
 namespace wall_e {
 
 template<typename T>
@@ -179,6 +183,15 @@ public:
         }
         return res;
     }
+
+    inline const Tp& get_or(const Key& k, const Tp& def) const {
+        const auto& it = this->find(k);
+        if(it != this->end()) {
+            return it->second;
+        } else {
+            return def;
+        }
+    }
 };
 
 template<typename T, typename Sequence = std::deque<T>>
@@ -345,6 +358,19 @@ inline std::ostream &operator<<(std::ostream &stream, const opt<T> &opt) {
     }
     return stream << " }";
 }
+
+#ifdef QT_CORE_LIB
+template<typename T>
+inline QDebug& operator<<(QDebug& dbg, const opt<T>& opt) {
+    dbg << "{ ";
+    if(opt.has_value()) {
+        dbg << opt.value();
+    } else {
+        dbg << "std::nullopt";
+    }
+    return dbg << " }";
+}
+#endif
 
 template<typename T>
 inline list<T> &&operator+(list<T> && l0, const list<T> &l1) {
