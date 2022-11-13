@@ -98,13 +98,11 @@ static void write_branch_graphviz(const wall_e::variant &branch, std::string par
     const auto node_name = "n_" + std::to_string(next_point_node++);
     stream << indent << parent << " -> " << node_name << ";" << std::endl;
 
-
     if(branch.contains_type<wall_e::variant_vector>()) {
         auto vec = branch.value<wall_e::variant_vector>();
         int pos = 0;
 
         stream << indent << node_name << " [shape=point];" << std::endl;
-
         for(size_t i = 0, cnt = vec.size(); i < cnt; ++i) {
             write_branch_graphviz(vec[i], node_name, next_point_node, stream);
         }
@@ -117,22 +115,6 @@ static void write_branch_graphviz(const wall_e::variant &branch, std::string par
     } else {
         stream << indent << node_name << " [label=\"?" << branch.type() << "?\"];" << std::endl;
     }
-
-    //[label="A"]
-    /*digraph G {
-
-      root -> p1;
-
-      p1 ->
-
-      b2 -> a3;
-      a3 -> a0;
-      a3 -> end;
-      b3 -> end;
-
-      p1 [shape=point];
-    }*/
-
 }
 
 void wall_e::write_tree(const wall_e::variant &input, std::ostream &stream, tree_print_format format) {

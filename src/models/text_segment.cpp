@@ -20,6 +20,22 @@ wall_e::text_segment::text_segment() {}
 wall_e::text_segment::text_segment(std::string::size_type begin, std::string::size_type end)
     : m_begin(begin), m_end(end) {}
 
+
+wall_e::text_segment wall_e::operator+(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1) {
+    return wall_e::text_segment(
+        std::min(seg0.begin(), seg1.begin()),
+        std::max(seg0.end(), seg1.end())
+        );
+}
+
+wall_e::text_segment operator*(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1) {
+    return wall_e::text_segment(
+        std::max(seg0.begin(), seg1.begin()),
+        std::min(seg0.end(), seg1.end())
+        );
+}
+
+
 bool wall_e::operator<(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1) {
     return seg0.begin() < seg1.begin() && seg0.end() < seg1.end();
 }

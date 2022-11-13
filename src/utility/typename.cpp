@@ -1,13 +1,21 @@
 #include "typename.h"
 
 #if _MSC_VER && !__INTEL_COMPILER
-std::string wall_e::demangle(const std::string &mangled) {
-    const std::string& c = "class ";
-    if(mangled.starts_with(c)) {
-        return mangled.substr(c.size(), mangled.size() - c.size());
+
+static void erase_all_sub_str(std::string& str, const std::string& what) {
+    auto pos = std::string::npos;
+    while ((pos = str.find(what)) != std::string::npos) {
+        str.erase(pos, what.length());
     }
-    return mangled;
 }
+
+std::string wall_e::demangle(const std::string &mangled) {
+    auto result = mangled;
+    erase_all_sub_str(result, "class ");
+    erase_all_sub_str(result, "struct ");
+    return result;
+}
+
 #else
 #include <cxxabi.h>
 

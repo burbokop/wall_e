@@ -46,6 +46,14 @@ public:
             return false;
         }
     }
+
+    const opt<T>& filter(const std::function<bool(const T&)>& f) const {
+        if(this->has_value() && f(this->value())) {
+            return *this;
+        } else {
+            return std::nullopt;
+        }
+    }
 };
 
 template<typename R, typename T> using member_ptr = typename std::conditional<std::is_class<T>::value, R(T::*), R*>::type;
@@ -81,10 +89,10 @@ inline C<T, Alloc>& filter_collection(C<T, Alloc>& output, const C<T, Alloc>& in
 }
 
 template<typename R, typename T, typename RAlloc, typename Alloc, template <typename, typename> typename C>
-inline C<R, RAlloc>& filter_map_collection(C<R, RAlloc>& output, const C<T, Alloc>& input, const std::function<R(const T&)>& f) {
+inline C<R, RAlloc>& filter_map_collection(C<R, RAlloc>& output, const C<T, Alloc>& input, const std::function<opt<R>(const T&)>& f) {
     for(const auto& i : input) {
         if(auto&& r = f(i)) {
-            output.push_back(r);
+            output.push_back(*r);
         }
     } return output;
 }
@@ -160,6 +168,17 @@ void align_right(MutIt begin, MutIt end, std::size_t min = 0, strip_excess_forma
     }
 }
 
+template<typename T, typename Alloc, template <typename, typename> typename C>
+inline std::string join(const C<T, Alloc>& collection, const std::string& delim) {
+    static_assert(std::is_same<T, std::string>::value, "T must be std::string");
+    std::size_t i = 0;
+    std::string res;
+    for(const auto& s : collection) {
+        res += s;
+        if(i++ < collection.size() - 1) res += delim;
+    }
+    return res;
+}
 
 template<typename T, typename Alloc = std::allocator<T>>
 class vec : public std::vector<T, Alloc> {
@@ -253,16 +272,7 @@ public:
         return copy;
     }
 
-    inline std::string join(const std::string& delim) const {
-        static_assert(std::is_same<T, std::string>::value, "T must be std::string");
-        std::size_t i = 0;
-        std::string res;
-        for(const auto& s : *this) {
-            res += s;
-            if(i++ < this->size() - 1) res += delim;
-        }
-        return res;
-    }
+    inline std::string join(const std::string& delim) const { return wall_e::join(*this, delim); }
 };
 
 
@@ -296,6 +306,8 @@ public:
             return this->front();
         }
     }
+
+    inline std::string join(const std::string& delim) const { return wall_e::join(*this, delim); }
 };
 
 template<typename T1, typename T2>
@@ -526,10 +538,41 @@ inline list<T> &&operator+(list<T> && l0, const list<T> &l1) {
     return std::move(l0);
 }
 
+/*
+ * AMBIGOUS
+template<typename T>
+inline list<T> &&operator+(list<T> && l0, const T &v) {
+    l0.push_back(v);
+    return std::move(l0);
+}
+
+template<typename T>
+inline list<T> operator+(list<T> l0, const list<T> &l1) {
+    l0.insert(l0.end(), l1.begin(), l1.end());
+    return l0;
+}
+*/
+
+template<typename T>
+inline list<T> operator+(list<T> l0, const T &v) {
+    l0.push_back(v);
+    return l0;
+}
+
+
 template<typename C, typename R, typename ...Args>
 std::function<R(C, Args...)> to_static(R(C::*f)(Args...)) {
     return [f](C c, Args... args){ return (c->*f)(args...); };
 }
+
+class stream_writable_func {
+    std::function<std::ostream&(std::ostream&)> m_f;
+public:
+    inline stream_writable_func(const std::function<std::ostream&(std::ostream&)>& f = nullptr) : m_f(f) {}
+    inline std::ostream& operator()(std::ostream& s) const { return m_f(s); }
+    friend inline std::ostream &operator<<(std::ostream &stream, const stream_writable_func &f) { return f(stream); }
+    static stream_writable_func identity() { return stream_writable_func([](std::ostream& s) -> std::ostream& { return s; }); }
+};
 
 typedef wall_e::pair<std::string, std::string> str_pair;
 typedef wall_e::vec<std::string> str_vec;
