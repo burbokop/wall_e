@@ -8,6 +8,7 @@
 #include <functional>
 #include <map>
 #include <stack>
+#include <numeric>
 
 #ifdef QT_CORE_LIB
     #include <QDebug>
@@ -47,15 +48,37 @@ public:
     }
 };
 
+template<typename R, typename T> using member_ptr = typename std::conditional<std::is_class<T>::value, R(T::*), R*>::type;
+template<typename R, typename T> using member_func_ptr = typename std::conditional<std::is_class<T>::value, R(T::*)() const, R(*)()>::type;
+
 template<typename R, typename T, typename RAlloc, typename Alloc, template <typename, typename> typename C>
 inline C<R, RAlloc>& map_collection(C<R, RAlloc>& output, const C<T, Alloc>& input, const std::function<R(const T&)>& f) {
     for(const auto& i : input) { output.push_back(f(i)); } return output;
+}
+
+template<typename R, typename T, typename RAlloc, typename Alloc, template <typename, typename> typename C>
+inline C<R, RAlloc>& map_member_collection(C<R, RAlloc>& output, const C<T, Alloc>& input, member_ptr<R, T> f) {
+    for(const auto& i : input) { output.push_back(i.*f); } return output;
+}
+
+template<typename R, typename T, typename RAlloc, typename Alloc, template <typename, typename> typename C>
+inline C<R, RAlloc>& map_member_func_collection(C<R, RAlloc>& output, const C<T, Alloc>& input, member_func_ptr<R, T> f) {
+    for(const auto& i : input) { output.push_back((i.*f)()); } return output;
 }
 
 //template<typename R, typename T, template <typename> typename C, typename Alloc = std::allocator<T>>
 //inline C<const R&>&& map_collection(C<R>&& output, const C<T>& input, const std::function<const R&(const T&)>& f) {
 //    for(const auto& i : input) { output.push_back(f(i)); } return output;
 //}
+
+template<typename T, typename Alloc, template <typename, typename> typename C>
+inline C<T, Alloc>& filter_collection(C<T, Alloc>& output, const C<T, Alloc>& input, const std::function<bool(const T&)>& f) {
+    for(const auto& i : input) {
+        if(f(i)) {
+            output.push_back(i);
+        }
+    } return output;
+}
 
 template<typename R, typename T, typename RAlloc, typename Alloc, template <typename, typename> typename C>
 inline C<R, RAlloc>& filter_map_collection(C<R, RAlloc>& output, const C<T, Alloc>& input, const std::function<R(const T&)>& f) {
@@ -75,15 +98,91 @@ inline C<R, RAlloc>& filter_map_collection(C<R, RAlloc>& output, const C<T, Allo
 //    } return output;
 //}
 
+enum strip_excess_format {
+    StripNothing,
+    StripExact,
+    StripAndReplaceByDots
+};
+
+inline std::string align_left(const std::string& str, std::size_t size, strip_excess_format strip_excess = StripNothing) {
+    if(str.size() < size) {
+        return str + std::string(size - str.size(), ' ');
+    } else if(str.size() == size) {
+        return str;
+    } else if(strip_excess == StripExact) {
+        return str.substr(0, size);
+    } else if(strip_excess == StripAndReplaceByDots) {
+        auto substr = str.substr(0, size);
+        const auto dots_num = std::min(size, std::size_t(3));
+        return substr.replace(substr.size() - dots_num, dots_num, std::string(dots_num, '.'));
+    } else {
+        return str;
+    }
+}
+
+inline std::string align_right(const std::string& str, std::size_t size, strip_excess_format strip_excess = StripNothing) {
+    if(str.size() < size) {
+        return std::string(size - str.size(), ' ') + str;
+    } else if(str.size() == size) {
+        return str;
+    } else if(strip_excess == StripExact) {
+        return str.substr(str.size() - size, size);
+    } else if(strip_excess == StripAndReplaceByDots) {
+        auto substr = str.substr(str.size() - size, size);
+        const auto dots_num = std::min(size, std::size_t(3));
+        return substr.replace(0, dots_num, std::string(dots_num, '.'));
+    } else {
+        return str;
+    }
+}
+
+template<typename MutIt>
+void align_left(MutIt begin, MutIt end, std::size_t min = 0, strip_excess_format strip_excess = StripNothing) {
+    std::size_t max_size = min;
+    for(auto it = begin; it != end; ++it) {
+        max_size = std::max(max_size, it->size());
+    }
+
+    for(; begin != end; ++begin) {
+        *begin = align_left(*begin, max_size, strip_excess);
+    }
+}
+
+template<typename MutIt>
+void align_right(MutIt begin, MutIt end, std::size_t min = 0, strip_excess_format strip_excess = StripNothing) {
+    std::size_t max_size = min;
+    for(auto it = begin; it != end; ++it) {
+        max_size = std::max(max_size, it->size());
+    }
+
+    for(; begin != end; ++begin) {
+        *begin = align_right(*begin, max_size, strip_excess);
+    }
+}
+
+
 template<typename T, typename Alloc = std::allocator<T>>
 class vec : public std::vector<T, Alloc> {
 public:
     using std::vector<T, Alloc>::vector;
 
     template<typename R, typename RAlloc = std::allocator<R>>
-    inline vec<R, RAlloc> map(const std::function<R(const T&)>& f) const {
+    constexpr inline vec<R, RAlloc> map(const std::function<R(const T&)>& f) const {
         vec<R, RAlloc> result; result.reserve(this->size()); return map_collection(result, *this, f);
     }
+
+
+    template<typename R, typename RAlloc = std::allocator<R>, typename Arg>
+    constexpr inline typename std::enable_if<std::is_class<T>::value, vec<R, RAlloc>>::type map_member(Arg f) const {
+        vec<R, RAlloc> result; result.reserve(this->size()); return map_member_collection(result, *this, f);
+    }
+
+    template<typename R, typename RAlloc = std::allocator<R>, typename Arg>
+    constexpr inline typename std::enable_if<std::is_class<T>::value, vec<R, RAlloc>>::type map_member_func(Arg f) const {
+        vec<R, RAlloc> result; result.reserve(this->size()); return map_member_func_collection(result, *this, f);
+    }
+
+
 
     // compilation error
     //template<typename R>
@@ -91,20 +190,25 @@ public:
     //    vec<R, Alloc> result; result.reserve(this->size()); return map_collection(result, *this, f);
     //}
 
+    constexpr inline vec<T, Alloc> filter(const std::function<bool(const T&)>& f) const {
+        vec<T, Alloc> result; result.reserve(this->size()); return filter_collection(result, *this, f);
+    }
+
     template<typename R, typename RAlloc = std::allocator<R>>
-    inline vec<R, RAlloc> filter_map(const std::function<opt<R>(const T&)>& f) const {
+    constexpr inline vec<R, RAlloc> filter_map(const std::function<opt<R>(const T&)>& f) const {
         vec<R, RAlloc> result; result.reserve(this->size()); return filter_map_collection(result, *this, f);
     }
+
     //template<typename R>
     //vec<const R&, Alloc> filter_map(const std::function<const R&(const T&)> f) const {
     //    vec<R, Alloc> result; result.reserve(this->size()); return filter_map_collection(result, *this, f);
     //}
 
-    void append(const std::vector<T, Alloc>& tail) {
+    constexpr inline void append(const std::vector<T, Alloc>& tail) {
         this->insert(this->end(), tail.begin(), tail.end());
     }
 
-    wall_e::opt<T> front_opt() const {
+    constexpr inline wall_e::opt<T> front_opt() const {
         if(this->empty()) {
             return std::nullopt;
         } else {
@@ -112,8 +216,52 @@ public:
         }
     }
 
-    inline bool contains(const T& v) const {
+    constexpr inline bool contains(const T& v) const {
         return std::find(this->begin(), this->end(), v) != this->end();
+    }
+
+    template<typename BinaryOperation>
+    constexpr inline T reduce(T init, BinaryOperation op) {
+        return std::accumulate(this->begin(), this->end(), init, op);
+    }
+
+    constexpr inline T max() {
+        static_assert(std::is_integral<T>::value, "T must be integral");
+        return reduce(std::numeric_limits<T>::min(), [](const auto& a, const auto& b){ return std::max(a, b); });
+    }
+    constexpr inline T min() {
+        static_assert(std::is_integral<T>::value, "T must be integral");
+        return reduce(std::numeric_limits<T>::max(), [](const auto& a, const auto& b){ return std::min(a, b); });
+    }
+
+    constexpr inline T sum() {
+        static_assert(std::is_integral<T>::value, "T must be integral");
+        return reduce(0, [](const auto& a, const auto& b){ return a + b; });
+    }
+
+    constexpr inline vec<T> aligned_left(std::size_t min = 0, strip_excess_format strip_excess = StripNothing) const {
+        static_assert(std::is_same<T, std::string>::value, "T must be std::string");
+        vec<T> copy = *this;
+        wall_e::align_left(copy.begin(), copy.end(), min, strip_excess);
+        return copy;
+    }
+
+    constexpr inline vec<T> aligned_right(std::size_t min = 0, strip_excess_format strip_excess = StripNothing) const {
+        static_assert(std::is_same<T, std::string>::value, "T must be std::string");
+        vec<T> copy = *this;
+        wall_e::align_right(copy.begin(), copy.end(), min, strip_excess);
+        return copy;
+    }
+
+    inline std::string join(const std::string& delim) const {
+        static_assert(std::is_same<T, std::string>::value, "T must be std::string");
+        std::size_t i = 0;
+        std::string res;
+        for(const auto& s : *this) {
+            res += s;
+            if(i++ < this->size() - 1) res += delim;
+        }
+        return res;
     }
 };
 

@@ -7,4 +7,6 @@
 #define wall_e_this_function __PRETTY_FUNCTION__
 #endif
 
+#define wall_e_lambda(BODY) [=](const auto& _){ BODY }
+
 #endif // WALL_E_MACRO_H

@@ -325,7 +325,7 @@ either<error, rule> rule_from_str(const std::string &string) {
         { std::regex("[|]"), "D" },
         { std::regex("[ \t\n]+"), lex::special::ignore }
     }), {
-        gram::unconditional_transition
+        gram::UnconditionalTransition
     })
             .map<rule>([](const variant& _) { return _.value_or<gram::rule>(); });
 }

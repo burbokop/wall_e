@@ -12,52 +12,65 @@ inline void unpuck_to_stream(std::ostream& ss, Arg&& arg, Args&&... args) {
     ((ss << std::forward<Args>(args)), ...);
 }
 
-namespace color {
-static inline std::string f(const wall_e::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.first) + "m"; }
-static inline std::string b(const wall_e::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.second) + "m"; }
-inline std::string reset() { return "\033[0m"; }
-
-class color_t {
-    wall_e::pair<uint8_t, uint8_t> data;
+class color {
+    std::uint32_t m_argb;
 public:
-    color_t(uint8_t foreground, uint8_t background) { data = { foreground, background }; }
-    inline std::string f() const { return color::f(data); }
-    inline std::string b() const { return color::b(data); }
-    inline std::string cover(const std::string &text) const { return f() + text + reset(); }
+    std::string to_ansi() const;
+    std::uint32_t argb() const { return m_argb; };
+
+    static inline std::string foreground(const wall_e::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.first) + "m"; }
+    static inline std::string background(const wall_e::pair<uint8_t, uint8_t>& color) { return "\x1B[" + std::to_string(color.second) + "m"; }
+    static inline std::string reset() { return "\033[0m"; }
+
+    inline color(std::uint32_t argb) : m_argb(argb) {}
+    inline std::string cover(const std::string &text) const {
+        if(m_argb) {
+            return to_ansi() + text + reset();
+        } else {
+            return text;
+        }
+    }
+
+    bool operator==(const color& other) const {
+        return m_argb == other.m_argb;
+    }
 
     template<typename ...Args>
     inline std::string operator()(Args&&... args) const {
         static_assert (sizeof... (args) > 0, "must be at least one argument");
         std::stringstream ss;
-        ss << f();
+        if(m_argb) {
+            ss << to_ansi();
+        }
         unpuck_to_stream(ss, args...);
-        ss << reset();
+        if(m_argb) {
+            ss << reset();
+        }
         return ss.str();
     }
 };
 
-inline const color_t Black         = { 30,  40 };
-inline const color_t Red           = { 31,  41 };
-inline const color_t Green         = { 32,  42 };
-inline const color_t Yellow        = { 33,  43 };
-inline const color_t Blue          = { 34,  44 };
-inline const color_t Magenta       = { 35,  45 };
-inline const color_t Cyan          = { 36,  46 };
-inline const color_t White         = { 37,  47 };
-inline const color_t BrightBlack   = { 90, 100 };
-inline const color_t BrightRed     = { 91, 101 };
-inline const color_t BrightGreen   = { 92, 102 };
-inline const color_t BrightYellow  = { 93, 103 };
-inline const color_t BrightBlue    = { 94, 104 };
-inline const color_t BrightMagenta = { 95, 105 };
-inline const color_t BrightCyan    = { 96, 106 };
-inline const color_t BrightWhite   = { 97, 107 };
+inline const color black          = 0x000000;
+inline const color red            = 0x8b0000;
+inline const color green          = 0x006400;
+inline const color yellow         = 0x8b8b00;
+inline const color blue           = 0x00008b;
+inline const color magenta        = 0x8b008b;
+inline const color cyan           = 0x008b8b;
+inline const color white          = 0xfffafa;
+inline const color bright_black   = 0x242424;
+inline const color bright_red     = 0xff0000;
+inline const color bright_green   = 0x00ff00;
+inline const color bright_yellow  = 0xffff00;
+inline const color bright_blue    = 0x0000ff;
+inline const color bright_magenta = 0xff00ff;
+inline const color bright_cyan    = 0x00ffff;
+inline const color bright_white   = 0xffffff;
 
-inline std::ostream &operator << (std::ostream &stream, const wall_e::color::color_t &color) {
-    return stream << color.f();
+inline std::ostream &operator << (std::ostream &stream, const wall_e::color &color) {
+    return stream << color.to_ansi();
 }
 
-}
 }
 
 

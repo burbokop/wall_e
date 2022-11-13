@@ -250,7 +250,7 @@ public:
     }
 
     inline wall_e::lex::token data() const { return (*it); }
-    inline int offset() const { return it - begin; }
+    inline std::int64_t offset() const { return it - begin; }
 };
 
 std::ostream &operator<< (std::ostream &stream, const token_iterator &it);
