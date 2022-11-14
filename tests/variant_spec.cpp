@@ -68,7 +68,7 @@ void wall_e::variant_spec::print_to_stream_test() {
         std::stringstream ss;
         ss << v;
 
-        wall_e_should_equal(ss.str(), "err:some_message at { 0, 0(stage: undefined_stage, kind: 0)");
+        wall_e_should_equal(ss.str(), "{ message: some_message, segment: { 0, 0 }, sev: err, stg: undefined_stage, kind: 0 }");
     }
 }
 

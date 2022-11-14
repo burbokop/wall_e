@@ -17,22 +17,34 @@ bool wall_e::text_segment::valid_direction() const {
 
 wall_e::text_segment::text_segment() {}
 
-wall_e::text_segment::text_segment(std::string::size_type begin, std::string::size_type end)
-    : m_begin(begin), m_end(end) {}
+wall_e::text_segment::text_segment(const std::string &uri, std::string::size_type begin, std::string::size_type end)
+    : m_uri(uri),
+      m_begin(begin),
+      m_end(end) {}
 
 
 wall_e::text_segment wall_e::operator+(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1) {
-    return wall_e::text_segment(
-        std::min(seg0.begin(), seg1.begin()),
-        std::max(seg0.end(), seg1.end())
-        );
+    if(seg0.uri() == seg1.uri()) {
+        return wall_e::text_segment(
+            seg0.uri(),
+            std::min(seg0.begin(), seg1.begin()),
+            std::max(seg0.end(), seg1.end())
+            );
+    } else {
+        return wall_e::text_segment();
+    }
 }
 
 wall_e::text_segment operator*(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1) {
-    return wall_e::text_segment(
-        std::max(seg0.begin(), seg1.begin()),
-        std::min(seg0.end(), seg1.end())
-        );
+    if(seg0.uri() == seg1.uri()) {
+        return wall_e::text_segment(
+            seg0.uri(),
+            std::max(seg0.begin(), seg1.begin()),
+            std::min(seg0.end(), seg1.end())
+            );
+    } else {
+        return wall_e::text_segment();
+    }
 }
 
 
@@ -45,7 +57,7 @@ bool wall_e::operator==(const wall_e::text_segment &seg0, const wall_e::text_seg
 }
 
 std::ostream &wall_e::operator<<(std::ostream &stream, const wall_e::text_segment &seg) {
-    return stream << "{ " << seg.begin() << ", " << seg.end();
+    return stream << "{ " << seg.begin() << ", " << seg.end() << " }";
 }
 
 wall_e::text_segment::predicate wall_e::text_segment::line_char_predicate(std::size_t line, std::size_t character) {

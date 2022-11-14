@@ -22,7 +22,11 @@ public:
 
     template<typename ...A>
     static box make(A&& ...args) { return box(new T(args...)); }
+
+    static box from(const T& value) { return box(new T(value)); }
 };
+
+template<typename T> using opt_box = box<const opt<T>>;
 
 template<typename T>
 class box_list {
@@ -36,7 +40,7 @@ public:
     std::size_t size() const { return m_data.size(); }
 
     box_list(box_list&& value) : m_data(value.m_data) {}
-    ~box_list() { for(auto d : m_data) delete d; }
+    ~box_list() { for(T* d : m_data) delete d; }
 
     typename std::list<T*>::const_iterator begin() const { return m_data.begin(); }
     typename std::list<T*>::const_iterator end() const { return m_data.end(); }

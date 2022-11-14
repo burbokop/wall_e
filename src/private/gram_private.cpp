@@ -88,7 +88,7 @@ wall_e::list<pattern> pattern::simplified(const wall_e::list<pattern> &list) {
 }
 
 pattern::processor pattern::pass_argument(size_t i) {
-    return [i](const arg_vector &args, const index&) -> wall_e::gram::argument {
+    return [i](const arg_vector &args, const index&, const environment*) -> wall_e::gram::argument {
         if(args.size() > i) {
             return args[i];
         }
@@ -297,15 +297,15 @@ either<error, rule> rule_from_str(const std::string &string) {
         << (rule("disj") | rule("term")),
         pattern("disj")
         << (rule("term") & "D" & "expression")
-        << [](arg_vector args, const index&) -> argument {
-            return binary_operator<rule>(args, std::bit_or<rule>());
+        << [](arg_vector args, const index&, const wall_e::gram::environment* env) -> argument {
+            return binary_operator<rule>(args, std::bit_or<rule>(), env);
         },
         pattern("term")
         << (rule("conj") | "factor"),
         pattern("conj")
         << (rule("factor") & "C" & "term")
-        << [](arg_vector args, const index&) -> argument {
-            return binary_operator<rule>(args, std::bit_and<rule>());
+        << [](arg_vector args, const index&, const wall_e::gram::environment* env) -> argument {
+            return binary_operator<rule>(args, std::bit_and<rule>(), env);
         },
         pattern("closed_expr")
         << (rule("OP") & "expression" & "EP")
@@ -315,7 +315,7 @@ either<error, rule> rule_from_str(const std::string &string) {
         pattern("rule")
         << (rule("W") | rule("NULL") | rule("SKIP"))
         << pattern::pass_token_if<wall_e::gram::rule>({ "W", "SKIP" })
-    }, lex::parse(string, {
+    }, lex::make_tokents(string, std::string(), {
         { std::regex("[0]"), "NULL" },
         { std::regex("[-]"), "SKIP" },
         { std::regex("[a-zA-Z_][a-zA-Z0-9_]*"), "W" },
@@ -324,7 +324,7 @@ either<error, rule> rule_from_str(const std::string &string) {
         { std::regex("[&]"), "C" },
         { std::regex("[|]"), "D" },
         { std::regex("[ \t\n]+"), lex::special::ignore }
-    }), {
+    }), nullptr, {
         gram::UnconditionalTransition
     })
             .map<rule>([](const variant& _) { return _.value_or<gram::rule>(); });

@@ -7,14 +7,17 @@
 namespace wall_e {
 
 class text_segment {
+    std::string m_uri;
     std::string::size_type m_begin = 0;
     std::string::size_type m_end = 0;
 public:
     text_segment();
     text_segment(
+            const std::string& uri,
             std::string::size_type begin,
             std::string::size_type end
             );
+    const std::string& uri() const { return m_uri; }
     std::string::size_type begin() const;
     std::string::size_type end() const;
     std::string::size_type length() const;

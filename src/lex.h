@@ -13,27 +13,11 @@ namespace wall_e {
 namespace lex {
 
 namespace errors {
-enum  { undefined_token };
+enum { undefined_token };
 }
 
-wall_e::vec<std::string> match(const std::regex &reg, const std::string &text);
-void remove_substrs(std::string *text, const std::string& pattern);
-void wipe_substrs(std::string *text, const std::string& pattern, char c = ' ');
 std::string trim(const std::string& string, char delim = ' ');
 std::string encode_special_syms(std::string str);
-
-template<template<typename, typename> typename C>
-std::string join(
-        const C<std::string, std::allocator<std::string>>& collection,
-        const std::string& separator,
-        const std::function<std::string(const std::string&)>& mapper = nullptr
-        ) {
-    std::string result;
-    for(const auto& str : collection)
-        result += (mapper ? mapper(str) : str) + separator;
-
-    return result.substr(0, result.size() - separator.size());
-}
 
 void remove_character(std::string* text, char c);
 std::string remove_character(std::string text, char c);
@@ -46,28 +30,22 @@ struct pattern {
 typedef wall_e::list<pattern> pattern_list;
 
 inline static std::regex keyword(const std::string& w) {
-    //const auto a = "[[:<:]]" + w + "[[:>:]]";
-
-    //const auto a = "\\b(?=\\w)" + w + "\\b(?<=\\w)";
-    const auto a = "\\b" + w + "\\b";
-    //const auto a = "\\<" + w + "\\>";
-
-    //return std::regex(a, std::regex::ECMAScript | std::regex::extended);
-    return std::regex(a);
+    return std::regex("\\b" + w + "\\b");
 }
 
-bool operator <(const pattern &p1, const pattern &p2);
+bool operator<(const pattern &p1, const pattern &p2);
 
 std::string find_repetition(const pattern_list &pattern_list);
 
 struct token {
+    std::string uri;
     std::string name;
     std::string text;
     std::string::size_type position = -1;
     uint8_t meta = 0;
     bool undefined = false;
 
-    __declspec(dllexport) text_segment segment() const;
+    text_segment segment() const;
     wall_e::opt<error> undef_error() const;
 };
 
@@ -97,24 +75,7 @@ namespace special {
 constexpr const char* ignore = "ignore";
 }
 
-[[deprecated("use v2::make_tokents")]]
-token_vec make_tokents(std::string text, const pattern_list &pattern_list);
-
-namespace v2 {
-
-wall_e::lex::token_vec make_tokents(std::string text, const wall_e::lex::pattern_list &pattern_list, const char replacer = ' ');
-}
-
-
-wall_e::vec<std::string::size_type> find_all_occurrences(const std::string &text, const std::string &substring);
-[[deprecated("use v2::make_tokents which is already sorted")]]
-token_vec sort_tokens(token_vec tokens, std::string text);
-
-[[deprecated("use v2::make_tokents")]]
-inline token_vec parse(const std::string &text, const pattern_list &patternlist) {
-    return wall_e::lex::sort_tokens(wall_e::lex::make_tokents(text, patternlist), text);
-}
-
+wall_e::lex::token_vec make_tokents(std::string text, const std::string& uri, const wall_e::lex::pattern_list &pattern_list, const char replacer = ' ');
 
 template<typename T>
 T split(const std::string &string, const std::regex &regex) {

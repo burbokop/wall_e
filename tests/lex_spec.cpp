@@ -52,16 +52,8 @@ static constexpr const char* text = "\
 ";
 
 void wall_e::lex_spec::make_tokens_bench(const testing::benchmark_ctx& ctx) {
-    ctx.each("v1", [](){
-        lex::make_tokents(text, lexlist());
-    });
-
-    ctx.each("v1 + sort", [](){
-        lex::sort_tokens(lex::make_tokents(text, lexlist()), text);
-    });
-
     ctx.each("v2", [](){
-        lex::v2::make_tokents(text, lexlist());
+        lex::make_tokents(text, std::string(), lexlist());
     });
 }
 
@@ -95,13 +87,7 @@ static void match(const wall_e::lex::token_vec& v) {
     wall_e_should_equal(v[26].name, "SEMICOLON");
     wall_e_should_equal(v[27].name, "EB");
 }
-#include <iostream>
 
-void wall_e::lex_spec::make_tokens_v1_test() {
-    const auto& t = lex::sort_tokens(lex::make_tokents(text, lexlist()), text);
-    //match(t);
-}
-
-void wall_e::lex_spec::make_tokens_v2_test() {
-    match(lex::v2::make_tokents(text, lexlist()));
+void wall_e::lex_spec::make_tokens_test() {
+    match(lex::make_tokents(text, std::string(), lexlist()));
 }

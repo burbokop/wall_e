@@ -30,7 +30,12 @@ bool wall_e::operator==(const wall_e::error &error0, const wall_e::error &error1
 }
 
 std::ostream &wall_e::operator<<(std::ostream &stream, const wall_e::error &error) {
-    return stream << error.sev() << ":" << error.message() << " at " << error.segment() << "(stage: " << error.stg() << ", kind: " << error.kind() << ")";
+    return stream << "{ message: " << error.message()
+                  << ", segment: " << error.segment()
+                  << ", sev: " << error.sev()
+                  << ", stg: " << error.stg()
+                  << ", kind: " << error.kind()
+                  << " }";
 }
 
 std::ostream& wall_e::operator<<(std::ostream& stream, const wall_e::error::severity &severity) {

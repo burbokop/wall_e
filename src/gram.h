@@ -61,6 +61,7 @@ call_mono_result call(
         const pattern &p,
         token_iterator *it,
         const pattern_list &patterns,
+        const wall_e::gram::environment* env,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index,
@@ -71,6 +72,7 @@ call_mono_result disjunction_call(
         const rule_vec &disjunctions,
         token_iterator *it,
         const pattern_list &patterns,
+        const wall_e::gram::environment* env,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index,
@@ -81,6 +83,7 @@ call_result conjunction_call(
         const rule_vec &conjunctions,
         token_iterator *it,
         const pattern_list &patterns,
+        const wall_e::gram::environment* env,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index,
@@ -91,6 +94,7 @@ call_mono_result text_call(
         const std::string &rule_text,
         token_iterator *it,
         const pattern_list &patterns,
+        const wall_e::gram::environment* env,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index,
@@ -99,6 +103,7 @@ call_mono_result text_call(
 
 call_mono_result null_call(
         token_iterator *it,
+        const wall_e::gram::environment* env,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index,
@@ -108,6 +113,7 @@ call_mono_result null_call(
 either<error, argument> exec(
         const pattern_list &patterns,
         const lex::token_vec &tokens,
+        const environment* env,
         const flags_list &flags = flags_list(),
         const std::function<rule(const rule&)> &simplification_function = smp::simplify,
         log *l = nullptr

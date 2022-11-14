@@ -51,7 +51,8 @@ public:
         if(this->has_value() && f(this->value())) {
             return *this;
         } else {
-            return std::nullopt;
+            static const opt<T> nullopt = std::nullopt;
+            return nullopt;
         }
     }
 };
@@ -305,6 +306,18 @@ public:
         } else {
             return this->front();
         }
+    }
+
+    inline list<T, Alloc> with(const list<T, Alloc>& other) const {
+        auto copy = *this;
+        copy.insert(copy.end(), other.begin(), other.end());
+        return copy;
+    }
+
+    inline list<T, Alloc> with(const T& other) const {
+        auto copy = *this;
+        copy.push_back(other);
+        return copy;
     }
 
     inline std::string join(const std::string& delim) const { return wall_e::join(*this, delim); }

@@ -3,112 +3,7 @@
 #include <cassert>
 #include <sstream>
 
-namespace wall_e {
-namespace lex {
-
-wall_e::vec<std::string> match(const std::regex &reg, const std::string &text) {
-    std::sregex_token_iterator it(text.begin(), text.end(), reg);
-    std::sregex_token_iterator end;
-    str_vec result;
-    while(it != end) {
-        result.push_back(*it);
-        ++it;
-    }
-    return result;
-}
-
-
-void remove_substrs(std::string *text, const std::string& pattern) {
-    assert(text);
-    std::string::size_type n = pattern.length();
-    for (std::string::size_type i = text->find(pattern); i != std::string::npos; i = text->find(pattern))
-        text->erase(i, n);
-}
-
-void wipe_substrs(std::string *text, const std::string& pattern, char c) {
-    assert(text);
-    std::string cc;
-    cc.resize(1, c);
-    if(pattern == "" || pattern == cc)
-        return;
-
-    std::string::size_type n = pattern.length();
-    for (std::string::size_type i = text->find(pattern); i != std::string::npos; i = text->find(pattern)) {
-        text->erase(i, n);
-        text->insert(i, n, c);
-    }
-}
-
-token_vec make_tokents(std::string text, const pattern_list &pattern_list) {
-    token_vec result;
-    const auto rep = find_repetition(pattern_list);
-    if(rep != std::string())
-        throw std::runtime_error("klex_get_tokents: repetition found (" + rep + ")");
-
-    for(const auto& pattern : pattern_list) {
-        auto l = match(pattern.reg, text);
-        for(const auto& ll : l) {
-            remove_substrs(&text, ll);
-            //klex_wipe_substrs(&text, ll);
-            token token;
-            token.name = pattern.name;
-            token.text = ll;
-            if(pattern.name.size() > 0 && pattern.name != "" && pattern.name != special::ignore) {
-                result.push_back(token);
-            }
-        }
-    }
-
-    for(auto c : text) {
-        token errt;
-        errt.name = "undefined";
-        errt.undefined = true;
-        errt.text = c;
-        result.push_back(errt);
-    }
-
-    std::sort(result.begin(), result.end(), [](const token &a, const token &b) {
-        return a.text.size() > b.text.size();
-    });
-
-    return result;
-}
-
-
-wall_e::vec<std::string::size_type> find_all_occurrences(const std::string &text, const std::string &substring) {
-    wall_e::vec<std::string::size_type> result;
-    size_t pos = text.find(substring, 0);
-    while(pos != std::string::npos) {
-        result.push_back(pos);
-        pos = text.find(substring, pos + 1);
-    }
-    return result;
-}
-
-token_vec sort_tokens(token_vec tokens, std::string text) {
-    std::sort(tokens.begin(), tokens.end(), [](const token &a, const token &b) { return a.text.size() > b.text.size(); });
-    token_vec result;
-    std::map<std::string::size_type, token> tokmap;
-    for(auto t : tokens) {
-        auto o = find_all_occurrences(text, t.text);
-        wipe_substrs(&text, t.text);
-        for(auto index : o) {
-            if(index >= 0) {
-                t.position = index;
-                tokmap[index] = t;
-            }
-        }
-    }
-
-    for(auto it = tokmap.begin(); it != tokmap.end(); ++it) {
-        result.push_back(it->second);
-    }
-
-    std::sort(result.begin(), result.end());
-    return result;
-}
-
-std::string find_repetition(const pattern_list &pattern_list) {
+std::string wall_e::lex::find_repetition(const pattern_list &pattern_list) {
     std::map<pattern, char> m;
     for(const auto& p : pattern_list) {
         if(p.name == special::ignore) continue;
@@ -121,17 +16,17 @@ std::string find_repetition(const pattern_list &pattern_list) {
     return std::string();
 }
 
-bool operator <(const pattern &p1, const pattern &p2) {
+bool wall_e::lex::operator <(const pattern &p1, const pattern &p2) {
     return p1.name < p2.name;
 }
 
-std::string to_string(const token &token) {
+std::string wall_e::lex::to_string(const token &token) {
     std::stringstream ss;
     ss << token;
     return ss.str();
 }
 
-std::string to_string(const wall_e::vec<wall_e::lex::token> &token, char separator) {
+std::string wall_e::lex::to_string(const wall_e::vec<wall_e::lex::token> &token, char separator) {
     std::stringstream ss;
     for(const auto& t : token) {
         ss << t << separator;
@@ -139,7 +34,7 @@ std::string to_string(const wall_e::vec<wall_e::lex::token> &token, char separat
     return ss.str();
 }
 
-std::string trim(const std::string &string, char delim) {
+std::string wall_e::lex::trim(const std::string &string, char delim) {
     size_t first = string.find_first_not_of(delim);
     if (first == std::string::npos) {
         return std::string();
@@ -148,18 +43,18 @@ std::string trim(const std::string &string, char delim) {
     return string.substr(first, (last - first + 1));
 }
 
-void remove_character(std::string *text, char c) {
+void wall_e::lex::remove_character(std::string *text, char c) {
     if (text) {
         text->erase(std::remove(text->begin(), text->end(), c), text->end());
     }
 }
 
-std::string remove_character(std::string text, char c) {
+std::string wall_e::lex::remove_character(std::string text, char c) {
     remove_character(&text, c);
     return text;
 }
 
-str_vec names(const token_vec &tokens) {
+wall_e::str_vec wall_e::lex::names(const token_vec &tokens) {
     str_vec result;
     result.reserve(tokens.size());
     for(const auto& t : tokens) {
@@ -168,7 +63,7 @@ str_vec names(const token_vec &tokens) {
     return result;
 }
 
-str_vec texts(const token_vec &tokens) {
+wall_e::str_vec wall_e::lex::texts(const token_vec &tokens) {
     str_vec result;
     result.reserve(tokens.size());
     for(const auto& t : tokens) {
@@ -177,7 +72,7 @@ str_vec texts(const token_vec &tokens) {
     return result;
 }
 
-wall_e::vec<str_pair> names(const wall_e::vec<token_pair> &tokens) {
+wall_e::vec<wall_e::str_pair> wall_e::lex::names(const wall_e::vec<token_pair> &tokens) {
     wall_e::vec<str_pair> result;
     result.reserve(tokens.size());
     for(const auto& t : tokens) {
@@ -186,7 +81,7 @@ wall_e::vec<str_pair> names(const wall_e::vec<token_pair> &tokens) {
     return result;
 }
 
-wall_e::vec<str_pair> texts(const wall_e::vec<token_pair> &tokens) {
+wall_e::vec<wall_e::str_pair> wall_e::lex::texts(const wall_e::vec<token_pair> &tokens) {
     wall_e::vec<str_pair> result;
     result.reserve(tokens.size());
     for(const auto& t : tokens) {
@@ -195,7 +90,7 @@ wall_e::vec<str_pair> texts(const wall_e::vec<token_pair> &tokens) {
     return result;
 }
 
-std::string parse_string_literal(std::string str, bool remove_quotes, char quotes_char) {
+std::string wall_e::lex::parse_string_literal(std::string str, bool remove_quotes, char quotes_char) {
     if (remove_quotes && str.size() > 1) {
         if(str[0] == quotes_char && str[str.size() - 1] == quotes_char) {
             str = str.substr(1, str.size() - 2);
@@ -204,15 +99,16 @@ std::string parse_string_literal(std::string str, bool remove_quotes, char quote
     return convert_special_symbol(str);
 }
 
-char special_symbol(char name) {
-    switch (name) {
-        case 'n': return '\n';
-        case 't': return '\t';
-    }
-    return name;
-}
 
-std::string convert_special_symbol(std::string str) {
+std::string wall_e::lex::convert_special_symbol(std::string str) {
+    const auto&& special_symbol = [](char name) -> char {
+        switch (name) {
+            case 'n': return '\n';
+            case 't': return '\t';
+        }
+        return name;
+    };
+
     for(auto it = str.begin(); it != str.end(); ++it) {
         if(*it == '\\') {
             const auto next = (it + 1);
@@ -225,15 +121,15 @@ std::string convert_special_symbol(std::string str) {
     return str;
 }
 
-text_segment token::segment() const {
+wall_e::text_segment wall_e::lex::token::segment() const {
     if(position >= 0) {
-        return text_segment(position, position + text.size());
+        return text_segment(uri, position, position + text.size());
     } else {
         return text_segment();
     }
 }
 
-wall_e::opt<error> token::undef_error() const {
+wall_e::opt<wall_e::error> wall_e::lex::token::undef_error() const {
     if(undefined) {
         return error("undefined token", error::err, error::lexic, errors::undefined_token, segment());
     } else {
@@ -241,7 +137,7 @@ wall_e::opt<error> token::undef_error() const {
     }
 }
 
-std::string encode_special_syms(std::string str) {
+std::string wall_e::lex::encode_special_syms(std::string str) {
     const auto&& replace_all = [](std::string& data, const std::string& to_search, const std::string& replace_str) {
         size_t pos = data.find(to_search);
         while(pos != std::string::npos) {
@@ -255,7 +151,7 @@ std::string encode_special_syms(std::string str) {
 }
 
 
-token_vec v2::make_tokents(std::string text, const pattern_list &pattern_list, const char replacer) {
+wall_e::lex::token_vec wall_e::lex::make_tokents(std::string text, const std::string& uri, const pattern_list &pattern_list, const char replacer) {
     token_vec result;
     const auto rep = find_repetition(pattern_list);
     if(rep != std::string())
@@ -267,6 +163,7 @@ token_vec v2::make_tokents(std::string text, const pattern_list &pattern_list, c
         while(it != end) {
             if(pattern.name.size() > 0 && pattern.name != special::ignore) {
                 wall_e::lex::token token;
+                token.uri = uri;
                 token.name = pattern.name;
                 token.text = *it;
                 token.position = it->first - text.begin();
@@ -281,8 +178,3 @@ token_vec v2::make_tokents(std::string text, const pattern_list &pattern_list, c
     });
     return result;
 }
-
-
-}
-}
-

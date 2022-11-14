@@ -77,10 +77,9 @@ struct __flags_private {
 };
 
 
-call_mono_result text_call(
-        const std::string &rule_text,
+call_mono_result text_call(const std::string &rule_text,
         token_iterator *it,
-        const pattern_list &patterns,
+        const pattern_list &patterns, const environment* env,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index,
@@ -105,13 +104,13 @@ call_mono_result text_call(
     if(item.type() == item::Token) {
         return call_mono_result({ item.token() }, true);
     } else if(item.type() == item::Pattern) {
-        return call(item.gram_pattern(), it, patterns, flags, index_it.next_level(), construction_index, l);
+        return call(item.gram_pattern(), it, patterns, env, flags, index_it.next_level(), construction_index, l);
     }
     return call_mono_result();
     //return call_mono_result::from_error(error("udef token or pattern '" + rule_text + "'", error::err, it->segment()));
 }
 
-call_mono_result null_call(token_iterator *it, const __flags_private &flags, index_iter index_it, std::size_t *construction_index, log *log) {
+call_mono_result null_call(token_iterator *it, const environment* env, const __flags_private &flags, index_iter index_it, std::size_t *construction_index, log *log) {
     K_GRAM_CHECK_LEVEL
     if(log) {
         log->add_step(true, rule_color("n"), "N", "", it, index_it.level, rule_color);
@@ -121,10 +120,9 @@ call_mono_result null_call(token_iterator *it, const __flags_private &flags, ind
 }
 
 
-call_result conjunction_call(
-        const rule_vec &conjunctions,
+call_result conjunction_call(const rule_vec &conjunctions,
         token_iterator *it,
-        const pattern_list &patterns,
+        const pattern_list &patterns, const environment* env,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index,
@@ -143,11 +141,11 @@ call_result conjunction_call(
         call_mono_result tmp_result;
 
         if(expected_token.type() == rule_type::Text) {
-            tmp_result = text_call(expected_token.value(), it, patterns, flags, index_it.next_level(), construction_index, l);
+            tmp_result = text_call(expected_token.value(), it, patterns, env, flags, index_it.next_level(), construction_index, l);
         } else if(expected_token.type() == rule_type::Disjunction) {
-            tmp_result = disjunction_call(expected_token.children(), it, patterns, flags, index_it.next_level(), construction_index, l);
+            tmp_result = disjunction_call(expected_token.children(), it, patterns, env, flags, index_it.next_level(), construction_index, l);
         } else {
-            tmp_result = null_call(it, flags, index_it.next_level(), construction_index, l);
+            tmp_result = null_call(it, env, flags, index_it.next_level(), construction_index, l);
         }
 
         if(tmp_result.error.has_value()) {
@@ -191,10 +189,9 @@ call_result conjunction_call(
     return call_result(args, true);
 }
 
-call_mono_result disjunction_call(
-        const rule_vec &disjunctions,
+call_mono_result disjunction_call(const rule_vec &disjunctions,
         token_iterator *it,
-        const pattern_list &patterns,
+        const pattern_list &patterns, const environment* env,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index,
@@ -219,17 +216,17 @@ call_mono_result disjunction_call(
         call_mono_result tmp_result;
 
         if(particular_case.isNull()) {
-            tmp_result = null_call(it, flags, index_it.next_level(), construction_index, l);
+            tmp_result = null_call(it, env, flags, index_it.next_level(), construction_index, l);
         } else {
             if(particular_case.type() == rule_type::Text) {
-                tmp_result = text_call(particular_case.value(), it, patterns, flags, index_it.next_level(), construction_index, l);
+                tmp_result = text_call(particular_case.value(), it, patterns, env, flags, index_it.next_level(), construction_index, l);
             } else if(particular_case.type() == rule_type::Disjunction) {
                 if(l) {
                     const auto& msg = "deprecated operation Disjunction in Disjunction";
                     l->add_step(false, warn_color(msg), "deprecated warn", msg, it, index_it.level, warn_color);
                 }
 
-                tmp_result = disjunction_call(particular_case.children(), it, patterns, flags, index_it.next_level(), construction_index, l);
+                tmp_result = disjunction_call(particular_case.children(), it, patterns, env, flags, index_it.next_level(), construction_index, l);
             } else if(particular_case.type() == rule_type::Conjunction) {
                 if(l) {
                     const auto& msg = "deprecated operation Conjunction in Disjunction";
@@ -237,10 +234,10 @@ call_mono_result disjunction_call(
                 }
 
                 //MAY BE REMOVED
-                tmp_result = call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, flags, index_it.next_level(), construction_index, l));
+                tmp_result = call_mono_result_cast(conjunction_call(particular_case.children(), it, patterns, env, flags, index_it.next_level(), construction_index, l));
                 //--- -- -------
             } else {
-                tmp_result = null_call(it, flags, index_it.next_level(), construction_index, l);
+                tmp_result = null_call(it, env, flags, index_it.next_level(), construction_index, l);
             }
         }
 
@@ -259,17 +256,16 @@ call_mono_result disjunction_call(
         }
     }
     if(l) {
-        const auto ss = std::stringstream() << err_color("no choise, expectations: ") << err_color(lex::join(expectations, ", "));
+        const auto ss = std::stringstream() << err_color("no choise, expectations: ") << err_color(expectations.join(", "));
         l->add_step(true, ss.str(), "no choise", (std::stringstream() << "expectations: " << expectations).str(), it, index_it.level, err_color);
     }
-    return call_mono_result::from_error(error("disj faild, expectations: " + lex::join(expectations, " or "), error::err, error::gramatic, errors::failed_disjunction, it->segment()));
+    return call_mono_result::from_error(error("disj faild, expectations: " + expectations.join(" or "), error::err, error::gramatic, errors::failed_disjunction, it->segment()));
 }
 
 
-call_mono_result call(
-        const pattern &p,
+call_mono_result call(const pattern &p,
         token_iterator *it,
-        const pattern_list &patterns,
+        const pattern_list &patterns, const environment* env,
         const __flags_private &flags,
         index_iter index_it,
         std::size_t *construction_index,
@@ -286,13 +282,13 @@ call_mono_result call(
 
     call_result result;
     if(rule.type() == rule_type::Text) {
-        result = call_result_cast(text_call(rule.value(), it, patterns, flags, index_it.next_pattern_level(), construction_index, l));
+        result = call_result_cast(text_call(rule.value(), it, patterns, env, flags, index_it.next_pattern_level(), construction_index, l));
     } else if(rule.type() == rule_type::Disjunction) {
-        result = call_result_cast(disjunction_call(rule.children(), it, patterns, flags, index_it.next_pattern_level(), construction_index, l));
+        result = call_result_cast(disjunction_call(rule.children(), it, patterns, env, flags, index_it.next_pattern_level(), construction_index, l));
     } else if(rule.type() == rule_type::Conjunction) {
-        result = conjunction_call(rule.children(), it, patterns, flags, index_it.next_pattern_level(), construction_index, l);
+        result = conjunction_call(rule.children(), it, patterns, env, flags, index_it.next_pattern_level(), construction_index, l);
     } else if(rule.isNull()) {
-        result = call_result_cast(null_call(it, flags, index_it.next_pattern_level(), construction_index, l));
+        result = call_result_cast(null_call(it, env, flags, index_it.next_pattern_level(), construction_index, l));
     }
 
     if(result.error.has_value()) {
@@ -306,7 +302,7 @@ call_mono_result call(
 
     if(result.confirmed) {
         if(l) { l->add_step(false, (std::stringstream() << "<< " << result.arg).str(), "<<", (std::stringstream() << result.arg).str(), it, index_it.level); }
-        return call_mono_result(p.callback(flags.use_default_parser)(result.arg, index_it.to_index((*construction_index)++)), true);
+        return call_mono_result(p.callback(flags.use_default_parser)(result.arg, index_it.to_index((*construction_index)++), env), true);
     }
     if(l) { l->add_step(true, "<< " + err_color("<(0)_(0)>"), "<< " + p.name(), "No match found for pattern: '" + p.name() + "'. exiting...", it, index_it.level, err_color); }
     return call_mono_result();
@@ -316,6 +312,7 @@ call_mono_result call(
 either<error, argument> exec(
         const pattern_list &patterns,
         const lex::token_vec &tokens,
+        const wall_e::gram::environment* env,
         const flags_list &flags,
         const std::function<rule(const rule &)> &simplification_function,
         log *l
@@ -367,7 +364,7 @@ either<error, argument> exec(
 
     if(patterns.size() > 0 && tokens.size() > 0) {
         token_iterator it = tokens;
-        return call(patterns.front(), &it, patterns, __flags_private(flags, simplification_function), index_iter(), &construction_index, l);
+        return call(patterns.front(), &it, patterns, env, __flags_private(flags, simplification_function), index_iter(), &construction_index, l);
     }
     return right(argument());
 }

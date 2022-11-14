@@ -93,15 +93,20 @@ struct rule_transition {
 rule simplify_rule(const rule &r, rule_transition::enum_t method = rule_transition::Auto);
 inline rule simplify_rule_default(const rule &r) { return simplify_rule(r, rule_transition::DoubleConjunction); }
 
-
-
+class environment {
+    const std::string& m_uri;
+public:
+    environment(const std::string& uri) : m_uri(uri) {}
+    const std::string& uri() const { return m_uri; }
+    virtual ~environment() {}
+};
 
 class pattern {
     std::string m_name;
     rule m_gram_rule;
 public:
-    typedef std::function<argument(const arg_vector&, const wall_e::index&)> processor;
-    const static inline processor default_processor = [](const arg_vector &args, const wall_e::index&) -> argument {
+    typedef std::function<argument(const arg_vector&, const wall_e::index&, const environment*)> processor;
+    const static inline processor default_processor = [](const arg_vector &args, const wall_e::index&, const environment*) -> argument {
         if(args.size() > 0) {
             if(args.size() > 1) {
                 return args;
@@ -125,7 +130,7 @@ public:
     }
     template<typename T>
     static processor pass_token_if(const wall_e::vec<std::string>& token_names, size_t i = 0) {
-        return [i, token_names](const arg_vector &args, const index&) -> argument {
+        return [i, token_names](const arg_vector &args, const index&, const environment*) -> argument {
             if(args.size() > i) {
                 if(args[i].contains_type<lex::token>()) {
                     const auto token = args[i].value<lex::token>();
@@ -274,7 +279,7 @@ either<error, rule> rule_from_str(const std::string &string);
 
 
 template<typename T>
-wall_e::gram::argument binary_operator(const wall_e::gram::arg_vector &args, const wall_e::list<wall_e::pair<std::string, std::function<T (T, T)>>> &processors) {
+wall_e::gram::argument binary_operator(const wall_e::gram::arg_vector &args, const wall_e::list<wall_e::pair<std::string, std::function<T (T, T)>>> &processors, const environment* env) {
     if(args.size() > 2) {
         const auto val = [](const wall_e::gram::argument &arg, T& value) -> bool {
             if(arg.contains_type<T>()) {
@@ -297,11 +302,11 @@ wall_e::gram::argument binary_operator(const wall_e::gram::arg_vector &args, con
             }
         }
     }
-    return wall_e::gram::pattern::default_processor(args, index(0, 0, 0, 0));
+    return wall_e::gram::pattern::default_processor(args, index(0, 0, 0, 0), env);
 }
 
 template<typename T>
-wall_e::gram::argument binary_operator(const wall_e::gram::arg_vector &args, const std::function<T (T, T)> &processor) {
+wall_e::gram::argument binary_operator(const wall_e::gram::arg_vector &args, const std::function<T (T, T)> &processor, const wall_e::gram::environment* env) {
     if(args.size() > 2) {
         const auto val = [](const wall_e::gram::argument &arg, T& value) -> bool {
             if(arg.contains_type<T>()) {
@@ -319,7 +324,7 @@ wall_e::gram::argument binary_operator(const wall_e::gram::arg_vector &args, con
             return processor(val0, val1);
         }
     }
-    return wall_e::gram::pattern::default_processor(args, index(0, 0, 0, 0));
+    return wall_e::gram::pattern::default_processor(args, index(0, 0, 0, 0), env);
 }
 
 template<typename T>
