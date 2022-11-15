@@ -247,11 +247,11 @@ public:
 
     constexpr inline T max() {
         static_assert(std::is_integral<T>::value, "T must be integral");
-        return reduce(std::numeric_limits<T>::min(), [](const auto& a, const auto& b){ return std::max(a, b); });
+        return reduce(std::numeric_limits<T>::min(), std::max);
     }
     constexpr inline T min() {
         static_assert(std::is_integral<T>::value, "T must be integral");
-        return reduce(std::numeric_limits<T>::max(), [](const auto& a, const auto& b){ return std::min(a, b); });
+        return reduce(std::numeric_limits<T>::max(), std::min);
     }
 
     constexpr inline T sum() {
@@ -320,7 +320,16 @@ public:
         return copy;
     }
 
+    template<typename BinaryOperation>
+    constexpr inline T reduce(T init, BinaryOperation op) {
+        return std::accumulate(this->begin(), this->end(), init, op);
+    }
+
     inline std::string join(const std::string& delim) const { return wall_e::join(*this, delim); }
+
+    inline bool contains(const std::function<bool(const T& value)>& predicate) const {
+        return std::find_if(this->begin(), this->end(), predicate) != this->end();
+    }
 };
 
 template<typename T1, typename T2>
