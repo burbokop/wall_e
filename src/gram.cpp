@@ -42,7 +42,7 @@ std::string __level_str(std::size_t level) {
 }
 
 struct __recursion_error_ubiq {
-    inline static const error err = error("recursion error", error::err, error::gramatic, errors::recursion);
+    inline static const error err = error("recursion error", error::Err, error::Gramatic, errors::Recursion);
 
     operator call_result () { return call_result::from_error(err); }
     operator call_mono_result () { return call_mono_result::from_error(err); }
@@ -259,7 +259,7 @@ call_mono_result disjunction_call(const rule_vec &disjunctions,
         const auto ss = std::stringstream() << err_color("no choise, expectations: ") << err_color(expectations.join(", "));
         l->add_step(true, ss.str(), "no choise", (std::stringstream() << "expectations: " << expectations).str(), it, index_it.level, err_color);
     }
-    return call_mono_result::from_error(error("disj faild, expectations: " + expectations.join(" or "), error::err, error::gramatic, errors::failed_disjunction, it->segment()));
+    return call_mono_result::from_error(error("disjunction faild, expectations: " + expectations.join(" or "), error::Err, error::Gramatic, errors::FailedDisjunction, it->segment()));
 }
 
 

@@ -14,9 +14,9 @@ namespace gram {
 
 namespace errors {
 enum  {
-    recursion,
-    failed_disjunction,
-    unmatched_pattern
+    Recursion,
+    FailedDisjunction,
+    UnmatchedPattern
 };
 }
 

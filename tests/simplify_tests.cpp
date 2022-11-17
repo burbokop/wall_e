@@ -61,12 +61,12 @@ void wall_e::simplify_tests::common_test4(const std::function<wall_e::gram::rule
 }
 
 void wall_e::simplify_tests::common_test5(const std::function<wall_e::gram::rule (const wall_e::gram::rule &)> &func) {
-    const auto r = (wall_e::gram::rule("TOK_ID") & "EQUALS" & "OP" & (wall_e::gram::rule("EP") | "decl_arg_list") & "OB" & (wall_e::gram::rule("EB") | "internal_block"));
+    const auto r = (wall_e::gram::rule("ID") & "EQUALS" & "OP" & (wall_e::gram::rule("EP") | "decl_arg_list") & "OB" & (wall_e::gram::rule("EB") | "internal_block"));
 
     const auto rs = func(r);
 
     wall_e_should_equal(rs.type(), wall_e::gram::rule_type::Conjunction);
-    wall_e_should_equal(rs[0], wall_e::gram::rule("TOK_ID"));
+    wall_e_should_equal(rs[0], wall_e::gram::rule("ID"));
     wall_e_should_equal(rs[1], wall_e::gram::rule("EQUALS"));
     wall_e_should_equal(rs[2], wall_e::gram::rule("OP"));
     wall_e_should_equal(rs[3].type(), wall_e::gram::rule_type::Disjunction);
@@ -93,12 +93,12 @@ void wall_e::simplify_tests::common_test6(const std::function<wall_e::gram::rule
 }
 
 void wall_e::simplify_tests::common_test7(const std::function<wall_e::gram::rule (const wall_e::gram::rule &)> &func) {
-    const auto r = (wall_e::gram::rule("TOK_ID") & "OP" & (wall_e::gram::rule("EP") | "arg_list"));
+    const auto r = (wall_e::gram::rule("ID") & "OP" & (wall_e::gram::rule("EP") | "arg_list"));
 
     const auto rs = func(r);
 
     wall_e_should_equal(rs.type(), wall_e::gram::rule_type::Conjunction);
-    wall_e_should_equal(rs[0], "TOK_ID");
+    wall_e_should_equal(rs[0], "ID");
     wall_e_should_equal(rs[1], "OP");
     wall_e_should_equal(rs[2].type(), wall_e::gram::rule_type::Disjunction);
     wall_e_should_equal(rs[2][0], "EP");

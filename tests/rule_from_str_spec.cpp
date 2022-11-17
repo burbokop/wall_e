@@ -90,13 +90,13 @@ void wall_e::rule_from_str_spec::test2() {
 }
 
 void wall_e::rule_from_str_spec::test3() {
-    const auto r0 = "TOK_ID & EQUALS & OP & (EP | decl_arg_list) & OB & (EB | internal_block)"_rule;
+    const auto r0 = "ID & EQUALS & OP & (EP | decl_arg_list) & OB & (EB | internal_block)"_rule;
 
     std::cout << "ro:" << r0 << std::endl;
 
     wall_e_should_equal(r0.type(), gram::rule_type::Conjunction);
     wall_e_should_equal(r0.size(), 2);
-    wall_e_should_equal(r0[0], "TOK_ID");
+    wall_e_should_equal(r0[0], "ID");
     wall_e_should_equal(r0[1].type(), gram::rule_type::Conjunction);
     wall_e_should_equal(r0[1].size(), 2);
     wall_e_should_equal(r0[1][0], "EQUALS");
@@ -117,14 +117,14 @@ void wall_e::rule_from_str_spec::test3() {
     wall_e_should_equal(r0[1][1][1][1][1][0], "EB");
     wall_e_should_equal(r0[1][1][1][1][1][1], "internal_block");
 
-    const auto r1 = wall_e::gram::rule("TOK_ID") & "EQUALS" & "OP" & (wall_e::gram::rule("EP") | "decl_arg_list") & "OB" & (wall_e::gram::rule("EB") | "internal_block");
+    const auto r1 = wall_e::gram::rule("ID") & "EQUALS" & "OP" & (wall_e::gram::rule("EP") | "decl_arg_list") & "OB" & (wall_e::gram::rule("EB") | "internal_block");
 
     const auto r0s = smp::simplify(r0);
     const auto r1s = smp::simplify(r1);
 
     wall_e_should_equal(r0s, r1s);
 
-    const auto p = "function_declaration << TOK_ID & EQUALS & OP & (EP | decl_arg_list) & OB & (EB | internal_block)"_pattern;
+    const auto p = "function_declaration << ID & EQUALS & OP & (EP | decl_arg_list) & OB & (EB | internal_block)"_pattern;
 
     wall_e_should_equal(p.name(), "function_declaration");
     wall_e_should_equal(p.gram_rule(), r0);

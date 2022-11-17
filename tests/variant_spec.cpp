@@ -64,11 +64,11 @@ void wall_e::variant_spec::print_to_stream_test() {
         static constexpr bool has_oper = stream_operator::exists<std::ostream, error>::value;
         wall_e_should_equal(has_oper, true);
 
-        wall_e::variant v = error("some_message", error::err, error::undefined_stage);
+        wall_e::variant v = error("some_message", error::Err, error::UndefinedStage);
         std::stringstream ss;
         ss << v;
 
-        wall_e_should_equal(ss.str(), "{ message: some_message, segment: { 0, 0 }, sev: err, stg: undefined_stage, kind: 0 }");
+        wall_e_should_equal(ss.str(), "{ message: some_message, segment: { 0, 0 }, sev: Err, stg: UndefinedStage, kind: 0 }");
     }
 }
 

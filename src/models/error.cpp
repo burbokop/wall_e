@@ -38,22 +38,3 @@ std::ostream &wall_e::operator<<(std::ostream &stream, const wall_e::error &erro
                   << " }";
 }
 
-std::ostream& wall_e::operator<<(std::ostream& stream, const wall_e::error::severity &severity) {
-    switch (severity) {
-        case wall_e::error::severity::err: return stream << "err";
-        case wall_e::error::severity::warn: return stream << "warn";
-        case wall_e::error::severity::info: return stream << "info";
-        case wall_e::error::severity::hint: return stream << "hint";
-    default: return stream;
-    }
-}
-
-std::ostream& wall_e::operator<<(std::ostream& stream, const wall_e::error::stage &stage) {
-    switch (stage) {
-        case wall_e::error::stage::lexic: return stream << "lexic";
-        case wall_e::error::stage::gramatic: return stream << "gramatic";
-        case wall_e::error::stage::semantic: return stream << "semantic";
-        case wall_e::error::stage::undefined_stage: return stream << "undefined_stage";
-    default: return stream;
-    }
-}

@@ -30,8 +30,26 @@ public:
         }
     }
 
+    template<typename R, typename Arg>
+    constexpr inline typename std::enable_if<std::is_class<T>::value, opt<R>>::type map_member(Arg &&f) const {
+        if(this->has_value()) {
+            return this->value().*f;
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    template<typename R, typename Arg>
+    constexpr inline typename std::enable_if<std::is_class<T>::value, opt<R>>::type map_member_func(Arg &&f) const {
+        if(this->has_value()) {
+            return (this->value().*f)();
+        } else {
+            return std::nullopt;
+        }
+    }
+
     template<typename R>
-    inline opt<R> flatMap(const std::function<opt<R>(const T&)>& f) const {
+    inline opt<R> flat_map(const std::function<opt<R>(const T&)>& f) const {
         if(this->has_value()) {
             return f(this->value());
         } else {
@@ -186,6 +204,8 @@ class vec : public std::vector<T, Alloc> {
 public:
     using std::vector<T, Alloc>::vector;
 
+    vec(std::initializer_list<T> list, const Alloc& a = Alloc()) : std::vector<T, Alloc>(list, a) {}
+
     template<typename R, typename RAlloc = std::allocator<R>>
     constexpr inline vec<R, RAlloc> map(const std::function<R(const T&)>& f) const {
         vec<R, RAlloc> result; result.reserve(this->size()); return map_collection(result, *this, f);
@@ -306,6 +326,10 @@ public:
         } else {
             return this->front();
         }
+    }
+
+    inline static list<T, Alloc> with_op(const list<T, Alloc>& l0, const list<T, Alloc>& l1) {
+        return l0.with(l1);
     }
 
     inline list<T, Alloc> with(const list<T, Alloc>& other) const {

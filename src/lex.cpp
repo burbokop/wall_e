@@ -131,7 +131,7 @@ wall_e::text_segment wall_e::lex::token::segment() const {
 
 wall_e::opt<wall_e::error> wall_e::lex::token::undef_error() const {
     if(undefined) {
-        return error("undefined token", error::err, error::lexic, errors::undefined_token, segment());
+        return error("undefined token", error::Err, error::Lexic, errors::UndefinedToken, segment());
     } else {
         return std::nullopt;
     }

@@ -13,7 +13,7 @@ namespace wall_e {
 namespace lex {
 
 namespace errors {
-enum { undefined_token };
+enum { UndefinedToken };
 }
 
 std::string trim(const std::string& string, char delim = ' ');
@@ -29,7 +29,7 @@ struct pattern {
 
 typedef wall_e::list<pattern> pattern_list;
 
-inline static std::regex keyword(const std::string& w) {
+inline static std::regex bounded(const std::string& w) {
     return std::regex("\\b" + w + "\\b");
 }
 

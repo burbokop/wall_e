@@ -63,6 +63,13 @@ inline T max_value() {
     return r.max_value;
 }
 
+struct null_t {
+    template<typename T>
+    operator T() const { return wall_e::enums::max_value<T>(); }
+};
+
+inline null_t null = null_t {};
+
 template<typename T>
 inline std::string to_string(T value) {
     const auto& map = reflect_names<T>();

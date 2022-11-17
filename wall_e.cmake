@@ -23,6 +23,7 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/box.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/collections.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_stream.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/lazy.cpp
     )
 
 set(HEADERS
@@ -50,6 +51,7 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/defer.h
     ${CMAKE_CURRENT_LIST_DIR}/src/macro.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/tree_stream.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/lazy.h
     )
 
 if(LINK_ALL_STATIC)
