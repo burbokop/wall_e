@@ -302,6 +302,8 @@ class list : public std::list<T, Alloc> {
 public:
     using std::list<T, Alloc>::list;
 
+    list(std::initializer_list<T> l, const Alloc& a = Alloc()) : std::list<T, Alloc>(l, a) {}
+
     template<typename R, typename RAlloc = std::allocator<R>>
     inline list<R, RAlloc> map(const std::function<R(const T&)> f) const {
         list<R, RAlloc> result; return map_collection(result, *this, f);
@@ -600,9 +602,9 @@ inline list<T> operator+(list<T> l0, const list<T> &l1) {
 */
 
 template<typename T>
-inline list<T> operator+(list<T> l0, const T &v) {
+inline list<T>&& operator+(list<T> &&l0, const T &v) {
     l0.push_back(v);
-    return l0;
+    return std::move(l0);
 }
 
 

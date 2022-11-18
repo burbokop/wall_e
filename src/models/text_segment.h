@@ -22,8 +22,8 @@ public:
     std::string::size_type end() const;
     std::string::size_type length() const;
 
-    typedef std::function<bool(const text_segment&, const std::string&)> predicate;
-    static predicate line_char_predicate(std::size_t line, std::size_t character);
+    typedef std::function<bool(const text_segment&)> predicate;
+    //static predicate line_char_predicate(std::size_t line, std::size_t character);
     static predicate offset_predicate(std::size_t offset);
     static predicate eq_predicate(const text_segment& other);
 

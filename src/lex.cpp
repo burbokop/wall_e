@@ -137,7 +137,7 @@ wall_e::opt<wall_e::error> wall_e::lex::token::undef_error() const {
     }
 }
 
-std::string wall_e::lex::encode_special_syms(std::string str) {
+std::string wall_e::lex::replace(std::string str, const wall_e::vec<wall_e::pair<std::string, std::string> > &mapping) {
     const auto&& replace_all = [](std::string& data, const std::string& to_search, const std::string& replace_str) {
         size_t pos = data.find(to_search);
         while(pos != std::string::npos) {
@@ -145,9 +145,18 @@ std::string wall_e::lex::encode_special_syms(std::string str) {
             pos = data.find(to_search, pos + replace_str.size());
         }
     };
-    replace_all(str, "\n", "\\n");
-    replace_all(str, "\t", "\\t");
+
+    for(const auto& m : mapping) {
+        replace_all(str, m.first, m.second);
+    }
     return str;
+}
+
+std::string wall_e::lex::encode_special_syms(const std::string &str) {
+    return replace(str, {
+                       { "\n", "\\n" },
+                       { "\t", "\\t" }
+                   });
 }
 
 
@@ -178,3 +187,4 @@ wall_e::lex::token_vec wall_e::lex::make_tokents(std::string text, const std::st
     });
     return result;
 }
+

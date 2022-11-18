@@ -59,9 +59,9 @@ bool wall_e::operator==(const wall_e::text_segment &seg0, const wall_e::text_seg
 std::ostream &wall_e::operator<<(std::ostream &stream, const wall_e::text_segment &seg) {
     return stream << "{ " << seg.begin() << ", " << seg.end() << " }";
 }
-
+/*
 wall_e::text_segment::predicate wall_e::text_segment::line_char_predicate(std::size_t line, std::size_t character) {
-    return [=](const text_segment& segment, const std::string& text) {
+    return [=](const text_segment& segment) {
         std::size_t l = 0;
         for(std::size_t i = 0; i < text.size(); ++i) {
             if(text[i] == '\n') {
@@ -73,9 +73,9 @@ wall_e::text_segment::predicate wall_e::text_segment::line_char_predicate(std::s
         return false;
     };
 }
-
+*/
 wall_e::text_segment::predicate wall_e::text_segment::offset_predicate(std::size_t offset) {
-    return [=](const text_segment& segment, const std::string&){
+    return [=](const text_segment& segment){
         if(segment.m_begin <= offset && offset < segment.m_end) {
             return true;
         }
@@ -84,5 +84,5 @@ wall_e::text_segment::predicate wall_e::text_segment::offset_predicate(std::size
 }
 
 wall_e::text_segment::predicate wall_e::text_segment::eq_predicate(const text_segment &other) {
-    return [=](const text_segment& segment, const std::string&){ return segment == other; };
+    return [=](const text_segment& segment){ return segment == other; };
 }

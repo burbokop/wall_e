@@ -17,7 +17,8 @@ enum { UndefinedToken };
 }
 
 std::string trim(const std::string& string, char delim = ' ');
-std::string encode_special_syms(std::string str);
+std::string replace(std::string str, const wall_e::vec<wall_e::pair<std::string, std::string>>& mapping);
+std::string encode_special_syms(const std::string& str);
 
 void remove_character(std::string* text, char c);
 std::string remove_character(std::string text, char c);
