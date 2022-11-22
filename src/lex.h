@@ -43,7 +43,7 @@ struct token {
     std::string name;
     std::string text;
     std::string::size_type position = -1;
-    uint8_t meta = 0;
+    //uint8_t meta = 0;
     bool undefined = false;
 
     text_segment segment() const;

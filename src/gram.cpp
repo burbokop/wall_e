@@ -1,17 +1,11 @@
 #include "gram.h"
 
 #include <filesystem>
-#include <iostream>
 #include <string.h>
 #include <cassert>
 #include <fstream>
 #include <streambuf>
 #include "color.h"
-#include "wall_e/src/utility/defer.h"
-#ifdef __linux__
-#include <boost/iostreams/tee.hpp>
-#include <boost/iostreams/stream.hpp>
-#endif
 
 namespace wall_e {
 namespace gram {

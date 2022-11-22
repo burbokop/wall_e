@@ -15,6 +15,33 @@ bool wall_e::text_segment::valid_direction() const {
     return m_begin < m_end;
 }
 
+wall_e::list<wall_e::text_segment> wall_e::text_segment::split_by_mask(const list<text_segment> &mask) const {
+    list<text_segment> result;
+    auto it = mask.begin();
+    for(; it != mask.end(); ++it) {
+        const auto item = *this * *it;
+        if(item.valid_direction()) {
+            result.push_back(item);
+        }
+        if(it->m_begin >= m_end) break;
+    }
+    return result;
+}
+
+wall_e::list<wall_e::text_segment> wall_e::text_segment::lines(const std::string& uri, const std::string &text, bool including_endl) {
+    wall_e::list<wall_e::text_segment> result;
+    std::size_t current_line_start = 0;
+    std::size_t i = 0;
+    for(const auto& c : text) {
+        if(c == '\n') {
+            result.push_back(text_segment(uri, current_line_start, i + (including_endl ? 1 : 0)));
+            current_line_start = i + 1;
+        }
+        ++i;
+    }
+    return result;
+}
+
 wall_e::text_segment::text_segment() {}
 
 wall_e::text_segment::text_segment(const std::string &uri, std::string::size_type begin, std::string::size_type end)
@@ -35,7 +62,7 @@ wall_e::text_segment wall_e::operator+(const wall_e::text_segment &seg0, const w
     }
 }
 
-wall_e::text_segment operator*(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1) {
+wall_e::text_segment wall_e::operator*(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1) {
     if(seg0.uri() == seg1.uri()) {
         return wall_e::text_segment(
             seg0.uri(),

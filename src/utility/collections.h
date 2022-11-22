@@ -116,6 +116,20 @@ inline C<R, RAlloc>& filter_map_collection(C<R, RAlloc>& output, const C<T, Allo
     } return output;
 }
 
+
+template<typename T, typename Alloc, template <typename, typename> typename C>
+inline std::pair<C<T, Alloc>, C<T, Alloc>>& divide_collection(std::pair<C<T, Alloc>, C<T, Alloc>>& output, const C<T, Alloc>& input, const std::function<bool(const T&)>& to_first) {
+    for(const auto& i : input) {
+        if(to_first(i)) {
+            output.first.push_back(i);
+        } else {
+            output.second.push_back(i);
+        }
+    }
+    return output;
+}
+
+
 //template<typename R, typename T, typename Alloc, template <typename, typename> typename C>
 //inline C<const R&, Alloc>& filter_map_collection(C<R, Alloc>& output, const C<T, Alloc>& input, const std::function<const R&(const T&)>& f) {
 //    for(const auto& i : input) {
@@ -294,6 +308,16 @@ public:
     }
 
     inline std::string join(const std::string& delim) const { return wall_e::join(*this, delim); }
+
+    typedef std::pair<vec<T, Alloc>, vec<T, Alloc>> divide_result;
+
+    inline divide_result divide(const std::function<bool(const T&)>& to_first) const {
+        divide_result result;
+        result.first.reserve(this->size());
+        result.second.reserve(this->size());
+        return divide_collection(result, *this, to_first);
+    }
+
 };
 
 

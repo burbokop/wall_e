@@ -1,6 +1,7 @@
 #ifndef WALL_E_TEXT_SEGMENT_H
 #define WALL_E_TEXT_SEGMENT_H
 
+#include "../utility/collections.h"
 #include <string>
 #include <functional>
 
@@ -28,6 +29,9 @@ public:
     static predicate eq_predicate(const text_segment& other);
 
     bool valid_direction() const;
+
+    list<text_segment> split_by_mask(const list<text_segment>& mask) const;
+    static list<text_segment> lines(const std::string& uri, const std::string& text, bool including_endl = true);
 };
 
 wall_e::text_segment operator+(const wall_e::text_segment &seg0, const wall_e::text_segment &seg1);

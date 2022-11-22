@@ -1,7 +1,6 @@
 #include "tree_view_tools.h"
 #include "../lex.h"
 
-#include <iostream>
 #include <stdio.h>
 
 static void kgram_ctoxy(int XPos, int YPos) {
