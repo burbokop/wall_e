@@ -380,6 +380,9 @@ public:
     inline bool contains(const std::function<bool(const T& value)>& predicate) const {
         return std::find_if(this->begin(), this->end(), predicate) != this->end();
     }
+    inline bool contains(const T& value) const {
+        return std::find(this->begin(), this->end(), value) != this->end();
+    }
 };
 
 template<typename T1, typename T2>

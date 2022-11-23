@@ -98,6 +98,7 @@ class environment {
 public:
     environment(const std::string& uri) : m_uri(uri) {}
     const std::string& uri() const { return m_uri; }
+    virtual bool verbose() const = 0;
     virtual ~environment() {}
 };
 

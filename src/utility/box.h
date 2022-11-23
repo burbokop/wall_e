@@ -33,6 +33,22 @@ class box_list {
     wall_e::list<T*> m_data;
 public:
     box_list() {}
+
+    class factory {
+        friend box_list;
+        std::function<wall_e::list<T*>()> m_f;
+        factory(const std::function<wall_e::list<T*>()>& f) : m_f(f) {}
+    public:
+        factory() {}
+        template<typename ...TT>
+        static factory make() {
+            return factory([]{ return wall_e::list<T*> { new TT() ... }; });
+        }
+    };
+
+    template<typename ...TT>
+    box_list(const factory& f) : m_data(f.m_f ? f.m_f() : list<T*> {}) {}
+
     box_list(const box_list& value) = delete;
     void operator=(const box_list& value) = delete;
     void operator=(box_list&& value) = delete;
